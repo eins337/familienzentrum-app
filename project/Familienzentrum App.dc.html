@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/nocturne-61379de1-510c-436e-ad2d-aad4b3d9b8b0/styles.css">
+<script src="_ds/nocturne-61379de1-510c-436e-ad2d-aad4b3d9b8b0/_ds_bundle.js"></script>
+<script src="./image-slot.js"></script>
+<style>
+body{margin:0;background:#161826;color:#e9e9ed}
+a{color:var(--color-accent);text-decoration:none}
+a:hover{color:var(--color-accent-300)}
+@keyframes sheetUp{from{transform:translateY(14px);opacity:.4}to{transform:translateY(0);opacity:1}}
+</style>
+</helmet>
+
+<div style="min-height:100vh;padding:24px 16px 40px;display:flex;flex-direction:column;align-items:center;gap:14px;background:var(--color-bg);font-family:var(--font-body)">
+
+  <div style="width:100%;max-width:430px;display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap">
+    <div style="margin-right:auto">
+      <div style="font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--color-accent)">Prototyp</div>
+      <div style="font-family:var(--font-heading);font-weight:500;font-size:19px;line-height:1.2">Ev. Familienzentrum Lank</div>
+    </div>
+    <div class="seg" role="group" aria-label="Rolle">
+      <button class="seg-opt" style="background:transparent;border:0;color:{{ elternColor }};box-shadow:{{ elternRing }};font-family:var(--font-body)" onClick="{{ setEltern }}">Eltern</button>
+      <button class="seg-opt" style="background:transparent;border:0;border-left:1px solid var(--color-divider);color:{{ teamColor }};box-shadow:{{ teamRing }};font-family:var(--font-body)" onClick="{{ setTeam }}">Kita-Team</button>
+    </div>
+  </div>
+
+  <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+    <div style="position:relative;height:100%;display:flex;flex-direction:column;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);overflow:hidden">
+
+      <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;display:flex;flex-direction:column;padding:100px 26px 46px;gap:0">
+          <div style="width:52px;height:52px;border-radius:16px;border:1px solid var(--color-accent);display:grid;place-items:center;font-family:var(--font-heading);font-size:17px;color:var(--color-accent)">FZ</div>
+          <h3 style="margin:22px 0 6px;font-size:27px">Willkommen im<br>Familienzentrum Lank</h3>
+          <p style="margin:0;font-size:13.5px;color:var(--color-neutral-400);max-width:250px">Der geschützte Treffpunkt für Eltern, Kinder und das Kita-Team. Melde dich mit dem Code aus deinem Elternbrief an.</p>
+          <div style="height:26px"></div>
+          <div class="field" style="margin-bottom:10px"><label>E-Mail</label><input class="input" value="sandra.weber@example.de"></div>
+          <div class="field"><label>Zugangscode</label><input class="input" value="LANK-2026" type="text"></div>
+          <button class="btn btn-primary btn-block" style="margin-top:16px;padding:10px" onClick="{{ doLogin }}">Anmelden</button>
+          <button class="btn btn-ghost btn-block" style="margin-top:2px;font-size:12.5px">Code vergessen?</button>
+          <div style="margin-top:auto;display:flex;gap:8px;align-items:flex-start;font-size:11px;line-height:1.45;color:var(--color-neutral-500)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="1.6" style="flex:none;margin-top:1px"><rect x="4" y="10" width="16" height="11" rx="2.5"></rect><path d="M8 10V7.5a4 4 0 0 1 8 0V10"></path></svg>
+            <span>Geschlossener Bereich. Nur angemeldete Familien und Mitarbeitende sehen Inhalte und Fotos.</span>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ appVisible }}" hint-placeholder-val="{{ true }}">
+        <div style="flex:none;padding:52px 16px 8px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--color-divider)">
+          <sc-if value="{{ showBack }}" hint-placeholder-val="{{ false }}">
+            <button class="btn btn-icon" style="border:1px solid var(--color-divider);flex:none" aria-label="Zurück" onClick="{{ goBack }}">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 6l-6 6 6 6"></path></svg>
+            </button>
+          </sc-if>
+          <div style="line-height:1.15;min-width:0">
+            <div style="font-family:var(--font-heading);font-weight:500;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ headerTitle }}</div>
+            <div style="font-size:10px;color:var(--color-neutral-500)">{{ headerSub }}</div>
+          </div>
+          <button class="btn btn-icon" style="margin-left:auto;flex:none;position:relative;border:1px solid var(--color-divider)" aria-label="Mitteilungen" onClick="{{ openMitteilungen }}">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6.5 9.5a5.5 5.5 0 0 1 11 0c0 4.5 1.5 6 1.5 6H5s1.5-1.5 1.5-6Z"></path><path d="M9.7 19a2.5 2.5 0 0 0 4.6 0"></path></svg>
+            <sc-if value="{{ hasUnread }}" hint-placeholder-val="{{ true }}"><span style="position:absolute;top:6px;right:7px;width:6px;height:6px;border-radius:50%;background:var(--color-accent)"></span></sc-if>
+          </button>
+        </div>
+
+        <div style="flex:1;overflow:auto;padding:12px 16px 22px;display:flex;flex-direction:column;gap:10px">
+
+          <sc-if value="{{ isFeed }}" hint-placeholder-val="{{ true }}">
+            <sc-if value="{{ isTeam }}" hint-placeholder-val="{{ false }}">
+              <button class="btn btn-primary btn-block" style="justify-content:flex-start;gap:8px;margin-top:0;padding:9px 11px" onClick="{{ openPost }}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 5v14M5 12h14"></path></svg>
+                Beitrag oder Info erstellen
+              </button>
+            </sc-if>
+
+            <div class="card elev-sm" style="gap:8px;border-left:2px solid var(--color-accent)">
+              <div style="display:flex;align-items:center;gap:6px">
+                <span class="tag tag-accent">Angepinnt</span>
+                <span style="font-size:11px;color:var(--color-neutral-500);margin-left:auto">Mo, 07.09.</span>
+              </div>
+              <div class="card-title" style="font-size:16px">Elternbrief September</div>
+              <p class="card-body" style="margin:0">Alle Termine fürs Herbstquartal, die neuen Bringzeiten und Infos zum Laternenfest. Bitte bis Freitag anschauen.</p>
+              <div style="display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:var(--radius-sm);background:var(--color-neutral-900)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="1.6"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"></path><path d="M14 3v5h5"></path></svg>
+                <span style="font-size:12px">Elternbrief_09.pdf</span>
+                <span style="font-size:10px;color:var(--color-neutral-500);margin-left:auto">248 KB</span>
+              </div>
+            </div>
+
+            <div class="card elev-sm" style="gap:8px;padding:0;overflow:hidden;flex:none">
+              <div style="padding:10px 10px 0;display:flex;align-items:center;gap:8px">
+                <span style="width:24px;height:24px;flex:none;border-radius:50%;background:{{ blauFarbe }};display:grid;place-items:center;font-size:10px;color:#161826;font-family:var(--font-heading)">B</span>
+                <div style="line-height:1.2;min-width:0">
+                  <div style="font-size:12.5px;font-family:var(--font-heading);font-weight:500">Gruppe Blau</div>
+                  <div style="font-size:10px;color:var(--color-neutral-500)">Frau Özdemir · vor 3 Std.</div>
+                </div>
+                <sc-if value="{{ privacy }}" hint-placeholder-val="{{ true }}">
+                  <span class="tag tag-neutral" style="margin-left:auto;flex:none;gap:4px">
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="margin-right:4px"><rect x="4" y="10" width="16" height="11" rx="2.5"></rect><path d="M8 10V7.5a4 4 0 0 1 8 0V10"></path></svg>
+                    Nur Gruppe
+                  </span>
+                </sc-if>
+              </div>
+              <div style="height:168px" class="lighten">
+                <image-slot id="fz-waldtag" shape="rect" placeholder="Foto vom Waldtag"></image-slot>
+              </div>
+              <div style="padding:0 10px 9px;display:flex;flex-direction:column;gap:7px">
+                <p style="margin:0;font-size:13px;line-height:1.5">Unser Waldtag war ein Fest: Kastanien gesammelt, ein Blätterhaus gebaut, Stockbrot am Feuer. Der nächste Waldtag ist Mittwoch — bitte Gummistiefel einpacken.</p>
+                <sc-if value="{{ privacy }}" hint-placeholder-val="{{ true }}">
+                  <div style="font-size:10.5px;color:var(--color-neutral-500);display:flex;align-items:center;gap:5px">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="flex:none"><circle cx="12" cy="12" r="9"></circle><path d="M12 7.6h.01M12 11v5.4"></path></svg>
+                    Fotos nur für Familien der Gruppe Blau · Speichern deaktiviert
+                  </div>
+                </sc-if>
+                <div style="display:flex;align-items:center;gap:4px;padding-top:4px;border-top:1px solid var(--color-divider)">
+                  <button class="btn btn-ghost" style="gap:6px;font-size:12px" onClick="{{ toggleHerz }}">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="{{ herzFill }}" stroke="currentColor" stroke-width="1.6"><path d="M12 20s-7-4.4-7-9.3A3.6 3.6 0 0 1 12 8a3.6 3.6 0 0 1 7 2.7C19 15.6 12 20 12 20Z"></path></svg>
+                    {{ herzCount }}
+                  </button>
+                  <button class="btn btn-ghost" style="gap:6px;font-size:12px">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4A8 8 0 1 1 20 12Z"></path></svg>
+                    4
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="card elev-sm" style="gap:8px">
+              <div style="display:flex;align-items:center;gap:6px">
+                <span class="tag tag-outline">Helfer gesucht</span>
+                <span style="font-size:11px;color:var(--color-neutral-500);margin-left:auto">endet Freitag</span>
+              </div>
+              <div class="card-title" style="font-size:15px">Herbstfest: Wer bringt was mit?</div>
+              <button class="btn" style="justify-content:space-between;width:100%;border:1px solid {{ kuchenBorder }};font-size:13px;padding:8px 10px" onClick="{{ voteKuchen }}">
+                <span>Kuchen backen</span><span style="color:var(--color-neutral-400);font-size:12px">{{ kuchen }}</span>
+              </button>
+              <button class="btn" style="justify-content:space-between;width:100%;border:1px solid {{ salatBorder }};font-size:13px;padding:8px 10px" onClick="{{ voteSalat }}">
+                <span>Salat mitbringen</span><span style="color:var(--color-neutral-400);font-size:12px">{{ salat }}</span>
+              </button>
+              <button class="btn" style="justify-content:space-between;width:100%;border:1px solid {{ aufbauBorder }};font-size:13px;padding:8px 10px" onClick="{{ voteAufbau }}">
+                <span>Beim Aufbau helfen</span><span style="color:var(--color-neutral-400);font-size:12px">{{ aufbau }}</span>
+              </button>
+              <div style="font-size:10.5px;color:var(--color-neutral-500)">{{ voteHint }}</div>
+            </div>
+
+            <div class="card elev-sm" style="flex-direction:row;align-items:center;gap:12px">
+              <div style="text-align:center;flex:none;width:42px">
+                <div style="font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--color-accent)">Nov</div>
+                <div style="font-family:var(--font-heading);font-size:23px;line-height:1.1">11</div>
+              </div>
+              <div style="width:1px;align-self:stretch;background:var(--color-divider)"></div>
+              <div style="flex:1;min-width:0">
+                <div class="card-title" style="font-size:15px">Laternenfest</div>
+                <div style="font-size:11.5px;color:var(--color-neutral-400)">17:00 · Innenhof · alle Gruppen</div>
+              </div>
+              <button class="btn btn-primary" style="flex:none;font-size:12px" onClick="{{ toggleRsvp }}">{{ rsvpLabel }}</button>
+            </div>
+
+            <div class="card elev-sm" style="gap:8px;border-left:2px solid var(--color-neutral-600)">
+              <div style="display:flex;align-items:center;gap:6px">
+                <span class="tag tag-neutral">Hinweis</span>
+                <span style="font-size:11px;color:var(--color-neutral-500);margin-left:auto">Fr, 04.09.</span>
+              </div>
+              <div class="card-title" style="font-size:15px">Magen-Darm in Gruppe Rot</div>
+              <p class="card-body" style="margin:0">Drei Kinder sind erkrankt. Bitte melde dein Kind bis 8:30 telefonisch ab, wenn es Symptome hat, und lass es 48 Stunden zu Hause.</p>
+              <button class="btn btn-secondary" style="align-self:flex-start;font-size:12px" onClick="{{ openKrank }}">Kind krankmelden</button>
+            </div>
+
+            <div class="card elev-sm" style="gap:7px">
+              <div class="card-kicker">Speiseplan · diese Woche</div>
+              <div style="display:flex;flex-direction:column;gap:5px;font-size:12.5px">
+                <div style="display:flex;gap:10px"><span style="width:24px;color:var(--color-neutral-500)">Mo</span><span>Nudelauflauf mit Gemüse</span></div>
+                <div style="display:flex;gap:10px"><span style="width:24px;color:var(--color-neutral-500)">Di</span><span>Linsensuppe mit Brot</span></div>
+                <div style="display:flex;gap:10px"><span style="width:24px;color:var(--color-neutral-500)">Mi</span><span>Kartoffelpuffer, Apfelmus</span></div>
+                <div style="display:flex;gap:10px"><span style="width:24px;color:var(--color-neutral-500)">Do</span><span>Hähnchenfrikassee, Reis</span></div>
+                <div style="display:flex;gap:10px"><span style="width:24px;color:var(--color-neutral-500)">Fr</span><span>Milchreis mit Kirschen</span></div>
+              </div>
+            </div>
+
+            <button class="btn btn-secondary btn-block" style="font-size:12.5px" onClick="{{ openInfos }}">Alle Infos &amp; Termine</button>
+          </sc-if>
+
+          <sc-if value="{{ isGruppen }}" hint-placeholder-val="{{ false }}">
+            <p style="margin:0 0 2px;font-size:12px;color:var(--color-neutral-500)">Jede Gruppe hat einen eigenen Feed, eigene Termine und einen Elternchat.</p>
+            <button class="card elev-sm" style="border:0;border-left:2px solid {{ blauFarbe }};text-align:left;cursor:pointer;flex-direction:row;align-items:center;gap:11px;color:inherit;font-family:var(--font-body)" onClick="{{ openBlau }}">
+              <span style="width:34px;height:34px;flex:none;border-radius:11px;background:{{ blauFarbe }};display:grid;place-items:center;font-family:var(--font-heading);font-size:14px;color:#161826">B</span>
+              <span style="flex:1;min-width:0">
+                <span style="display:block;font-family:var(--font-heading);font-weight:500;font-size:15px">Blau</span>
+                <span style="display:block;font-size:11.5px;color:var(--color-neutral-400)">18 Kinder · Frau Özdemir, Herr Klein</span>
+              </span>
+              <span class="tag tag-accent" style="flex:none">2 neu</span>
+            </button>
+            <button class="card elev-sm" style="border:0;border-left:2px solid {{ gelbFarbe }};text-align:left;cursor:pointer;flex-direction:row;align-items:center;gap:11px;color:inherit;font-family:var(--font-body)" onClick="{{ openGelb }}">
+              <span style="width:34px;height:34px;flex:none;border-radius:11px;background:{{ gelbFarbe }};display:grid;place-items:center;font-family:var(--font-heading);font-size:14px;color:#161826">G</span>
+              <span style="flex:1;min-width:0">
+                <span style="display:block;font-family:var(--font-heading);font-weight:500;font-size:15px">Gelb</span>
+                <span style="display:block;font-size:11.5px;color:var(--color-neutral-400)">16 Kinder · Frau Bergmann</span>
+              </span>
+            </button>
+            <button class="card elev-sm" style="border:0;border-left:2px solid {{ rotFarbe }};text-align:left;cursor:pointer;flex-direction:row;align-items:center;gap:11px;color:inherit;font-family:var(--font-body)" onClick="{{ openRot }}">
+              <span style="width:34px;height:34px;flex:none;border-radius:11px;background:{{ rotFarbe }};display:grid;place-items:center;font-family:var(--font-heading);font-size:14px;color:#161826">R</span>
+              <span style="flex:1;min-width:0">
+                <span style="display:block;font-family:var(--font-heading);font-weight:500;font-size:15px">Rot</span>
+                <span style="display:block;font-size:11.5px;color:var(--color-neutral-400)">21 Kinder · Frau Haas, Frau Nowak</span>
+              </span>
+              <span class="tag tag-accent" style="flex:none">1 neu</span>
+            </button>
+            <div class="card" style="background:transparent;box-shadow:var(--shadow-sm);gap:9px;margin-top:6px">
+              <div class="card-kicker">Übergreifend</div>
+              <div style="display:flex;flex-direction:column;gap:9px;font-size:13px">
+                <div style="display:flex;gap:9px;align-items:center"><span style="width:5px;height:5px;flex:none;border-radius:50%;background:var(--color-accent)"></span>Elternbeirat</div>
+                <div style="display:flex;gap:9px;align-items:center"><span style="width:5px;height:5px;flex:none;border-radius:50%;background:var(--color-accent)"></span>Vorschulkinder 2026</div>
+                <div style="display:flex;gap:9px;align-items:center"><span style="width:5px;height:5px;flex:none;border-radius:50%;background:var(--color-accent)"></span>Familientreff am Samstag</div>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isGruppe }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:11px">
+              <span style="width:40px;height:40px;flex:none;border-radius:13px;background:{{ gFarbe }};display:grid;place-items:center;font-family:var(--font-heading);font-size:16px;color:#161826">{{ gInitial }}</span>
+              <div style="min-width:0">
+                <h4 style="margin:0;font-size:19px">Gruppe {{ gName }}</h4>
+                <div style="font-size:11.5px;color:var(--color-neutral-400)">{{ gMeta }}</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:6px;margin:2px 0">
+              <button class="btn btn-secondary" style="flex:1;font-size:12px" onClick="{{ openChats }}">Elternchat</button>
+              <button class="btn btn-secondary" style="flex:1;font-size:12px" onClick="{{ openSpielNeu }}">Spielanfrage</button>
+            </div>
+            <div class="card elev-sm" style="gap:7px">
+              <div style="display:flex;gap:6px;align-items:center">
+                <span style="font-size:10.5px;color:var(--color-neutral-500)">{{ gPost1Meta }}</span>
+                <sc-if value="{{ privacy }}" hint-placeholder-val="{{ true }}"><span class="tag tag-neutral" style="margin-left:auto">Nur Gruppe</span></sc-if>
+              </div>
+              <div class="card-title" style="font-size:15px">{{ gPost1Titel }}</div>
+              <p class="card-body" style="margin:0">{{ gPost1Text }}</p>
+            </div>
+            <div class="card elev-sm" style="gap:7px">
+              <div style="font-size:10.5px;color:var(--color-neutral-500)">{{ gPost2Meta }}</div>
+              <div class="card-title" style="font-size:15px">{{ gPost2Titel }}</div>
+              <p class="card-body" style="margin:0">{{ gPost2Text }}</p>
+            </div>
+            <div class="card elev-sm" style="gap:10px">
+              <div class="card-kicker">Team der Gruppe</div>
+              <div style="display:flex;align-items:center;gap:9px">
+                <span style="width:28px;height:28px;flex:none;border-radius:50%;background:var(--color-neutral-800)"></span>
+                <span style="font-size:13px">{{ gErz1 }}</span>
+                <span style="margin-left:auto;font-size:11px;color:var(--color-neutral-500)">Gruppenleitung</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:9px">
+                <span style="width:28px;height:28px;flex:none;border-radius:50%;background:var(--color-neutral-800)"></span>
+                <span style="font-size:13px">{{ gErz2 }}</span>
+                <span style="margin-left:auto;font-size:11px;color:var(--color-neutral-500)">Fachkraft</span>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isPost }}" hint-placeholder-val="{{ false }}">
+            <div class="field"><label>Titel</label><input class="input" placeholder="z.B. Unser Waldtag" value="{{ postTitel }}" onChange="{{ setPostTitel }}"></div>
+            <div class="field"><label>Text</label><textarea class="input" style="min-height:96px" placeholder="Schreib den Eltern, was heute los war …">{{ postText }}</textarea></div>
+            <div class="field">
+              <label>Art des Beitrags</label>
+              <div style="display:flex;flex-wrap:wrap;gap:6px">
+                <button class="btn" style="font-size:12px;border:1px solid {{ artFotoB }};color:{{ artFotoC }}" onClick="{{ setArtFoto }}">Foto-Beitrag</button>
+                <button class="btn" style="font-size:12px;border:1px solid {{ artInfoB }};color:{{ artInfoC }}" onClick="{{ setArtInfo }}">Info / Elternbrief</button>
+                <button class="btn" style="font-size:12px;border:1px solid {{ artTerminB }};color:{{ artTerminC }}" onClick="{{ setArtTermin }}">Termin</button>
+                <button class="btn" style="font-size:12px;border:1px solid {{ artUmfrageB }};color:{{ artUmfrageC }}" onClick="{{ setArtUmfrage }}">Umfrage</button>
+              </div>
+            </div>
+            <div class="field">
+              <label>Sichtbar für</label>
+              <div style="display:flex;flex-direction:column;gap:8px;padding:9px 10px;border-radius:var(--radius-md);background:var(--color-surface)">
+                <label class="radio"><input type="radio" name="sicht" checked="{{ sichtAlle }}" onChange="{{ setSichtAlle }}"><span class="dot"></span>Alle Familien</label>
+                <label class="radio"><input type="radio" name="sicht" checked="{{ sichtBlau }}" onChange="{{ setSichtBlau }}"><span class="dot"></span>Nur Gruppe Blau</label>
+                <label class="radio"><input type="radio" name="sicht" checked="{{ sichtBeirat }}" onChange="{{ setSichtBeirat }}"><span class="dot"></span>Nur Elternbeirat</label>
+              </div>
+            </div>
+            <sc-if value="{{ istFoto }}" hint-placeholder-val="{{ true }}">
+              <div>
+                <div style="font-size:12px;margin-bottom:5px;color:var(--color-neutral-400)">Fotos</div>
+                <div style="display:flex;gap:7px">
+                  <div style="width:78px;height:78px" class="lighten"><image-slot id="fz-neu-1" placeholder="Foto"></image-slot></div>
+                  <div style="width:78px;height:78px" class="lighten"><image-slot id="fz-neu-2" placeholder="Foto"></image-slot></div>
+                  <div style="width:78px;height:78px;border-radius:12px;border:1px dashed var(--color-neutral-700);display:grid;place-items:center;color:var(--color-neutral-600)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14"></path></svg>
+                  </div>
+                </div>
+                <sc-if value="{{ privacy }}" hint-placeholder-val="{{ true }}">
+                  <div style="margin-top:8px;display:flex;gap:8px;align-items:flex-start;padding:9px 10px;border-radius:var(--radius-md);background:var(--color-accent-900);font-size:11.5px;line-height:1.45">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-300)" stroke-width="1.7" style="flex:none;margin-top:1px"><circle cx="12" cy="12" r="9"></circle><path d="M12 7.6h.01M12 11v5.4"></path></svg>
+                    <span style="color:var(--color-accent-200)">2 Kinder auf diesen Fotos haben keine Fotofreigabe. Prüfe die Auswahl, bevor du veröffentlichst.</span>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-if>
+            <div style="display:flex;gap:7px;margin-top:4px">
+              <button class="btn btn-secondary" style="flex:1;font-size:12.5px" onClick="{{ goBack }}">Verwerfen</button>
+              <button class="btn btn-primary" style="flex:1.4;font-size:12.5px" onClick="{{ publish }}">Veröffentlichen</button>
+            </div>
+            <div style="font-size:10.5px;color:var(--color-neutral-500);text-align:center">{{ publishHint }}</div>
+          </sc-if>
+
+          <sc-if value="{{ isChats }}" hint-placeholder-val="{{ false }}">
+            <div class="field"><input class="input" placeholder="Familien oder Chats suchen"></div>
+            <button class="card elev-sm" style="border:0;cursor:pointer;text-align:left;flex-direction:row;gap:10px;align-items:flex-start;color:inherit;font-family:var(--font-body)" onClick="{{ openChat }}">
+              <span style="width:32px;height:32px;flex:none;border-radius:50%;background:var(--color-neutral-800);display:grid;place-items:center;font-size:11px;font-family:var(--font-heading)">SW</span>
+              <span style="flex:1;min-width:0">
+                <span style="display:flex;align-items:baseline;gap:6px">
+                  <span style="font-family:var(--font-heading);font-weight:500;font-size:14px">Sandra Weber</span>
+                  <span style="margin-left:auto;font-size:10px;color:var(--color-neutral-500)">14:20</span>
+                </span>
+                <span style="display:block;font-size:10px;color:{{ blauFarbe }}">Mama von Jonas · Gruppe Blau</span>
+                <span style="display:block;font-size:12.5px;color:var(--color-neutral-400);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px">Freitag passt uns gut! Sollen wir zu euch …</span>
+              </span>
+              <span style="flex:none;width:7px;height:7px;border-radius:50%;background:var(--color-accent);margin-top:7px"></span>
+            </button>
+            <div class="card elev-sm" style="flex-direction:row;gap:10px;align-items:flex-start">
+              <span style="width:32px;height:32px;flex:none;border-radius:50%;background:{{ blauFarbe }};display:grid;place-items:center;font-size:11px;font-family:var(--font-heading);color:#161826">B</span>
+              <div style="flex:1;min-width:0">
+                <div style="display:flex;align-items:baseline;gap:6px">
+                  <span style="font-family:var(--font-heading);font-weight:500;font-size:14px">Eltern Gruppe Blau</span>
+                  <span style="margin-left:auto;font-size:10px;color:var(--color-neutral-500)">Di</span>
+                </div>
+                <div style="font-size:12.5px;color:var(--color-neutral-400);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Murat: Wer fährt Samstag zum Spielplatz?</div>
+              </div>
+            </div>
+            <div class="card elev-sm" style="flex-direction:row;gap:10px;align-items:flex-start">
+              <span style="width:32px;height:32px;flex:none;border-radius:50%;background:var(--color-neutral-800);display:grid;place-items:center;font-size:11px;font-family:var(--font-heading)">FK</span>
+              <div style="flex:1;min-width:0">
+                <div style="display:flex;align-items:baseline;gap:6px">
+                  <span style="font-family:var(--font-heading);font-weight:500;font-size:14px">Familie Kaya</span>
+                  <span style="margin-left:auto;font-size:10px;color:var(--color-neutral-500)">Mo</span>
+                </div>
+                <div style="font-size:12.5px;color:var(--color-neutral-400);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Danke fürs Mitnehmen heute früh!</div>
+              </div>
+            </div>
+            <div class="card elev-sm" style="flex-direction:row;gap:10px;align-items:flex-start;opacity:.75">
+              <span style="width:32px;height:32px;flex:none;border-radius:50%;border:1px solid var(--color-accent);display:grid;place-items:center;font-size:10px;font-family:var(--font-heading);color:var(--color-accent)">FZ</span>
+              <div style="flex:1;min-width:0">
+                <div style="display:flex;align-items:baseline;gap:6px">
+                  <span style="font-family:var(--font-heading);font-weight:500;font-size:14px">Kita-Team</span>
+                  <span style="margin-left:auto;font-size:10px;color:var(--color-neutral-500)">Fr</span>
+                </div>
+                <div style="font-size:12.5px;color:var(--color-neutral-400);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Frau Özdemir: Jonas' Wechselsachen sind leer.</div>
+              </div>
+            </div>
+            <sc-if value="{{ privacy }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;gap:8px;align-items:flex-start;padding:9px 10px;border-radius:var(--radius-md);background:var(--color-neutral-900);font-size:11px;line-height:1.45;color:var(--color-neutral-400)">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="1.7" style="flex:none;margin-top:1px"><rect x="4" y="10" width="16" height="11" rx="2.5"></rect><path d="M8 10V7.5a4 4 0 0 1 8 0V10"></path></svg>
+                <span>Du siehst nur Familien, die ihre Kontaktdaten für den Elternchat freigegeben haben.</span>
+              </div>
+            </sc-if>
+          </sc-if>
+
+          <sc-if value="{{ isChat }}" hint-placeholder-val="{{ false }}">
+            <div style="text-align:center;font-size:10.5px;color:var(--color-neutral-500);margin-bottom:2px">Heute</div>
+            <sc-for list="{{ messages }}" as="m" hint-placeholder-count="4">
+              <div style="display:flex;justify-content:{{ m.justify }}">
+                <div style="max-width:78%;padding:8px 11px;border-radius:14px;background:{{ m.bg }};border:1px solid {{ m.border }};font-size:13px;line-height:1.45">
+                  {{ m.text }}
+                  <div style="font-size:9.5px;color:var(--color-neutral-500);margin-top:3px;text-align:right">{{ m.time }}</div>
+                </div>
+              </div>
+            </sc-for>
+            <sc-if value="{{ chatHasCard }}" hint-placeholder-val="{{ true }}">
+              <div class="card elev-sm" style="gap:8px;border-left:2px solid var(--color-accent);align-self:flex-start;max-width:88%">
+                <div class="card-kicker">Spielanfrage</div>
+                <div class="card-title" style="font-size:14.5px">Jonas &amp; Mia · Freitag 15:00</div>
+                <div style="font-size:12px;color:var(--color-neutral-400)">Spielplatz Nierster Straße · bis ca. 17:00</div>
+                <div style="display:flex;gap:6px">
+                  <button class="btn btn-primary" style="flex:1;font-size:12px" onClick="{{ acceptPlay }}">{{ playAcceptLabel }}</button>
+                  <button class="btn btn-secondary" style="flex:none;font-size:12px" onClick="{{ proposeOther }}">Anderer Termin</button>
+                </div>
+              </div>
+            </sc-if>
+            <div style="display:flex;gap:7px;align-items:center;margin-top:auto;padding-top:8px">
+              <input class="input" placeholder="Nachricht schreiben" value="{{ draft }}" onChange="{{ setDraft }}" style="flex:1">
+              <button class="btn btn-primary btn-icon" style="flex:none" aria-label="Senden" onClick="{{ send }}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 12l16-8-6 16-2.5-6.5L4 12Z"></path></svg>
+              </button>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isSpiel }}" hint-placeholder-val="{{ false }}">
+            <button class="btn btn-primary btn-block" style="justify-content:flex-start;gap:8px;margin-top:0;padding:9px 11px" onClick="{{ openSpielNeu }}">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 5v14M5 12h14"></path></svg>
+              Neue Spielanfrage
+            </button>
+            <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent);margin-top:4px">Warten auf dich</div>
+            <div class="card elev-sm" style="gap:9px">
+              <div style="display:flex;align-items:center;gap:9px">
+                <span style="width:30px;height:30px;flex:none;border-radius:50%;background:var(--color-neutral-800);display:grid;place-items:center;font-size:10.5px;font-family:var(--font-heading)">LK</span>
+                <div style="min-width:0">
+                  <div style="font-size:13.5px;font-family:var(--font-heading);font-weight:500">Familie Kaya fragt an</div>
+                  <div style="font-size:11px;color:var(--color-neutral-500)">Elif (Rot) möchte mit Jonas spielen</div>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <div style="font-size:11.5px;color:var(--color-neutral-400)">Vorgeschlagene Termine — wähle, was passt:</div>
+                <button class="btn" style="justify-content:space-between;width:100%;font-size:12.5px;padding:8px 10px;border:1px solid {{ slot1Border }};color:{{ slot1Color }}" onClick="{{ pickSlot1 }}">
+                  <span>Do 11.09. · 15:00–17:00</span><span style="font-size:11px">bei Kaya</span>
+                </button>
+                <button class="btn" style="justify-content:space-between;width:100%;font-size:12.5px;padding:8px 10px;border:1px solid {{ slot2Border }};color:{{ slot2Color }}" onClick="{{ pickSlot2 }}">
+                  <span>Sa 13.09. · 10:00–12:00</span><span style="font-size:11px">Spielplatz</span>
+                </button>
+              </div>
+              <div style="display:flex;gap:6px">
+                <button class="btn btn-primary" style="flex:1;font-size:12px" onClick="{{ confirmSlot }}">{{ confirmLabel }}</button>
+                <button class="btn btn-secondary" style="flex:none;font-size:12px">Absagen</button>
+              </div>
+              <div style="font-size:10.5px;color:var(--color-neutral-500)">{{ slotHint }}</div>
+            </div>
+
+            <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent);margin-top:6px">Bestätigt</div>
+            <div class="card elev-sm" style="flex-direction:row;align-items:center;gap:12px">
+              <div style="text-align:center;flex:none;width:42px">
+                <div style="font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--color-accent)">Fr</div>
+                <div style="font-family:var(--font-heading);font-size:23px;line-height:1.1">12</div>
+              </div>
+              <div style="width:1px;align-self:stretch;background:var(--color-divider)"></div>
+              <div style="flex:1;min-width:0">
+                <div class="card-title" style="font-size:14.5px">Jonas &amp; Mia</div>
+                <div style="font-size:11.5px;color:var(--color-neutral-400)">15:00 · Spielplatz Nierster Straße</div>
+              </div>
+              <button class="btn btn-ghost" style="flex:none;font-size:12px" onClick="{{ openChat }}">Chat</button>
+            </div>
+
+            <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-500);margin-top:6px">Gesendet</div>
+            <div class="card elev-sm" style="gap:6px;opacity:.8">
+              <div style="display:flex;align-items:center;gap:6px">
+                <span class="tag tag-neutral">Wartet auf Antwort</span>
+                <span style="font-size:10.5px;color:var(--color-neutral-500);margin-left:auto">vor 1 Tag</span>
+              </div>
+              <div class="card-title" style="font-size:14.5px">Anfrage an Familie Brand</div>
+              <div style="font-size:11.5px;color:var(--color-neutral-400)">2 Terminvorschläge · Lina (Blau)</div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isSpielNeu }}" hint-placeholder-val="{{ false }}">
+            <div class="field">
+              <label>Wer möchte spielen?</label>
+              <div class="seg" style="width:100%">
+                <label class="seg-opt" style="flex:1;justify-content:center"><input type="radio" name="kind" checked><span>Jonas · Blau</span></label>
+                <label class="seg-opt" style="flex:1;justify-content:center"><input type="radio" name="kind"><span>Lina · Blau</span></label>
+              </div>
+            </div>
+            <div class="field">
+              <label>Anfrage an</label>
+              <div style="display:flex;flex-direction:column;gap:7px">
+                <button class="card" style="border:1px solid {{ famMiaBorder }};cursor:pointer;flex-direction:row;align-items:center;gap:9px;color:inherit;font-family:var(--font-body);text-align:left;padding:8px 10px" onClick="{{ pickMia }}">
+                  <span style="width:28px;height:28px;flex:none;border-radius:50%;background:var(--color-neutral-800);display:grid;place-items:center;font-size:10px;font-family:var(--font-heading)">SW</span>
+                  <span style="flex:1;min-width:0"><span style="display:block;font-size:13px">Mia Weber</span><span style="display:block;font-size:10.5px;color:var(--color-neutral-500)">Gruppe Blau · Familie Weber</span></span>
+                  <span style="flex:none;font-size:11px;color:{{ famMiaCheck }}">✓</span>
+                </button>
+                <button class="card" style="border:1px solid {{ famElifBorder }};cursor:pointer;flex-direction:row;align-items:center;gap:9px;color:inherit;font-family:var(--font-body);text-align:left;padding:8px 10px" onClick="{{ pickElif }}">
+                  <span style="width:28px;height:28px;flex:none;border-radius:50%;background:var(--color-neutral-800);display:grid;place-items:center;font-size:10px;font-family:var(--font-heading)">FK</span>
+                  <span style="flex:1;min-width:0"><span style="display:block;font-size:13px">Elif Kaya</span><span style="display:block;font-size:10.5px;color:var(--color-neutral-500)">Gruppe Rot · Familie Kaya</span></span>
+                  <span style="flex:none;font-size:11px;color:{{ famElifCheck }}">✓</span>
+                </button>
+                <button class="btn btn-ghost" style="align-self:flex-start;font-size:12px">Weitere Familie suchen</button>
+              </div>
+            </div>
+            <div class="field">
+              <label>Terminvorschläge</label>
+              <div style="display:flex;flex-direction:column;gap:7px">
+                <div style="display:flex;gap:6px;align-items:center;padding:8px 10px;border-radius:var(--radius-md);background:var(--color-surface);font-size:12.5px">
+                  <span>Do 11.09.</span><span style="color:var(--color-neutral-500)">15:00–17:00</span>
+                  <button class="btn btn-ghost btn-icon" style="margin-left:auto;width:24px;height:24px" aria-label="Entfernen">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+                  </button>
+                </div>
+                <div style="display:flex;gap:6px;align-items:center;padding:8px 10px;border-radius:var(--radius-md);background:var(--color-surface);font-size:12.5px">
+                  <span>Sa 13.09.</span><span style="color:var(--color-neutral-500)">10:00–12:00</span>
+                  <button class="btn btn-ghost btn-icon" style="margin-left:auto;width:24px;height:24px" aria-label="Entfernen">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+                  </button>
+                </div>
+                <button class="btn btn-secondary" style="align-self:flex-start;font-size:12px;gap:6px">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 5v14M5 12h14"></path></svg>
+                  Termin hinzufügen
+                </button>
+              </div>
+            </div>
+            <div class="field"><label>Ort</label><input class="input" value="Spielplatz Nierster Straße"></div>
+            <div class="field"><label>Nachricht (optional)</label><textarea class="input" style="min-height:70px">Hallo Sandra, Jonas fragt schon die ganze Woche nach Mia. Passt einer der Termine bei euch?</textarea></div>
+            <div style="display:flex;gap:7px;margin-top:2px">
+              <button class="btn btn-secondary" style="flex:1;font-size:12.5px" onClick="{{ goBack }}">Abbrechen</button>
+              <button class="btn btn-primary" style="flex:1.4;font-size:12.5px" onClick="{{ sendSpiel }}">Anfrage senden</button>
+            </div>
+            <div style="font-size:10.5px;color:var(--color-neutral-500);text-align:center">{{ spielHint }}</div>
+          </sc-if>
+
+          <sc-if value="{{ isProfil }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:56px;height:56px;flex:none;border-radius:18px;overflow:hidden" class="lighten"><image-slot id="fz-kind" shape="rounded" radius="18" placeholder="Foto"></image-slot></div>
+              <div style="min-width:0">
+                <h4 style="margin:0;font-size:20px">Jonas Weber</h4>
+                <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
+                  <span class="tag" style="background:{{ blauFarbe }};color:#161826">Gruppe Blau</span>
+                  <span style="font-size:11px;color:var(--color-neutral-500)">4 Jahre</span>
+                </div>
+              </div>
+            </div>
+            <div class="card elev-sm" style="gap:9px;margin-top:4px">
+              <div class="card-kicker">Familie</div>
+              <div style="display:flex;align-items:center;gap:9px">
+                <span style="width:28px;height:28px;flex:none;border-radius:50%;background:var(--color-neutral-800);display:grid;place-items:center;font-size:10px;font-family:var(--font-heading)">SW</span>
+                <span style="font-size:13px">Sandra Weber</span>
+                <span style="margin-left:auto;font-size:11px;color:var(--color-neutral-500)">Mutter · du</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:9px">
+                <span style="width:28px;height:28px;flex:none;border-radius:50%;background:var(--color-neutral-800);display:grid;place-items:center;font-size:10px;font-family:var(--font-heading)">TW</span>
+                <span style="font-size:13px">Tobias Weber</span>
+                <span style="margin-left:auto;font-size:11px;color:var(--color-neutral-500)">Vater</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:9px">
+                <span style="width:28px;height:28px;flex:none;border-radius:50%;background:var(--color-neutral-800);display:grid;place-items:center;font-size:10px;font-family:var(--font-heading)">OM</span>
+                <span style="font-size:13px">Oma Marlies</span>
+                <span style="margin-left:auto;font-size:11px;color:var(--color-neutral-500)">Abholberechtigt</span>
+              </div>
+            </div>
+            <div class="card elev-sm" style="gap:7px">
+              <div class="card-kicker">Wichtig für die Kita</div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px">
+                <span class="tag tag-outline">Nussallergie</span>
+                <span class="tag tag-neutral">Vegetarisch</span>
+                <span class="tag tag-neutral">Schläft mittags</span>
+              </div>
+            </div>
+            <div class="card elev-sm" style="gap:9px">
+              <div class="card-kicker">Freigaben</div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:13px">Fotofreigabe für Gruppen-Feed<span class="tag tag-accent" style="margin-left:auto">Aktiv</span></div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:13px">Kontakt im Elternchat sichtbar<span class="tag tag-accent" style="margin-left:auto">Aktiv</span></div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:13px">Fotos auf der Kita-Website<span class="tag tag-neutral" style="margin-left:auto">Aus</span></div>
+            </div>
+            <button class="btn btn-secondary btn-block" style="font-size:12.5px" onClick="{{ openKrank }}">Jonas krankmelden</button>
+            <button class="btn btn-secondary btn-block" style="font-size:12.5px" onClick="{{ openInfos }}">Infos &amp; Termine</button>
+            <button class="btn btn-secondary btn-block" style="font-size:12.5px" onClick="{{ openEinstellungen }}">Einstellungen</button>
+          </sc-if>
+
+          <sc-if value="{{ isInfos }}" hint-placeholder-val="{{ false }}">
+            <div class="seg" style="width:100%">
+              <label class="seg-opt" style="flex:1;justify-content:center"><input type="radio" name="infotab" checked><span>Termine</span></label>
+              <label class="seg-opt" style="flex:1;justify-content:center"><input type="radio" name="infotab"><span>Dokumente</span></label>
+            </div>
+            <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent);margin-top:6px">September</div>
+            <div class="card elev-sm" style="flex-direction:row;gap:12px;align-items:center">
+              <div style="text-align:center;flex:none;width:38px"><div style="font-size:10px;color:var(--color-neutral-500)">Mi</div><div style="font-family:var(--font-heading);font-size:20px;line-height:1.1">10</div></div>
+              <div style="width:1px;align-self:stretch;background:var(--color-divider)"></div>
+              <div style="flex:1;min-width:0"><div style="font-size:14px;font-family:var(--font-heading);font-weight:500">Waldtag Gruppe Blau</div><div style="font-size:11.5px;color:var(--color-neutral-400)">8:30 · Gummistiefel &amp; Rucksack</div></div>
+            </div>
+            <div class="card elev-sm" style="flex-direction:row;gap:12px;align-items:center">
+              <div style="text-align:center;flex:none;width:38px"><div style="font-size:10px;color:var(--color-neutral-500)">Fr</div><div style="font-family:var(--font-heading);font-size:20px;line-height:1.1">19</div></div>
+              <div style="width:1px;align-self:stretch;background:var(--color-divider)"></div>
+              <div style="flex:1;min-width:0"><div style="font-size:14px;font-family:var(--font-heading);font-weight:500">Elternabend</div><div style="font-size:11.5px;color:var(--color-neutral-400)">19:30 · Mehrzweckraum</div></div>
+              <button class="btn btn-primary" style="flex:none;font-size:11.5px">Zusagen</button>
+            </div>
+            <div class="card elev-sm" style="flex-direction:row;gap:12px;align-items:center">
+              <div style="text-align:center;flex:none;width:38px"><div style="font-size:10px;color:var(--color-neutral-500)">Sa</div><div style="font-family:var(--font-heading);font-size:20px;line-height:1.1">27</div></div>
+              <div style="width:1px;align-self:stretch;background:var(--color-divider)"></div>
+              <div style="flex:1;min-width:0"><div style="font-size:14px;font-family:var(--font-heading);font-weight:500">Herbstfest</div><div style="font-size:11.5px;color:var(--color-neutral-400)">14:00 · Garten · Helfer gesucht</div></div>
+            </div>
+            <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent);margin-top:6px">Ferien &amp; Schließtage</div>
+            <div class="card elev-sm" style="gap:6px;font-size:12.5px">
+              <div style="display:flex"><span>Herbstferien</span><span style="margin-left:auto;color:var(--color-neutral-400)">12.–16.10.</span></div>
+              <div style="display:flex"><span>Konzeptionstag</span><span style="margin-left:auto;color:var(--color-neutral-400)">06.11.</span></div>
+              <div style="display:flex"><span>Weihnachtsschließung</span><span style="margin-left:auto;color:var(--color-neutral-400)">23.12.–02.01.</span></div>
+            </div>
+            <div class="card elev-sm" style="gap:8px">
+              <div class="card-kicker">Kontakt</div>
+              <div style="font-size:13px;line-height:1.6">Ev. Familienzentrum Lank<br>Leitung: Frau Petersen<br><span style="color:var(--color-accent-300)">02150 · 12 34 56</span></div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isMitteilungen }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent)">Neu</div>
+            <div class="card elev-sm" style="flex-direction:row;gap:10px;align-items:flex-start;border-left:2px solid var(--color-accent)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="1.6" style="flex:none;margin-top:2px"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4A8 8 0 1 1 20 12Z"></path></svg>
+              <div style="flex:1;min-width:0"><div style="font-size:13px;line-height:1.45"><strong style="font-weight:500">Sandra Weber</strong> hat auf deine Spielanfrage geantwortet.</div><div style="font-size:10.5px;color:var(--color-neutral-500);margin-top:2px">14:20</div></div>
+            </div>
+            <div class="card elev-sm" style="flex-direction:row;gap:10px;align-items:flex-start;border-left:2px solid var(--color-accent)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="1.6" style="flex:none;margin-top:2px"><rect x="3" y="5" width="18" height="16" rx="2.5"></rect><path d="M8 3v4M16 3v4M3 10h18"></path></svg>
+              <div style="flex:1;min-width:0"><div style="font-size:13px;line-height:1.45">Neuer Termin in Gruppe Blau: <strong style="font-weight:500">Waldtag am Mittwoch</strong>.</div><div style="font-size:10.5px;color:var(--color-neutral-500);margin-top:2px">Heute, 9:05</div></div>
+            </div>
+            <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-500);margin-top:6px">Älter</div>
+            <div class="card elev-sm" style="flex-direction:row;gap:10px;align-items:flex-start;opacity:.8">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="flex:none;margin-top:2px"><rect x="3" y="4" width="18" height="14" rx="2.5"></rect><circle cx="9" cy="10" r="2"></circle><path d="M3 16l5-4 4 3 3-2 6 5"></path></svg>
+              <div style="flex:1;min-width:0"><div style="font-size:13px;line-height:1.45">14 neue Fotos vom Waldtag in Gruppe Blau.</div><div style="font-size:10.5px;color:var(--color-neutral-500);margin-top:2px">Gestern</div></div>
+            </div>
+            <div class="card elev-sm" style="flex-direction:row;gap:10px;align-items:flex-start;opacity:.8">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="flex:none;margin-top:2px"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"></path><path d="M14 3v5h5"></path></svg>
+              <div style="flex:1;min-width:0"><div style="font-size:13px;line-height:1.45">Elternbrief September wurde veröffentlicht.</div><div style="font-size:10.5px;color:var(--color-neutral-500);margin-top:2px">Mo, 07.09.</div></div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isEinstellungen }}" hint-placeholder-val="{{ false }}">
+            <div class="card elev-sm" style="gap:11px">
+              <div class="card-kicker">Mitteilungen</div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:13px">Beiträge der Kita<span class="tag tag-accent" style="margin-left:auto">An</span></div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:13px">Elternchat<span class="tag tag-accent" style="margin-left:auto">An</span></div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:13px">Spielanfragen<span class="tag tag-accent" style="margin-left:auto">An</span></div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:13px">Nur zwischen 7 und 20 Uhr<span class="tag tag-neutral" style="margin-left:auto">Aus</span></div>
+            </div>
+            <div class="card elev-sm" style="gap:11px">
+              <div class="card-kicker">Privatsphäre</div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:13px">Mein Kontakt im Elternchat<span class="tag tag-accent" style="margin-left:auto">Sichtbar</span></div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:13px">Spielanfragen empfangen<span class="tag tag-accent" style="margin-left:auto">Nur eigene Gruppe</span></div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:13px">Fotofreigabe<span class="tag tag-accent" style="margin-left:auto">Nur App</span></div>
+            </div>
+            <div class="card elev-sm" style="gap:11px">
+              <div class="card-kicker">Konto</div>
+              <div style="font-size:13px">sandra.weber@example.de</div>
+              <div style="font-size:11.5px;color:var(--color-neutral-500)">Familie Weber · Jonas (Blau)</div>
+              <div class="hr" style="margin:2px 0"></div>
+              <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-start">
+                <button class="btn btn-ghost" style="font-size:12.5px">Sprache: Deutsch</button>
+                <button class="btn btn-ghost" style="font-size:12.5px">Datenschutz &amp; Nutzungsbedingungen</button>
+                <button class="btn btn-ghost" style="font-size:12.5px" onClick="{{ doLogout }}">Abmelden</button>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+
+        <div style="flex:none;padding:8px 8px 30px;display:flex;gap:2px;border-top:1px solid var(--color-divider);background:var(--color-bg)">
+          <button style="flex:1;background:transparent;border:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0;color:{{ tFeed }};font-family:var(--font-body);font-size:9.5px" onClick="{{ openFeed }}">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1v-9.5Z"></path></svg>
+            Aktuelles
+          </button>
+          <button style="flex:1;background:transparent;border:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0;color:{{ tGruppen }};font-family:var(--font-body);font-size:9.5px" onClick="{{ openGruppen }}">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="8.5" r="3"></circle><circle cx="17" cy="9.5" r="2.4"></circle><path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5"></path><path d="M16 14.2c2.4.2 4.5 2 4.5 4.8"></path></svg>
+            Gruppen
+          </button>
+          <button style="flex:1;background:transparent;border:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0;color:{{ tChats }};font-family:var(--font-body);font-size:9.5px;position:relative" onClick="{{ openChats }}">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4A8 8 0 1 1 20 12Z"></path></svg>
+            Chat
+          </button>
+          <button style="flex:1;background:transparent;border:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0;color:{{ tSpiel }};font-family:var(--font-body);font-size:9.5px" onClick="{{ openSpiel }}">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 3.5v17M3.5 12h17"></path></svg>
+            Spielen
+          </button>
+          <button style="flex:1;background:transparent;border:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0;color:{{ tProfil }};font-family:var(--font-body);font-size:9.5px" onClick="{{ openProfil }}">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8.5" r="3.4"></circle><path d="M5 20c0-3.3 3.1-5.6 7-5.6s7 2.3 7 5.6"></path></svg>
+            Profil
+          </button>
+        </div>
+
+        <sc-if value="{{ krankOffen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;inset:0;z-index:80;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(22,24,38,.72)">
+            <div style="background:var(--color-surface);border-radius:20px 20px 0 0;box-shadow:var(--shadow-lg);padding:18px 16px 42px;display:flex;flex-direction:column;gap:11px;animation:sheetUp .22s ease-out">
+              <div style="width:36px;height:4px;border-radius:2px;background:var(--color-neutral-700);align-self:center"></div>
+              <h5 style="margin:2px 0 0;font-size:17px">Jonas krankmelden</h5>
+              <p style="margin:0;font-size:12.5px;color:var(--color-neutral-400)">Das Team der Gruppe Blau wird direkt informiert.</p>
+              <div class="field"><label>Zeitraum</label><input class="input" value="Heute, 09.09."></div>
+              <div class="field"><label>Grund (optional)</label><input class="input" placeholder="z.B. Fieber"></div>
+              <div style="display:flex;gap:7px;margin-top:2px">
+                <button class="btn btn-secondary" style="flex:1;font-size:12.5px" onClick="{{ closeKrank }}">Abbrechen</button>
+                <button class="btn btn-primary" style="flex:1.3;font-size:12.5px" onClick="{{ closeKrank }}">Abmeldung senden</button>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+      </sc-if>
+    </div>
+  </x-import>
+
+  <div style="max-width:430px;font-size:11.5px;line-height:1.5;color:var(--color-neutral-500);text-align:center">
+    Klickbarer Design-Prototyp: Tabs, Gruppen öffnen, Chat, Spielanfragen, Umfrage, Rollen-Umschalter oben. Funktionslogik kommt später.
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:460,&quot;height&quot;:980},&quot;datenschutzHinweise&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Prototyp&quot;}}">
+const G = {
+  blau: { name: 'Blau', initial: 'B', color: '#7f93c9', meta: '18 Kinder · Frau Özdemir, Herr Klein',
+    erz1: 'Frau Özdemir', erz2: 'Herr Klein',
+    p1m: 'Frau Özdemir · vor 3 Std.', p1t: 'Waldtag war ein Fest',
+    p1x: 'Kastanien gesammelt, ein Blätterhaus gebaut, Stockbrot am Feuer. Mittwoch geht es wieder los — bitte Gummistiefel einpacken.',
+    p2m: 'Herr Klein · Mo', p2t: 'Wechselsachen prüfen',
+    p2x: 'Bei einigen Kindern sind die Wechselsachen leer. Bitte schau in den nächsten Tagen in das Körbchen deines Kindes.' },
+  gelb: { name: 'Gelb', initial: 'G', color: '#c9b47f', meta: '16 Kinder · Frau Bergmann',
+    erz1: 'Frau Bergmann', erz2: 'Frau Lohmann',
+    p1m: 'Frau Bergmann · Di', p1t: 'Wir backen Apfelkuchen',
+    p1x: 'Die Kinder haben Äpfel geschält, geraspelt und selbst gerührt. Das Rezept hängt an der Gruppentür.',
+    p2m: 'Frau Bergmann · vor 4 Tagen', p2t: 'Neuer Morgenkreis um 8:45',
+    p2x: 'Damit alle Kinder in Ruhe ankommen, starten wir zehn Minuten später. Bitte bis 8:40 bringen.' },
+  rot: { name: 'Rot', initial: 'R', color: '#c98b8b', meta: '21 Kinder · Frau Haas, Frau Nowak',
+    erz1: 'Frau Haas', erz2: 'Frau Nowak',
+    p1m: 'Frau Haas · Fr', p1t: 'Magen-Darm in der Gruppe',
+    p1x: 'Drei Kinder sind erkrankt. Bitte melde dein Kind ab, wenn es Symptome hat, und lass es 48 Stunden zu Hause.',
+    p2m: 'Frau Nowak · Do', p2t: 'Vorschulkinder: Verkehrsübung',
+    p2x: 'Am Donnerstag üben wir mit der Polizei den Schulweg. Bitte gib deinem Kind eine Warnweste mit, falls vorhanden.' },
+};
+
+const ACC = '#9184d9';
+const DIV = 'rgba(233,233,237,.16)';
+
+class Component extends DCLogic {
+  state = {
+    role: 'eltern', view: 'login', prev: 'feed', group: 'blau',
+    herz: false, rsvp: false, vote: null, krank: false,
+    art: 'foto', sicht: 'blau', slot: null, slotConfirmed: false,
+    fam: 'mia', playAccepted: false, draft: '', extraMsgs: [],
+  };
+
+  go = (v) => this.setState(s => ({ prev: ['post','spielNeu','chat','gruppe','mitteilungen','einstellungen','infos'].includes(v) ? s.view : s.prev, view: v }));
+
+  titles = {
+    feed: ['Aktuelles', 'Familienzentrum Lank'],
+    gruppen: ['Gruppen', 'Blau · Gelb · Rot'],
+    chats: ['Nachrichten', 'Eltern & Team'],
+    chat: ['Sandra Weber', 'Mama von Jonas · Gruppe Blau'],
+    spiel: ['Spielen', 'Verabredungen der Kinder'],
+    spielNeu: ['Neue Spielanfrage', 'Termine vorschlagen'],
+    post: ['Beitrag erstellen', 'Kita-Team'],
+    profil: ['Profil', 'Familie Weber'],
+    infos: ['Infos & Termine', 'Familienzentrum Lank'],
+    mitteilungen: ['Mitteilungen', '2 neu'],
+    einstellungen: ['Einstellungen', 'Familie Weber'],
+  };
+
+  renderVals() {
+    const s = this.state;
+    const g = G[s.group];
+    const isTeam = s.role === 'team';
+    const ring = on => on ? 'inset 0 0 0 1px ' + ACC : 'none';
+    const pick = on => on ? ACC : DIV;
+    const tab = v => (s.view === v ? ACC : '#75798c');
+
+    const baseMsgs = [
+      { text: 'Hallo Sandra! Jonas fragt die ganze Woche nach Mia. Hättet ihr diese Woche Zeit für einen Spielnachmittag?', time: '13:48', mine: true },
+      { text: 'Hi! Ja gerne — Donnerstag ist bei uns Turnen, aber Freitag wäre super.', time: '14:02', mine: false },
+      { text: 'Freitag passt uns gut! Sollen wir zu euch kommen oder treffen wir uns am Spielplatz?', time: '14:20', mine: false },
+    ];
+    const msgs = baseMsgs.concat(s.extraMsgs).map(m => ({
+      text: m.text, time: m.time, justify: m.mine ? 'flex-end' : 'flex-start',
+      bg: m.mine ? '#2b2741' : '#232532',
+      border: m.mine ? 'rgba(145,132,217,.45)' : DIV,
+    }));
+
+    const title = this.titles[s.view] || ['', ''];
+    const headerSub = s.view === 'gruppe' ? g.meta : (s.view === 'feed' && isTeam ? 'Kita-Team · Frau Petersen' : title[1]);
+
+    return {
+      isLogin: s.view === 'login',
+      appVisible: s.view !== 'login',
+      isTeam,
+      roleLabel: isTeam ? 'Kita-Team' : 'Familie Weber',
+      elternRing: ring(!isTeam), teamRing: ring(isTeam),
+      elternColor: isTeam ? '#e9e9ed' : ACC, teamColor: isTeam ? ACC : '#e9e9ed',
+      setEltern: () => this.setState({ role: 'eltern' }),
+      setTeam: () => this.setState({ role: 'team' }),
+      doLogin: () => this.go('feed'),
+      doLogout: () => this.setState({ view: 'login' }),
+
+      headerTitle: s.view === 'gruppe' ? 'Gruppe ' + g.name : title[0],
+      headerSub: headerSub,
+      showBack: ['gruppe','chat','post','spielNeu','infos','mitteilungen','einstellungen'].includes(s.view),
+      goBack: () => this.setState(st => ({ view: st.prev || 'feed' })),
+      hasUnread: s.view !== 'mitteilungen',
+
+      isFeed: s.view === 'feed', isGruppen: s.view === 'gruppen', isGruppe: s.view === 'gruppe',
+      isChats: s.view === 'chats', isChat: s.view === 'chat', isSpiel: s.view === 'spiel',
+      isSpielNeu: s.view === 'spielNeu', isPost: s.view === 'post', isProfil: s.view === 'profil',
+      isInfos: s.view === 'infos', isMitteilungen: s.view === 'mitteilungen',
+      isEinstellungen: s.view === 'einstellungen',
+
+      openFeed: () => this.go('feed'), openGruppen: () => this.go('gruppen'),
+      openChats: () => this.go('chats'), openChat: () => this.go('chat'),
+      openSpiel: () => this.go('spiel'), openSpielNeu: () => this.go('spielNeu'),
+      openProfil: () => this.go('profil'), openPost: () => this.go('post'),
+      openInfos: () => this.go('infos'), openMitteilungen: () => this.go('mitteilungen'),
+      openEinstellungen: () => this.go('einstellungen'),
+      openBlau: () => this.setState({ group: 'blau', prev: 'gruppen', view: 'gruppe' }),
+      openGelb: () => this.setState({ group: 'gelb', prev: 'gruppen', view: 'gruppe' }),
+      openRot: () => this.setState({ group: 'rot', prev: 'gruppen', view: 'gruppe' }),
+
+      tFeed: tab('feed'), tGruppen: s.view === 'gruppe' ? ACC : tab('gruppen'),
+      tChats: s.view === 'chat' ? ACC : tab('chats'),
+      tSpiel: s.view === 'spielNeu' ? ACC : tab('spiel'), tProfil: tab('profil'),
+
+      privacy: this.props.datenschutzHinweise ?? true,
+      blauFarbe: G.blau.color, gelbFarbe: G.gelb.color, rotFarbe: G.rot.color,
+
+      herzFill: s.herz ? ACC : 'none',
+      herzCount: s.herz ? 13 : 12,
+      toggleHerz: () => this.setState(st => ({ herz: !st.herz })),
+      rsvpLabel: s.rsvp ? 'Dabei ✓' : 'Zusagen',
+      toggleRsvp: () => this.setState(st => ({ rsvp: !st.rsvp })),
+
+      kuchen: s.vote === 'kuchen' ? '7 · du' : '6',
+      salat: s.vote === 'salat' ? '4 · du' : '3',
+      aufbau: s.vote === 'aufbau' ? '3 · du' : '2',
+      kuchenBorder: pick(s.vote === 'kuchen'), salatBorder: pick(s.vote === 'salat'), aufbauBorder: pick(s.vote === 'aufbau'),
+      voteKuchen: () => this.setState({ vote: 'kuchen' }), voteSalat: () => this.setState({ vote: 'salat' }),
+      voteAufbau: () => this.setState({ vote: 'aufbau' }),
+      voteHint: s.vote ? 'Danke! Das Team sieht deine Zusage.' : '11 von 55 Familien haben geantwortet.',
+
+      gName: g.name, gInitial: g.initial, gFarbe: g.color, gMeta: g.meta,
+      gErz1: g.erz1, gErz2: g.erz2,
+      gPost1Meta: g.p1m, gPost1Titel: g.p1t, gPost1Text: g.p1x,
+      gPost2Meta: g.p2m, gPost2Titel: g.p2t, gPost2Text: g.p2x,
+
+      postTitel: '', postText: '',
+      setPostTitel: () => {},
+      istFoto: s.art === 'foto',
+      artFotoB: pick(s.art === 'foto'), artFotoC: s.art === 'foto' ? ACC : '#e9e9ed',
+      artInfoB: pick(s.art === 'info'), artInfoC: s.art === 'info' ? ACC : '#e9e9ed',
+      artTerminB: pick(s.art === 'termin'), artTerminC: s.art === 'termin' ? ACC : '#e9e9ed',
+      artUmfrageB: pick(s.art === 'umfrage'), artUmfrageC: s.art === 'umfrage' ? ACC : '#e9e9ed',
+      setArtFoto: () => this.setState({ art: 'foto' }), setArtInfo: () => this.setState({ art: 'info' }),
+      setArtTermin: () => this.setState({ art: 'termin' }), setArtUmfrage: () => this.setState({ art: 'umfrage' }),
+      sichtAlle: s.sicht === 'alle', sichtBlau: s.sicht === 'blau', sichtBeirat: s.sicht === 'beirat',
+      setSichtAlle: () => this.setState({ sicht: 'alle' }), setSichtBlau: () => this.setState({ sicht: 'blau' }),
+      setSichtBeirat: () => this.setState({ sicht: 'beirat' }),
+      publish: () => this.go('feed'),
+      publishHint: s.sicht === 'alle' ? 'Geht an 55 Familien.' : (s.sicht === 'blau' ? 'Geht an 18 Familien der Gruppe Blau.' : 'Geht an 6 Mitglieder des Elternbeirats.'),
+
+      messages: msgs,
+      chatHasCard: true,
+      playAcceptLabel: s.playAccepted ? 'Zugesagt ✓' : 'Freitag zusagen',
+      acceptPlay: () => this.setState({ playAccepted: true }),
+      proposeOther: () => this.go('spielNeu'),
+      draft: s.draft,
+      setDraft: (e) => this.setState({ draft: e.target.value }),
+      send: () => this.setState(st => st.draft.trim()
+        ? { extraMsgs: st.extraMsgs.concat([{ text: st.draft, time: 'jetzt', mine: true }]), draft: '' }
+        : {}),
+
+      slot1Border: pick(s.slot === 1), slot2Border: pick(s.slot === 2),
+      slot1Color: s.slot === 1 ? ACC : '#e9e9ed', slot2Color: s.slot === 2 ? ACC : '#e9e9ed',
+      pickSlot1: () => this.setState({ slot: 1 }), pickSlot2: () => this.setState({ slot: 2 }),
+      confirmLabel: s.slotConfirmed ? 'Bestätigt ✓' : 'Termin bestätigen',
+      confirmSlot: () => this.setState(st => st.slot ? { slotConfirmed: true } : {}),
+      slotHint: s.slotConfirmed ? 'Familie Kaya wurde informiert.' : (s.slot ? 'Tippe auf bestätigen — Familie Kaya wird dann benachrichtigt.' : 'Wähle einen Termin, oder schlage einen eigenen vor.'),
+
+      famMiaBorder: pick(s.fam === 'mia'), famElifBorder: pick(s.fam === 'elif'),
+      famMiaCheck: s.fam === 'mia' ? ACC : 'transparent', famElifCheck: s.fam === 'elif' ? ACC : 'transparent',
+      pickMia: () => this.setState({ fam: 'mia' }), pickElif: () => this.setState({ fam: 'elif' }),
+      sendSpiel: () => this.go('spiel'),
+      spielHint: 'Die Familie sieht nur deinen Vornamen und die Gruppe deines Kindes.',
+
+      krankOffen: s.krank,
+      openKrank: () => this.setState({ krank: true }),
+      closeKrank: () => this.setState({ krank: false }),
+    };
+  }
+}
+
+</script>
+</body>
+</html>
