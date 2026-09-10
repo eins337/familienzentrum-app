@@ -6,7 +6,15 @@ import 'theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initSupabase();
+  try {
+    await initSupabase();
+  } catch (e) {
+    // A network hiccup (or an unreachable/placeholder Supabase URL) during
+    // startup shouldn't leave the user on a blank white screen — let the
+    // app render normally; screens that need Supabase will surface their
+    // own error state once a request actually fails.
+    debugPrint('Supabase init failed: $e');
+  }
   runApp(const ProviderScope(child: FamilienzentrumApp()));
 }
 
