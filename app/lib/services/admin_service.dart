@@ -140,6 +140,18 @@ class AdminService {
       supa.from('groups').update({'child_count': count}).eq('id', groupId);
 
   // ── Content: events / closures / documents / speiseplan ───────────
+  Stream<List<KitaEvent>> streamAllEvents() {
+    return supa.from('events').stream(primaryKey: ['id']).order('event_date').map((rows) => rows.map(KitaEvent.fromMap).toList());
+  }
+
+  Stream<List<Closure>> streamClosures() {
+    return supa.from('closures').stream(primaryKey: ['id']).order('start_date').map((rows) => rows.map(Closure.fromMap).toList());
+  }
+
+  Stream<List<DocumentItem>> streamDocuments() {
+    return supa.from('documents').stream(primaryKey: ['id']).order('created_at', ascending: false).map((rows) => rows.map(DocumentItem.fromMap).toList());
+  }
+
   Future<void> createEvent({required String title, required DateTime eventDate, String? timeLabel, String? location, String? groupId}) =>
       supa.from('events').insert({
         'title': title,
