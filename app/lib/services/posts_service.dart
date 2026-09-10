@@ -59,6 +59,11 @@ class PostsService {
     return Post.fromMap(row);
   }
 
+  Future<Post> fetchPost(String postId) async {
+    final row = await supa.from('posts').select().eq('id', postId).single();
+    return Post.fromMap(row);
+  }
+
   Future<void> toggleLike(String postId) => supa.rpc('toggle_post_like', params: {'p_post_id': postId});
 
   Future<void> votePoll(String postId, int optionIndex) =>

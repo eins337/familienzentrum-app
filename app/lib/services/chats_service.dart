@@ -19,6 +19,11 @@ class ChatsService {
         .map((rows) => rows.map(Message.fromMap).toList());
   }
 
+  Future<Message?> fetchLastMessage(String chatId) async {
+    final rows = await supa.from('messages').select().eq('chat_id', chatId).order('created_at', ascending: false).limit(1);
+    return rows.isEmpty ? null : Message.fromMap(rows.first);
+  }
+
   Future<void> sendMessage(String chatId, String senderId, String body) =>
       supa.from('messages').insert({'chat_id': chatId, 'sender_id': senderId, 'body': body});
 

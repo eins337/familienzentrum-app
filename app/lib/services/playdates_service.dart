@@ -1,7 +1,10 @@
 import '../models/models.dart';
+import 'chats_service.dart';
 import 'supabase_service.dart';
 
 class PlaydatesService {
+  final _chats = ChatsService();
+
   /// Postgres can OR across different-field equality filters in one query
   /// (unlike Firestore, which needed two merged listeners for this).
   Stream<List<PlaydateRequest>> streamMyPlaydates(String familyId) {
@@ -21,9 +24,14 @@ class PlaydatesService {
     required String fromChildId,
     required String toFamilyId,
     required String toChildId,
+    required String toUid,
     required List<PlaydateSlot> proposedSlots,
     String? message,
   }) async {
+    final chat = await _chats.findOrCreateDirectChat(fromUid, toUid);
+    if (message != null && message.trim().isNotEmpty) {
+      await _chats.sendMessage(chat.id, fromUid, message.trim());
+    }
     final row = await supa
         .from('playdate_requests')
         .insert({
@@ -34,10 +42,16 @@ class PlaydatesService {
           'to_child_id': toChildId,
           'proposed_slots': proposedSlots.map((s) => s.toMap()).toList(),
           'message': message,
+          'chat_id': chat.id,
         })
         .select()
         .single();
     return PlaydateRequest.fromMap(row);
+  }
+
+  Future<PlaydateRequest?> fetchByChatId(String chatId) async {
+    final row = await supa.from('playdate_requests').select().eq('chat_id', chatId).maybeSingle();
+    return row == null ? null : PlaydateRequest.fromMap(row);
   }
 
   Future<void> confirmSlot(String requestId, int slotIndex) => supa

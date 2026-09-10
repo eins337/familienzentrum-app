@@ -19,7 +19,10 @@ class Profile {
     this.disabled = false,
     this.pushToken,
     required this.createdAt,
-  });
+    Map<String, dynamic>? notificationSettings,
+    Map<String, dynamic>? privacySettings,
+  })  : notificationSettings = notificationSettings ?? const {'posts': true, 'chat': true, 'playdates': true, 'quietHours': false},
+        privacySettings = privacySettings ?? const {'contactVisibleInChat': true, 'playdateRequestsScope': 'group', 'photoConsentAppOnly': true};
 
   final String id;
   final String email;
@@ -32,6 +35,8 @@ class Profile {
   final bool disabled;
   final String? pushToken;
   final DateTime createdAt;
+  final Map<String, dynamic> notificationSettings;
+  final Map<String, dynamic> privacySettings;
 
   bool get isTeam => role == 'team';
 
@@ -47,6 +52,8 @@ class Profile {
         disabled: m['disabled'] as bool? ?? false,
         pushToken: m['push_token'] as String?,
         createdAt: DateTime.parse(m['created_at'] as String),
+        notificationSettings: (m['notification_settings'] as Json?)?.cast<String, dynamic>(),
+        privacySettings: (m['privacy_settings'] as Json?)?.cast<String, dynamic>(),
       );
 }
 

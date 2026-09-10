@@ -67,10 +67,6 @@ class AdminService {
     return supa.from('families').stream(primaryKey: ['id']).order('name').map((rows) => rows.map(Family.fromMap).toList());
   }
 
-  Stream<List<FamilyMember>> streamFamilyMembers() {
-    return supa.from('family_members').stream(primaryKey: ['family_id', 'user_id']).map((rows) => rows.map(FamilyMember.fromMap).toList());
-  }
-
   // ── Children ───────────────────────────────────────────────────────
   Future<Child> createChild({required String familyId, required String name, String? groupId, int? birthYear}) async {
     final row = await supa

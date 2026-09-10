@@ -47,6 +47,12 @@ class AuthService {
         );
   }
 
+  Future<void> updateNotificationSettings(String uid, Map<String, dynamic> settings) =>
+      supa.from('profiles').update({'notification_settings': settings}).eq('id', uid);
+
+  Future<void> updatePrivacySettings(String uid, Map<String, dynamic> settings) =>
+      supa.from('profiles').update({'privacy_settings': settings}).eq('id', uid);
+
   Future<Family?> fetchFamily(String familyId) async {
     final row = await supa.from('families').select().eq('id', familyId).maybeSingle();
     return row == null ? null : Family.fromMap(row);

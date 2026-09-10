@@ -19,6 +19,22 @@ class KitaService {
     return rows.map(Child.fromMap).toList();
   }
 
+  Stream<List<FamilyMember>> streamFamilyMembers() {
+    return supa.from('family_members').stream(primaryKey: ['family_id', 'user_id']).map((rows) => rows.map(FamilyMember.fromMap).toList());
+  }
+
+  /// Every child except the caller's own family's — used by the
+  /// Spielanfrage "Anfrage an" family picker.
+  Future<List<Child>> fetchOtherChildren(String excludeFamilyId) async {
+    final rows = await supa.from('children').select().neq('family_id', excludeFamilyId);
+    return rows.map(Child.fromMap).toList();
+  }
+
+  Future<String?> fetchPrimaryFamilyMemberUid(String familyId) async {
+    final row = await supa.from('family_members').select('user_id').eq('family_id', familyId).limit(1).maybeSingle();
+    return row?['user_id'] as String?;
+  }
+
   Future<List<Child>> fetchChildrenInGroup(String groupId) async {
     final rows = await supa.from('children').select().eq('group_id', groupId);
     return rows.map(Child.fromMap).toList();

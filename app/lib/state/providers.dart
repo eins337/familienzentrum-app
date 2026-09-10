@@ -36,6 +36,10 @@ final familyProvider = FutureProvider<Family?>((ref) async {
 
 final groupsProvider = FutureProvider<List<Group>>((ref) => ref.watch(kitaServiceProvider).fetchGroups());
 
+final groupTeamProvider = FutureProvider.family<List<GroupTeamMember>, String>(
+  (ref, groupId) => ref.watch(kitaServiceProvider).fetchGroupTeam(groupId),
+);
+
 final myChildrenProvider = FutureProvider<List<Child>>((ref) async {
   final profile = ref.watch(profileProvider).valueOrNull;
   if (profile?.familyId == null) return [];
@@ -55,6 +59,44 @@ final allChildrenProvider = StreamProvider<Map<String, Child>>((ref) {
   return supa.from('children').stream(primaryKey: ['id']).map(
         (rows) => {for (final r in rows) r['id'] as String: Child.fromMap(r)},
       );
+});
+
+final feedPostsProvider = StreamProvider<List<Post>>((ref) => ref.watch(postsServiceProvider).streamFeed());
+
+final groupPostsProvider = StreamProvider.family<List<Post>, String>(
+  (ref, groupId) => ref.watch(postsServiceProvider).streamGroupPosts(groupId),
+);
+
+final upcomingEventsProvider = StreamProvider<List<KitaEvent>>((ref) => ref.watch(kitaServiceProvider).streamUpcomingEvents());
+
+final speiseplanProvider = FutureProvider<Speiseplan?>((ref) => ref.watch(kitaServiceProvider).fetchSpeiseplan());
+
+final closuresProvider = FutureProvider<List<Closure>>((ref) => ref.watch(kitaServiceProvider).fetchClosures());
+
+final documentsProvider = FutureProvider<List<DocumentItem>>((ref) => ref.watch(kitaServiceProvider).fetchDocuments());
+
+final myChatsProvider = StreamProvider<List<Chat>>((ref) {
+  final uid = ref.watch(profileProvider).valueOrNull?.id;
+  if (uid == null) return Stream.value(const []);
+  return ref.watch(chatsServiceProvider).streamMyChats(uid);
+});
+
+final chatMessagesProvider = StreamProvider.family<List<Message>, String>(
+  (ref, chatId) => ref.watch(chatsServiceProvider).streamMessages(chatId),
+);
+
+final lastMessageProvider = FutureProvider.family<Message?, String>(
+  (ref, chatId) => ref.watch(chatsServiceProvider).fetchLastMessage(chatId),
+);
+
+final playdateForChatProvider = FutureProvider.family<PlaydateRequest?, String>(
+  (ref, chatId) => ref.watch(playdatesServiceProvider).fetchByChatId(chatId),
+);
+
+final myPlaydatesProvider = StreamProvider<List<PlaydateRequest>>((ref) {
+  final familyId = ref.watch(profileProvider).valueOrNull?.familyId;
+  if (familyId == null) return Stream.value(const []);
+  return ref.watch(playdatesServiceProvider).streamMyPlaydates(familyId);
 });
 
 final allFamiliesProvider = StreamProvider<Map<String, Family>>((ref) {
