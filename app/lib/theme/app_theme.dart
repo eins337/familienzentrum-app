@@ -42,9 +42,5 @@ ThemeData buildAppTheme() {
       selectionColor: AppColors.accent.withValues(alpha: 0.3),
       selectionHandleColor: AppColors.accent,
     ),
-    pageTransitionsTheme: const PageTransitionsTheme(builders: {
-      TargetPlatform.android: CupertinoPageTransitionsBuilder(),
-      TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-    }),
   );
 }
