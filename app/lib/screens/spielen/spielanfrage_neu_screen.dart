@@ -10,7 +10,8 @@ import '../../widgets/n_field.dart';
 import '../../widgets/n_header.dart';
 
 class SpielanfrageNeuScreen extends ConsumerStatefulWidget {
-  const SpielanfrageNeuScreen({super.key});
+  const SpielanfrageNeuScreen({super.key, this.preselectedChildId});
+  final String? preselectedChildId;
   @override
   ConsumerState<SpielanfrageNeuScreen> createState() => _SpielanfrageNeuScreenState();
 }
@@ -116,6 +117,14 @@ class _SpielanfrageNeuScreenState extends ConsumerState<SpielanfrageNeuScreen> {
               builder: (context, snap) {
                 final others = snap.data ?? [];
                 final families = familiesAsync.valueOrNull ?? {};
+                if (_targetChild == null && widget.preselectedChildId != null) {
+                  final match = others.where((c) => c.id == widget.preselectedChildId).firstOrNull;
+                  if (match != null) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (mounted) setState(() => _targetChild = match);
+                    });
+                  }
+                }
                 return Column(
                   children: [
                     for (final c in others)

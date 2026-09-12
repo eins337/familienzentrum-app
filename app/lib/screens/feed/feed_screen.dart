@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../state/providers.dart';
 import '../../theme/tokens.dart';
+import '../../utils/birthdays.dart';
+import '../../widgets/birthday_card.dart';
 import '../../widgets/event_card.dart';
 import '../../widgets/n_button.dart';
 import '../../widgets/n_header.dart';
@@ -18,6 +20,12 @@ class FeedScreen extends ConsumerWidget {
     final postsAsync = ref.watch(feedPostsProvider);
     final eventsAsync = ref.watch(upcomingEventsProvider);
     final speiseplanAsync = ref.watch(speiseplanProvider);
+    final allChildren = ref.watch(allChildrenProvider).valueOrNull ?? {};
+    final myChildren = ref.watch(myChildrenProvider).valueOrNull ?? [];
+    final relevantGroups = profile?.isTeam ?? false
+        ? profile!.groupIds.toSet()
+        : myChildren.map((c) => c.groupId).toSet();
+    final birthdays = upcomingBirthdays(allChildren.values, groupIds: relevantGroups);
 
     return Scaffold(
       appBar: NHeader(title: 'Aktuelles', subtitle: 'Familienzentrum Lank', hasUnread: true, onBell: () => context.push('/mitteilungen')),
@@ -45,6 +53,7 @@ class FeedScreen extends ConsumerWidget {
                 const SizedBox(height: 10),
               ],
               for (final p in pinned) ...[PostCard(post: p), const SizedBox(height: 10)],
+              if (birthdays.isNotEmpty) ...[BirthdayCard(children: birthdays), const SizedBox(height: 10)],
               for (final p in rest) ...[PostCard(post: p), const SizedBox(height: 10)],
               if (events.isNotEmpty) ...[EventCard(event: events.first), const SizedBox(height: 10)],
               if (speiseplan != null) ...[SpeiseplanCard(speiseplan: speiseplan), const SizedBox(height: 10)],

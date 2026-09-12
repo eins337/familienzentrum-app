@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,6 +22,9 @@ class _PostCreateScreenState extends ConsumerState<PostCreateScreen> {
   String _kind = 'foto';
   String _visibility = 'all';
   String? _selectedGroupId;
+  DateTime? _eventDate;
+  final _eventLocationCtrl = TextEditingController();
+  PlatformFile? _attachedFile;
   final List<XFile> _photos = [];
   final List<TextEditingController> _pollOptions = [TextEditingController(), TextEditingController()];
   bool _publishing = false;
@@ -29,6 +33,7 @@ class _PostCreateScreenState extends ConsumerState<PostCreateScreen> {
   void dispose() {
     _titleCtrl.dispose();
     _bodyCtrl.dispose();
+    _eventLocationCtrl.dispose();
     for (final c in _pollOptions) {
       c.dispose();
     }
@@ -40,17 +45,42 @@ class _PostCreateScreenState extends ConsumerState<PostCreateScreen> {
     if (picked.isNotEmpty) setState(() => _photos.addAll(picked));
   }
 
+  Future<void> _pickFile() async {
+    final result = await FilePicker.platform.pickFiles(withData: true);
+    if (result != null && result.files.isNotEmpty) {
+      setState(() => _attachedFile = result.files.first);
+    }
+  }
+
   Future<void> _publish() async {
     final profile = ref.read(profileProvider).valueOrNull;
     if (profile == null) return;
     setState(() => _publishing = true);
     try {
+      String? fileUrl;
+      String? fileName;
+      String? fileSizeLabel;
+      if (_kind == 'info' && _attachedFile?.bytes != null) {
+        final file = _attachedFile!;
+        final path = '${profile.id}/${DateTime.now().microsecondsSinceEpoch}_${file.name}';
+        await supa.storage.from('documents').uploadBinary(path, file.bytes!);
+        fileUrl = await supa.storage.from('documents').createSignedUrl(path, 60 * 60 * 24 * 365 * 5);
+        fileName = file.name;
+        fileSizeLabel = file.size > 0 ? '${(file.size / 1024).round()} KB' : null;
+      }
+
       final photoUrls = <String>[];
       for (final photo in _photos) {
         final bytes = await photo.readAsBytes();
         final path = '${profile.id}/${DateTime.now().microsecondsSinceEpoch}_${photo.name}';
         await supa.storage.from('post-photos').uploadBinary(path, bytes);
-        photoUrls.add(supa.storage.from('post-photos').getPublicUrl(path));
+        // The bucket is private (RLS-gated to signed-in users), so a plain
+        // getPublicUrl() would 403 — this was actually broken until caught
+        // in an audit pass. A long-lived signed URL is the practical
+        // middle ground: not publicly discoverable, but doesn't need
+        // regenerating on every fetch for a small Kita's worth of traffic.
+        final signedUrl = await supa.storage.from('post-photos').createSignedUrl(path, 60 * 60 * 24 * 365 * 5);
+        photoUrls.add(signedUrl);
       }
 
       PostPoll? poll;
@@ -67,6 +97,11 @@ class _PostCreateScreenState extends ConsumerState<PostCreateScreen> {
             title: _titleCtrl.text.trim().isEmpty ? null : _titleCtrl.text.trim(),
             body: _bodyCtrl.text.trim(),
             photoUrls: photoUrls,
+            fileName: fileName,
+            fileSizeLabel: fileSizeLabel,
+            fileUrl: fileUrl,
+            eventDate: _kind == 'termin' ? _eventDate : null,
+            eventLocation: _kind == 'termin' && _eventLocationCtrl.text.trim().isNotEmpty ? _eventLocationCtrl.text.trim() : null,
             initialPoll: poll,
           );
       if (mounted) Navigator.of(context).maybePop();
@@ -128,6 +163,18 @@ class _PostCreateScreenState extends ConsumerState<PostCreateScreen> {
               ],
             ),
           ),
+          if (_kind == 'info') ...[
+            const SizedBox(height: 12),
+            const Text('Anhang (optional)', style: TextStyle(fontSize: 12, color: AppColors.neutral400)),
+            const SizedBox(height: 5),
+            NButton(
+              label: _attachedFile?.name ?? 'Datei anhängen',
+              variant: NButtonVariant.secondary,
+              small: true,
+              icon: const Icon(Icons.attach_file_rounded),
+              onPressed: _pickFile,
+            ),
+          ],
           if (_kind == 'foto') ...[
             const SizedBox(height: 12),
             const Text('Fotos', style: TextStyle(fontSize: 12, color: AppColors.neutral400)),
@@ -152,6 +199,25 @@ class _PostCreateScreenState extends ConsumerState<PostCreateScreen> {
                 ),
               ],
             ),
+          ],
+          if (_kind == 'termin') ...[
+            const SizedBox(height: 12),
+            const Text('Termin', style: TextStyle(fontSize: 12, color: AppColors.neutral400)),
+            const SizedBox(height: 5),
+            NButton(
+              label: _eventDate == null ? 'Datum & Uhrzeit wählen' : '${_eventDate!.day.toString().padLeft(2, '0')}.${_eventDate!.month.toString().padLeft(2, '0')}.${_eventDate!.year} · ${_eventDate!.hour.toString().padLeft(2, '0')}:${_eventDate!.minute.toString().padLeft(2, '0')}',
+              variant: NButtonVariant.secondary,
+              small: true,
+              onPressed: () async {
+                final date = await showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime.now(), lastDate: DateTime(2100));
+                if (date == null || !context.mounted) return;
+                final time = await showTimePicker(context: context, initialTime: TimeOfDay.now());
+                if (time == null) return;
+                setState(() => _eventDate = DateTime(date.year, date.month, date.day, time.hour, time.minute));
+              },
+            ),
+            const SizedBox(height: 8),
+            NField(label: 'Ort (optional)', controller: _eventLocationCtrl, hintText: 'z.B. Innenhof'),
           ],
           if (_kind == 'umfrage') ...[
             const SizedBox(height: 12),

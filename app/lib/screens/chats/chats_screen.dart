@@ -11,11 +11,25 @@ import '../../widgets/n_card.dart';
 import '../../widgets/n_field.dart';
 import '../../widgets/n_header.dart';
 
-class ChatsScreen extends ConsumerWidget {
+class ChatsScreen extends ConsumerStatefulWidget {
   const ChatsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ChatsScreen> createState() => _ChatsScreenState();
+}
+
+class _ChatsScreenState extends ConsumerState<ChatsScreen> {
+  final _searchCtrl = TextEditingController();
+  String _query = '';
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final chatsAsync = ref.watch(myChatsProvider);
     final myId = ref.watch(profileProvider).valueOrNull?.id;
     final profiles = ref.watch(allProfilesProvider).valueOrNull ?? {};
@@ -25,20 +39,24 @@ class ChatsScreen extends ConsumerWidget {
       body: chatsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator(color: AppColors.accent)),
         error: (e, _) => Center(child: Text('Fehler: $e')),
-        data: (chats) {
+        data: (allChats) {
+          final query = _query.trim().toLowerCase();
+          final chats = query.isEmpty
+              ? allChats
+              : allChats.where((c) => _chatTitle(c, myId, profiles).toLowerCase().contains(query)).toList();
           return ListView(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
             children: [
-              const NInput(hintText: 'Familien oder Chats suchen'),
+              NInput(controller: _searchCtrl, hintText: 'Familien oder Chats suchen', onChanged: (v) => setState(() => _query = v)),
               const SizedBox(height: 8),
               for (final c in chats) ...[
                 _ChatRow(chat: c, myId: myId, profiles: profiles),
                 const SizedBox(height: 8),
               ],
               if (chats.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.only(top: 40),
-                  child: Center(child: Text('Noch keine Chats.', style: TextStyle(color: AppColors.neutral500))),
+                Padding(
+                  padding: const EdgeInsets.only(top: 40),
+                  child: Center(child: Text(query.isEmpty ? 'Noch keine Chats.' : 'Keine Treffer für „$_query“.', style: const TextStyle(color: AppColors.neutral500))),
                 ),
               const SizedBox(height: 8),
               Container(
@@ -66,6 +84,12 @@ class ChatsScreen extends ConsumerWidget {
   }
 }
 
+String _chatTitle(Chat chat, String? myId, Map<String, Profile> profiles) {
+  if (chat.isGroup) return chat.name ?? 'Gruppe';
+  final otherId = chat.participantIds.firstWhere((id) => id != myId, orElse: () => chat.participantIds.firstOrNull ?? '');
+  return profiles[otherId]?.displayName ?? '…';
+}
+
 class _ChatRow extends ConsumerWidget {
   const _ChatRow({required this.chat, required this.myId, required this.profiles});
   final Chat chat;
@@ -76,12 +100,11 @@ class _ChatRow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final lastMessage = ref.watch(lastMessageProvider(chat.id)).valueOrNull;
 
-    String title;
+    final title = _chatTitle(chat, myId, profiles);
     String? subtitle;
     Widget avatar;
 
     if (chat.isGroup) {
-      title = chat.name ?? 'Gruppe';
       subtitle = null;
       avatar = NAvatar(
         initials: groupInitial(chat.groupId),
@@ -90,9 +113,6 @@ class _ChatRow extends ConsumerWidget {
         borderColor: chat.groupId == null ? AppColors.accent : null,
       );
     } else {
-      final otherId = chat.participantIds.firstWhere((id) => id != myId, orElse: () => chat.participantIds.firstOrNull ?? '');
-      final other = profiles[otherId];
-      title = other?.displayName ?? '…';
       subtitle = null;
       final initials = title.trim().isEmpty ? '?' : title.trim().split(' ').map((p) => p[0]).take(2).join().toUpperCase();
       avatar = NAvatar(initials: initials);

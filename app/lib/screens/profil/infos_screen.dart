@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../models/models.dart';
 import '../../state/providers.dart';
 import '../../theme/tokens.dart';
@@ -181,6 +182,7 @@ class _DocRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return NCard(
+      onTap: () => launchUrl(Uri.parse(doc.fileUrl), mode: LaunchMode.externalApplication),
       child: Row(
         children: [
           const Icon(Icons.description_outlined, size: 18, color: AppColors.accent),
@@ -195,6 +197,7 @@ class _DocRow extends StatelessWidget {
               ],
             ),
           ),
+          const Icon(Icons.open_in_new_rounded, size: 14, color: AppColors.neutral500),
         ],
       ),
     );

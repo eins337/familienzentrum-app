@@ -73,7 +73,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/spielanfrage-neu',
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const SpielanfrageNeuScreen(),
+        builder: (context, state) => SpielanfrageNeuScreen(preselectedChildId: state.uri.queryParameters['childId']),
       ),
       GoRoute(
         path: '/krankmelden/:childId',

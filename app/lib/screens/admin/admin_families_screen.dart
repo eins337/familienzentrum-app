@@ -47,7 +47,42 @@ class _AdminFamiliesScreenState extends ConsumerState<AdminFamiliesScreen> {
         ],
       ),
     );
-    await ref.read(adminServiceProvider).createChild(familyId: familyId, name: name.trim(), groupId: groupId);
+    if (!mounted) return;
+    final birthDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now().subtract(const Duration(days: 365 * 4)),
+      firstDate: DateTime.now().subtract(const Duration(days: 365 * 10)),
+      lastDate: DateTime.now(),
+      helpText: 'Geburtsdatum (optional, Abbrechen zum Überspringen)',
+    );
+    await ref.read(adminServiceProvider).createChild(familyId: familyId, name: name.trim(), groupId: groupId, birthDate: birthDate);
+  }
+
+  Future<void> _editChild(Child child) async {
+    final name = await _promptText(context, title: 'Kind bearbeiten', hint: child.name, initial: child.name);
+    if (name == null || name.trim().isEmpty) return;
+    final groups = await ref.read(groupsProvider.future);
+    if (!mounted) return;
+    final groupId = await showDialog<String>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        backgroundColor: AppColors.surface,
+        title: const Text('Gruppe wählen', style: TextStyle(color: AppColors.text)),
+        children: [
+          for (final g in groups)
+            SimpleDialogOption(onPressed: () => Navigator.pop(context, g.id), child: Text('Gruppe ${g.name}', style: const TextStyle(color: AppColors.text))),
+        ],
+      ),
+    );
+    if (!mounted) return;
+    final birthDate = await showDatePicker(
+      context: context,
+      initialDate: child.birthDate ?? DateTime.now().subtract(const Duration(days: 365 * 4)),
+      firstDate: DateTime.now().subtract(const Duration(days: 365 * 10)),
+      lastDate: DateTime.now(),
+      helpText: 'Geburtsdatum (optional, Abbrechen zum Überspringen)',
+    );
+    await ref.read(adminServiceProvider).updateChildAdmin(child.id, name: name.trim(), groupId: groupId, birthDate: birthDate);
   }
 
   @override
@@ -75,6 +110,7 @@ class _AdminFamiliesScreenState extends ConsumerState<AdminFamiliesScreen> {
                   onRename: () => _renameFamily(f),
                   onDelete: () => ref.read(adminServiceProvider).deleteFamily(f.id),
                   onAddChild: () => _addChild(f.id),
+                  onEditChild: _editChild,
                 ),
                 const SizedBox(height: 8),
               ],
@@ -111,6 +147,7 @@ class _FamilyTile extends ConsumerWidget {
     required this.onRename,
     required this.onDelete,
     required this.onAddChild,
+    required this.onEditChild,
   });
 
   final Family family;
@@ -120,6 +157,7 @@ class _FamilyTile extends ConsumerWidget {
   final VoidCallback onRename;
   final VoidCallback onDelete;
   final VoidCallback onAddChild;
+  final ValueChanged<Child> onEditChild;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -150,6 +188,10 @@ class _FamilyTile extends ConsumerWidget {
                     const SizedBox(width: 8),
                     Expanded(child: Text(c.name, style: const TextStyle(fontSize: 13, color: AppColors.text))),
                     Text('Gruppe ${groupName(c.groupId)}', style: const TextStyle(fontSize: 11, color: AppColors.neutral500)),
+                    IconButton(
+                      icon: const Icon(Icons.edit_outlined, size: 16, color: AppColors.neutral600),
+                      onPressed: () => onEditChild(c),
+                    ),
                     IconButton(
                       icon: const Icon(Icons.delete_outline_rounded, size: 16, color: AppColors.neutral600),
                       onPressed: () => ref.read(adminServiceProvider).deleteChild(c.id),

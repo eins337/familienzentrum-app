@@ -145,16 +145,23 @@ class _MessageBubble extends StatelessWidget {
   String _timeLabel(DateTime dt) => '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
 }
 
-class _PlaydateInlineCard extends ConsumerWidget {
+class _PlaydateInlineCard extends ConsumerStatefulWidget {
   const _PlaydateInlineCard({required this.playdate});
   final PlaydateRequest playdate;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_PlaydateInlineCard> createState() => _PlaydateInlineCardState();
+}
+
+class _PlaydateInlineCardState extends ConsumerState<_PlaydateInlineCard> {
+  int? _selected;
+
+  @override
+  Widget build(BuildContext context) {
     final children = ref.watch(allChildrenProvider).valueOrNull ?? {};
-    final fromChild = children[playdate.fromChildId]?.name ?? '…';
-    final toChild = children[playdate.toChildId]?.name ?? '…';
-    final slot = playdate.proposedSlots.firstOrNull;
+    final p = widget.playdate;
+    final fromChild = children[p.fromChildId]?.name ?? '…';
+    final toChild = children[p.toChildId]?.name ?? '…';
 
     return NCard(
       borderColor: AppColors.accent,
@@ -163,22 +170,44 @@ class _PlaydateInlineCard extends ConsumerWidget {
         children: [
           const Text('SPIELANFRAGE', style: TextStyle(fontSize: 10, letterSpacing: 1.1, color: AppColors.accent, fontWeight: FontWeight.w500)),
           const SizedBox(height: 4),
-          Text('$fromChild & $toChild${slot != null ? ' · ${slot.date} ${slot.timeRange}' : ''}',
-              style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500, fontSize: 14.5, color: AppColors.text)),
-          if (slot?.location != null) Text(slot!.location!, style: const TextStyle(fontSize: 12, color: AppColors.neutral400)),
+          Text('$fromChild & $toChild', style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500, fontSize: 14.5, color: AppColors.text)),
           const SizedBox(height: 8),
+          for (var i = 0; i < p.proposedSlots.length; i++)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: InkWell(
+                onTap: () => setState(() => _selected = i),
+                borderRadius: BorderRadius.circular(AppRadius.md),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: _selected == i ? AppColors.accent : AppColors.divider),
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                  ),
+                  child: Row(
+                    children: [
+                      Text('${p.proposedSlots[i].date} · ${p.proposedSlots[i].timeRange}',
+                          style: TextStyle(fontSize: 12.5, color: _selected == i ? AppColors.accent : AppColors.text)),
+                      const Spacer(),
+                      if (p.proposedSlots[i].location != null)
+                        Text(p.proposedSlots[i].location!, style: const TextStyle(fontSize: 11, color: AppColors.neutral400)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           Row(
             children: [
               Expanded(
                 child: NButton(
-                  label: 'Zusagen',
+                  label: 'Termin bestätigen',
                   variant: NButtonVariant.primary,
                   small: true,
-                  onPressed: () => ref.read(playdatesServiceProvider).confirmSlot(playdate.id, 0),
+                  onPressed: _selected == null ? null : () => ref.read(playdatesServiceProvider).confirmSlot(p.id, _selected!),
                 ),
               ),
               const SizedBox(width: 6),
-              NButton(label: 'Anderer Termin', variant: NButtonVariant.secondary, small: true, onPressed: () {}),
+              NButton(label: 'Absagen', variant: NButtonVariant.secondary, small: true, onPressed: () => ref.read(playdatesServiceProvider).declineRequest(p.id)),
             ],
           ),
         ],

@@ -33,6 +33,9 @@ class PostsService {
     List<String> photoUrls = const [],
     String? fileName,
     String? fileSizeLabel,
+    String? fileUrl,
+    DateTime? eventDate,
+    String? eventLocation,
     PostPoll? initialPoll,
   }) async {
     final row = await supa
@@ -48,6 +51,9 @@ class PostsService {
           'photo_urls': photoUrls,
           'file_name': fileName,
           'file_size_label': fileSizeLabel,
+          'file_url': fileUrl,
+          'event_date': eventDate?.toIso8601String(),
+          'event_location': eventLocation,
           if (initialPoll != null)
             'poll': {
               'options': initialPoll.options.map((o) => {'label': o.label, 'votes': 0}).toList(),

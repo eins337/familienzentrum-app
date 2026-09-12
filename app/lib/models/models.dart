@@ -84,6 +84,7 @@ class Child {
     this.groupId,
     required this.name,
     this.birthYear,
+    this.birthDate,
     this.avatarUrl,
     this.tags = const [],
     this.photoConsentGroup = true,
@@ -96,13 +97,33 @@ class Child {
   final String? groupId;
   final String name;
   final int? birthYear;
+  final DateTime? birthDate;
   final String? avatarUrl;
   final List<String> tags;
   final bool photoConsentGroup;
   final bool photoConsentWebsite;
   final DateTime createdAt;
 
-  int get age => birthYear == null ? 0 : DateTime.now().year - birthYear!;
+  int get age {
+    if (birthDate != null) {
+      final now = DateTime.now();
+      var years = now.year - birthDate!.year;
+      if (now.month < birthDate!.month || (now.month == birthDate!.month && now.day < birthDate!.day)) years--;
+      return years;
+    }
+    return birthYear == null ? 0 : DateTime.now().year - birthYear!;
+  }
+
+  /// Days until the next birthday (0 if today), or null if no birth_date
+  /// is on file.
+  int? get daysUntilNextBirthday {
+    if (birthDate == null) return null;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    var next = DateTime(today.year, birthDate!.month, birthDate!.day);
+    if (next.isBefore(today)) next = DateTime(today.year + 1, birthDate!.month, birthDate!.day);
+    return next.difference(today).inDays;
+  }
 
   factory Child.fromMap(Json m) => Child(
         id: m['id'] as String,
@@ -110,6 +131,7 @@ class Child {
         groupId: m['group_id'] as String?,
         name: m['name'] as String,
         birthYear: m['birth_year'] as int?,
+        birthDate: m['birth_date'] != null ? DateTime.parse(m['birth_date'] as String) : null,
         avatarUrl: m['avatar_url'] as String?,
         tags: _strList(m['tags']),
         photoConsentGroup: m['photo_consent_group'] as bool? ?? true,
@@ -180,6 +202,7 @@ class Post {
     this.photoUrls = const [],
     this.fileName,
     this.fileSizeLabel,
+    this.fileUrl,
     this.eventDate,
     this.eventLocation,
     this.poll,
@@ -201,6 +224,7 @@ class Post {
   final List<String> photoUrls;
   final String? fileName;
   final String? fileSizeLabel;
+  final String? fileUrl;
   final DateTime? eventDate;
   final String? eventLocation;
   final PostPoll? poll;
@@ -222,6 +246,7 @@ class Post {
         photoUrls: _strList(m['photo_urls']),
         fileName: m['file_name'] as String?,
         fileSizeLabel: m['file_size_label'] as String?,
+        fileUrl: m['file_url'] as String?,
         eventDate: m['event_date'] != null ? DateTime.parse(m['event_date'] as String) : null,
         eventLocation: m['event_location'] as String?,
         poll: m['poll'] != null ? PostPoll.fromMap(m['poll'] as Json) : null,

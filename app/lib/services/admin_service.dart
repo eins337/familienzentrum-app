@@ -68,21 +68,28 @@ class AdminService {
   }
 
   // ── Children ───────────────────────────────────────────────────────
-  Future<Child> createChild({required String familyId, required String name, String? groupId, int? birthYear}) async {
+  Future<Child> createChild({required String familyId, required String name, String? groupId, int? birthYear, DateTime? birthDate}) async {
     final row = await supa
         .from('children')
-        .insert({'family_id': familyId, 'name': name, 'group_id': groupId, 'birth_year': birthYear})
+        .insert({
+          'family_id': familyId,
+          'name': name,
+          'group_id': groupId,
+          'birth_year': birthYear,
+          'birth_date': birthDate?.toIso8601String().split('T').first,
+        })
         .select()
         .single();
     return Child.fromMap(row);
   }
 
-  Future<void> updateChildAdmin(String id, {String? name, String? groupId, int? birthYear, List<String>? tags}) => supa
+  Future<void> updateChildAdmin(String id, {String? name, String? groupId, int? birthYear, DateTime? birthDate, List<String>? tags}) => supa
       .from('children')
       .update({
         if (name != null) 'name': name,
         if (groupId != null) 'group_id': groupId,
         if (birthYear != null) 'birth_year': birthYear,
+        if (birthDate != null) 'birth_date': birthDate.toIso8601String().split('T').first,
         if (tags != null) 'tags': tags,
       })
       .eq('id', id);

@@ -47,6 +47,10 @@ class AuthService {
         );
   }
 
+  Future<void> updatePassword(String newPassword) async {
+    await supa.auth.updateUser(UserAttributes(password: newPassword));
+  }
+
   Future<void> updateNotificationSettings(String uid, Map<String, dynamic> settings) =>
       supa.from('profiles').update({'notification_settings': settings}).eq('id', uid);
 

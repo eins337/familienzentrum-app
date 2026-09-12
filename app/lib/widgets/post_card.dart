@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../models/models.dart';
 import '../state/providers.dart';
 import '../theme/tokens.dart';
@@ -81,21 +82,40 @@ class _PinnedCard extends StatelessWidget {
           Text(post.body, style: const TextStyle(fontSize: 13, color: AppColors.text, height: 1.4)),
           if (post.fileName != null) ...[
             const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
-              decoration: BoxDecoration(color: AppColors.neutral900, borderRadius: BorderRadius.circular(AppRadius.sm)),
-              child: Row(
-                children: [
-                  const Icon(Icons.description_outlined, size: 15, color: AppColors.accent),
-                  const SizedBox(width: 8),
-                  Expanded(child: Text(post.fileName!, style: const TextStyle(fontSize: 12, color: AppColors.text))),
-                  if (post.fileSizeLabel != null)
-                    Text(post.fileSizeLabel!, style: const TextStyle(fontSize: 10, color: AppColors.neutral500)),
-                ],
-              ),
-            ),
+            _AttachmentRow(post: post),
           ],
         ],
+      ),
+    );
+  }
+}
+
+class _AttachmentRow extends StatelessWidget {
+  const _AttachmentRow({required this.post});
+  final Post post;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(AppRadius.sm),
+      onTap: post.fileUrl == null
+          ? null
+          : () => launchUrl(Uri.parse(post.fileUrl!), mode: LaunchMode.externalApplication),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
+        decoration: BoxDecoration(color: AppColors.neutral900, borderRadius: BorderRadius.circular(AppRadius.sm)),
+        child: Row(
+          children: [
+            const Icon(Icons.description_outlined, size: 15, color: AppColors.accent),
+            const SizedBox(width: 8),
+            Expanded(child: Text(post.fileName!, style: const TextStyle(fontSize: 12, color: AppColors.text))),
+            if (post.fileSizeLabel != null) ...[
+              Text(post.fileSizeLabel!, style: const TextStyle(fontSize: 10, color: AppColors.neutral500)),
+              const SizedBox(width: 6),
+            ],
+            if (post.fileUrl != null) const Icon(Icons.open_in_new_rounded, size: 13, color: AppColors.neutral500),
+          ],
+        ),
       ),
     );
   }
@@ -200,15 +220,25 @@ class _PhotoCard extends ConsumerWidget {
   }
 }
 
-class _PollCard extends ConsumerWidget {
+class _PollCard extends ConsumerStatefulWidget {
   const _PollCard({required this.post});
   final Post post;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final myId = ref.watch(profileProvider).valueOrNull?.id;
+  ConsumerState<_PollCard> createState() => _PollCardState();
+}
+
+class _PollCardState extends ConsumerState<_PollCard> {
+  bool _expanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final post = widget.post;
+    final profile = ref.watch(profileProvider).valueOrNull;
+    final myId = profile?.id;
     final poll = post.poll;
     final voted = myId != null && (poll?.voterIds.contains(myId) ?? false);
+    final profiles = ref.watch(allProfilesProvider).valueOrNull ?? {};
 
     return NCard(
       child: Column(
@@ -248,10 +278,35 @@ class _PollCard extends ConsumerWidget {
                 ),
               );
             }),
-          Text(
-            voted ? 'Danke! Das Team sieht deine Zusage.' : '${poll?.voterIds.length ?? 0} Familien haben geantwortet.',
-            style: const TextStyle(fontSize: 10.5, color: AppColors.neutral500),
+          InkWell(
+            onTap: (profile?.isTeam ?? false) && (poll?.voterIds.isNotEmpty ?? false) ? () => setState(() => _expanded = !_expanded) : null,
+            child: Row(
+              children: [
+                Text(
+                  voted ? 'Danke! Das Team sieht deine Zusage.' : '${poll?.voterIds.length ?? 0} Familien haben geantwortet.',
+                  style: const TextStyle(fontSize: 10.5, color: AppColors.neutral500),
+                ),
+                if ((profile?.isTeam ?? false) && (poll?.voterIds.isNotEmpty ?? false)) ...[
+                  const SizedBox(width: 4),
+                  Icon(_expanded ? Icons.expand_less_rounded : Icons.expand_more_rounded, size: 14, color: AppColors.neutral500),
+                ],
+              ],
+            ),
           ),
+          if (_expanded && poll != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 6, left: 4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (final uid in poll.voterIds)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 3),
+                      child: Text(profiles[uid]?.displayName ?? uid, style: const TextStyle(fontSize: 12, color: AppColors.text)),
+                    ),
+                ],
+              ),
+            ),
         ],
       ),
     );
@@ -287,6 +342,10 @@ class _InfoCard extends StatelessWidget {
               '${formatDateLong(post.eventDate!)}${post.eventLocation != null ? ' · ${post.eventLocation}' : ''}',
               style: const TextStyle(fontSize: 11.5, color: AppColors.neutral400),
             ),
+          ],
+          if (post.fileName != null) ...[
+            const SizedBox(height: 8),
+            _AttachmentRow(post: post),
           ],
         ],
       ),

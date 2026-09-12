@@ -32,6 +32,15 @@ class TeamScreen extends ConsumerWidget {
             onPressed: () => context.push('/post-erstellen'),
           ),
           const SizedBox(height: 10),
+          NButton(
+            label: 'Termine, Speiseplan & Dokumente',
+            variant: NButtonVariant.secondary,
+            block: true,
+            alignStart: true,
+            icon: const Icon(Icons.article_outlined),
+            onPressed: () => context.push('/admin/content'),
+          ),
+          const SizedBox(height: 8),
           if (profile.isAdmin) ...[
             NButton(
               label: 'Admin-Bereich',

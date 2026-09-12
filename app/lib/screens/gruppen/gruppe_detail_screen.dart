@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../models/models.dart';
 import '../../state/providers.dart';
 import '../../theme/tokens.dart';
 import '../../utils/group_colors.dart';
+import '../../widgets/n_avatar.dart';
 import '../../widgets/n_button.dart';
 import '../../widgets/n_card.dart';
 import '../../widgets/n_header.dart';
 import '../../widgets/post_card.dart';
+import 'gruppe_gallery.dart';
 
 class GruppeDetailScreen extends ConsumerWidget {
   const GruppeDetailScreen({super.key, required this.groupId});
@@ -19,6 +22,8 @@ class GruppeDetailScreen extends ConsumerWidget {
     final group = groups.where((g) => g.id == groupId).firstOrNull;
     final team = ref.watch(groupTeamProvider(groupId)).valueOrNull ?? [];
     final postsAsync = ref.watch(groupPostsProvider(groupId));
+    final childrenAsync = ref.watch(childrenInGroupProvider(groupId));
+    final profile = ref.watch(profileProvider).valueOrNull;
 
     return Scaffold(
       appBar: NHeader(
@@ -63,12 +68,46 @@ class GruppeDetailScreen extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 10),
+          childrenAsync.when(
+            loading: () => const SizedBox(),
+            error: (_, __) => const SizedBox(),
+            data: (children) {
+              final visible = profile != null && !profile.isTeam
+                  ? children.where((c) => c.familyId != profile.familyId).toList()
+                  : children;
+              if (visible.isEmpty) return const SizedBox();
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: NCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('KINDER DER GRUPPE', style: TextStyle(fontSize: 10, letterSpacing: 1.1, color: AppColors.accent, fontWeight: FontWeight.w500)),
+                      const SizedBox(height: 4),
+                      if (profile != null && !profile.isTeam)
+                        const Padding(
+                          padding: EdgeInsets.only(bottom: 6),
+                          child: Text('Zum Spielen einladen oder eine Nachricht schreiben.', style: TextStyle(fontSize: 11, color: AppColors.neutral500)),
+                        ),
+                      for (final c in visible) _ChildRow(child: c, isTeam: profile?.isTeam ?? false),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
           postsAsync.when(
             loading: () => const Padding(padding: EdgeInsets.all(24), child: Center(child: CircularProgressIndicator(color: AppColors.accent))),
             error: (e, _) => Text('Fehler: $e'),
-            data: (posts) => Column(
-              children: [for (final p in posts) ...[PostCard(post: p, showGroupHeader: false), const SizedBox(height: 10)]],
-            ),
+            data: (posts) {
+              final galleryUrls = [for (final p in posts) if (p.kind == 'foto') ...p.photoUrls];
+              return Column(
+                children: [
+                  for (final p in posts) ...[PostCard(post: p, showGroupHeader: false), const SizedBox(height: 10)],
+                  if (galleryUrls.isNotEmpty) ...[GruppeGallery(photoUrls: galleryUrls), const SizedBox(height: 10)],
+                ],
+              );
+            },
           ),
           NCard(
             child: Column(
@@ -92,6 +131,79 @@ class GruppeDetailScreen extends ConsumerWidget {
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ChildRow extends ConsumerStatefulWidget {
+  const _ChildRow({required this.child, required this.isTeam});
+  final Child child;
+  final bool isTeam;
+
+  @override
+  ConsumerState<_ChildRow> createState() => _ChildRowState();
+}
+
+class _ChildRowState extends ConsumerState<_ChildRow> {
+  bool _loading = false;
+
+  Future<void> _startChat() async {
+    final myId = ref.read(profileProvider).valueOrNull?.id;
+    if (myId == null) return;
+    setState(() => _loading = true);
+    try {
+      final toUid = await ref.read(kitaServiceProvider).fetchPrimaryFamilyMemberUid(widget.child.familyId);
+      if (toUid == null || toUid == myId) {
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Für diese Familie ist noch kein Elternteil registriert.')));
+        return;
+      }
+      final chat = await ref.read(chatsServiceProvider).findOrCreateDirectChat(myId, toUid);
+      if (mounted) context.push('/chats/${chat.id}');
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Fehler: $e')));
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final families = ref.watch(allFamiliesProvider).valueOrNull ?? {};
+    final familyName = families[widget.child.familyId]?.name;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          NAvatar(initials: widget.child.name.isEmpty ? '?' : widget.child.name[0].toUpperCase(), size: 28),
+          const SizedBox(width: 9),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(widget.child.name, style: const TextStyle(fontSize: 13, color: AppColors.text)),
+                if (familyName != null) Text(familyName, style: const TextStyle(fontSize: 10.5, color: AppColors.neutral500)),
+              ],
+            ),
+          ),
+          if (_loading)
+            const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.accent))
+          else ...[
+            IconButton(
+              icon: const Icon(Icons.chat_bubble_outline_rounded, size: 17, color: AppColors.accent),
+              tooltip: 'Chat',
+              onPressed: _startChat,
+            ),
+            if (!widget.isTeam)
+              IconButton(
+                icon: const Icon(Icons.add_circle_outline_rounded, size: 18, color: AppColors.accent),
+                tooltip: 'Spielanfrage',
+                onPressed: () => context.push('/spielanfrage-neu?childId=${widget.child.id}'),
+              ),
+          ],
         ],
       ),
     );

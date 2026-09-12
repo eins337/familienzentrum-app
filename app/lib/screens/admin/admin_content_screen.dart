@@ -1,6 +1,9 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../models/models.dart';
+import '../../services/supabase_service.dart';
 import '../../state/providers.dart';
 import '../../theme/tokens.dart';
 import '../../utils/time_format.dart';
@@ -103,29 +106,84 @@ class _EventsTabState extends ConsumerState<_EventsTab> {
                 for (final e in events)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8),
-                    child: NCard(
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(e.title, style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500, fontSize: 13.5, color: AppColors.text)),
-                                Text(formatDateLong(e.eventDate), style: const TextStyle(fontSize: 11, color: AppColors.neutral500)),
-                              ],
-                            ),
-                          ),
-                          IconButton(icon: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.neutral500), onPressed: () => ref.read(adminServiceProvider).deleteEvent(e.id)),
-                        ],
-                      ),
-                    ),
+                    child: _EventRsvpCard(event: e),
                   ),
               ],
             );
           },
         ),
       ],
+    );
+  }
+}
+
+class _EventRsvpCard extends ConsumerStatefulWidget {
+  const _EventRsvpCard({required this.event});
+  final KitaEvent event;
+
+  @override
+  ConsumerState<_EventRsvpCard> createState() => _EventRsvpCardState();
+}
+
+class _EventRsvpCardState extends ConsumerState<_EventRsvpCard> {
+  bool _expanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final profiles = ref.watch(allProfilesProvider).valueOrNull ?? {};
+    final e = widget.event;
+    return NCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(e.title, style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500, fontSize: 13.5, color: AppColors.text)),
+                    Text(formatDateLong(e.eventDate), style: const TextStyle(fontSize: 11, color: AppColors.neutral500)),
+                  ],
+                ),
+              ),
+              IconButton(icon: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.neutral500), onPressed: () => ref.read(adminServiceProvider).deleteEvent(e.id)),
+            ],
+          ),
+          InkWell(
+            onTap: e.rsvpUids.isEmpty ? null : () => setState(() => _expanded = !_expanded),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Row(
+                children: [
+                  Icon(e.rsvpUids.isEmpty ? Icons.person_off_outlined : Icons.people_outline_rounded, size: 14, color: AppColors.neutral500),
+                  const SizedBox(width: 6),
+                  Text('${e.rsvpUids.length} Zusage${e.rsvpUids.length == 1 ? '' : 'n'}', style: const TextStyle(fontSize: 12, color: AppColors.neutral400)),
+                  if (e.rsvpUids.isNotEmpty) ...[
+                    const SizedBox(width: 4),
+                    Icon(_expanded ? Icons.expand_less_rounded : Icons.expand_more_rounded, size: 16, color: AppColors.neutral500),
+                  ],
+                ],
+              ),
+            ),
+          ),
+          if (_expanded)
+            Padding(
+              padding: const EdgeInsets.only(top: 4, left: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (final uid in e.rsvpUids)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 3),
+                      child: Text(profiles[uid]?.displayName ?? uid, style: const TextStyle(fontSize: 12.5, color: AppColors.text)),
+                    ),
+                ],
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -231,14 +289,32 @@ class _DocumentsTab extends ConsumerStatefulWidget {
 
 class _DocumentsTabState extends ConsumerState<_DocumentsTab> {
   final _titleCtrl = TextEditingController();
-  final _urlCtrl = TextEditingController();
+  PlatformFile? _picked;
+  bool _uploading = false;
+
+  Future<void> _pickFile() async {
+    final result = await FilePicker.platform.pickFiles(withData: true);
+    if (result != null && result.files.isNotEmpty) {
+      setState(() => _picked = result.files.first);
+    }
+  }
 
   Future<void> _add() async {
-    if (_titleCtrl.text.trim().isEmpty || _urlCtrl.text.trim().isEmpty) return;
-    await ref.read(adminServiceProvider).createDocument(title: _titleCtrl.text.trim(), fileUrl: _urlCtrl.text.trim());
-    _titleCtrl.clear();
-    _urlCtrl.clear();
-    setState(() {});
+    if (_titleCtrl.text.trim().isEmpty || _picked?.bytes == null) return;
+    setState(() => _uploading = true);
+    try {
+      final path = '${DateTime.now().microsecondsSinceEpoch}_${_picked!.name}';
+      await supa.storage.from('documents').uploadBinary(path, _picked!.bytes!);
+      final signedUrl = await supa.storage.from('documents').createSignedUrl(path, 60 * 60 * 24 * 365 * 5);
+      final sizeLabel = _picked!.size > 0 ? '${(_picked!.size / 1024).round()} KB' : null;
+      await ref.read(adminServiceProvider).createDocument(title: _titleCtrl.text.trim(), fileUrl: signedUrl, sizeLabel: sizeLabel);
+      _titleCtrl.clear();
+      setState(() => _picked = null);
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Fehler: $e')));
+    } finally {
+      if (mounted) setState(() => _uploading = false);
+    }
   }
 
   @override
@@ -252,9 +328,15 @@ class _DocumentsTabState extends ConsumerState<_DocumentsTab> {
             children: [
               NField(label: 'Titel', controller: _titleCtrl, hintText: 'z.B. Elternbrief September'),
               const SizedBox(height: 8),
-              NField(label: 'Datei-URL', controller: _urlCtrl, hintText: 'https://…'),
+              NButton(
+                label: _picked?.name ?? 'Datei auswählen',
+                variant: NButtonVariant.secondary,
+                small: true,
+                icon: const Icon(Icons.attach_file_rounded),
+                onPressed: _pickFile,
+              ),
               const SizedBox(height: 10),
-              NButton(label: 'Dokument hinzufügen', variant: NButtonVariant.primary, block: true, small: true, onPressed: _add),
+              NButton(label: 'Dokument hochladen', variant: NButtonVariant.primary, block: true, small: true, loading: _uploading, onPressed: _add),
             ],
           ),
         ),
@@ -269,8 +351,11 @@ class _DocumentsTabState extends ConsumerState<_DocumentsTab> {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: NCard(
+                      onTap: () => launchUrl(Uri.parse(d.fileUrl), mode: LaunchMode.externalApplication),
                       child: Row(
                         children: [
+                          const Icon(Icons.description_outlined, size: 16, color: AppColors.accent),
+                          const SizedBox(width: 8),
                           Expanded(child: Text(d.title, style: const TextStyle(fontSize: 13, color: AppColors.text))),
                           IconButton(icon: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.neutral500), onPressed: () => ref.read(adminServiceProvider).deleteDocument(d.id)),
                         ],

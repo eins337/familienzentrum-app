@@ -36,6 +36,10 @@ final familyProvider = FutureProvider<Family?>((ref) async {
 
 final groupsProvider = FutureProvider<List<Group>>((ref) => ref.watch(kitaServiceProvider).fetchGroups());
 
+final childrenInGroupProvider = FutureProvider.family<List<Child>, String>(
+  (ref, groupId) => ref.watch(kitaServiceProvider).fetchChildrenInGroup(groupId),
+);
+
 final groupTeamProvider = FutureProvider.family<List<GroupTeamMember>, String>(
   (ref, groupId) => ref.watch(kitaServiceProvider).fetchGroupTeam(groupId),
 );
