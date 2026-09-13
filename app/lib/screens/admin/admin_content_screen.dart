@@ -371,62 +371,33 @@ class _DocumentsTabState extends ConsumerState<_DocumentsTab> {
   }
 }
 
-class _SpeiseplanTab extends ConsumerStatefulWidget {
+class _SpeiseplanTab extends ConsumerWidget {
   const _SpeiseplanTab();
-  @override
-  ConsumerState<_SpeiseplanTab> createState() => _SpeiseplanTabState();
-}
-
-class _SpeiseplanTabState extends ConsumerState<_SpeiseplanTab> {
-  final _days = ['Mo', 'Di', 'Mi', 'Do', 'Fr'];
-  late List<TextEditingController> _ctrls;
-  bool _loaded = false;
-  bool _saving = false;
 
   @override
-  void initState() {
-    super.initState();
-    _ctrls = List.generate(_days.length, (_) => TextEditingController());
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final speiseplanAsync = ref.watch(speiseplanProvider);
-    speiseplanAsync.whenData((sp) {
-      if (!_loaded && sp != null) {
-        for (var i = 0; i < _days.length && i < sp.items.length; i++) {
-          _ctrls[i].text = sp.items[i].text;
-        }
-        _loaded = true;
-      }
-    });
+    final sp = speiseplanAsync.valueOrNull;
 
     return NCard(
+      onTap: sp?.fileUrl == null ? null : () => launchUrl(Uri.parse(sp!.fileUrl!), mode: LaunchMode.externalApplication),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          for (var i = 0; i < _days.length; i++)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                children: [
-                  SizedBox(width: 30, child: Text(_days[i], style: const TextStyle(fontSize: 12.5, color: AppColors.muted))),
-                  Expanded(child: NInput(controller: _ctrls[i])),
-                ],
+          Row(
+            children: [
+              const Icon(Icons.restaurant_menu_rounded, size: 16, color: AppColors.primary),
+              const SizedBox(width: 8),
+              Text(
+                sp?.fileName == null ? 'Noch kein Speiseplan hochgeladen.' : 'Speiseplan KW ${sp!.kw} · ${sp.fileName}',
+                style: const TextStyle(fontSize: 13, color: AppColors.ink),
               ),
-            ),
-          NButton(
-            label: 'Speiseplan speichern',
-            variant: NButtonVariant.primary,
-            block: true,
-            small: true,
-            loading: _saving,
-            onPressed: () async {
-              setState(() => _saving = true);
-              final items = [for (var i = 0; i < _days.length; i++) SpeiseplanItem(day: _days[i], text: _ctrls[i].text.trim())];
-              await ref.read(adminServiceProvider).saveSpeiseplan(items);
-              if (mounted) setState(() => _saving = false);
-            },
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Ein neuer Speiseplan wird über „Beitrag erstellen" → „Speiseplan (PDF)" veröffentlicht — er ersetzt den aktuellen automatisch hier und im Feed.',
+            style: const TextStyle(fontSize: 11.5, color: AppColors.muted, height: 1.4),
           ),
         ],
       ),

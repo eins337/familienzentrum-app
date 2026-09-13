@@ -48,7 +48,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/post-erstellen',
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const PostCreateScreen(),
+        builder: (context, state) => PostCreateScreen(
+          preselectedGroupId: state.uri.queryParameters['groupId'],
+          preselectedKind: state.uri.queryParameters['kind'],
+        ),
       ),
       GoRoute(
         path: '/post/:postId/kommentare',

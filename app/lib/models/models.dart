@@ -529,10 +529,18 @@ class SpeiseplanItem {
 }
 
 class Speiseplan {
-  Speiseplan({required this.items});
+  Speiseplan({required this.items, this.fileUrl, this.fileName, this.kw});
   final List<SpeiseplanItem> items;
-  factory Speiseplan.fromMap(Json m) =>
-      Speiseplan(items: (m['items'] as List? ?? []).map((i) => SpeiseplanItem.fromMap(i as Json)).toList());
+  final String? fileUrl;
+  final String? fileName;
+  final int? kw;
+
+  factory Speiseplan.fromMap(Json m) => Speiseplan(
+        items: (m['items'] as List? ?? []).map((i) => SpeiseplanItem.fromMap(i as Json)).toList(),
+        fileUrl: m['file_url'] as String?,
+        fileName: m['file_name'] as String?,
+        kw: m['kw'] as int?,
+      );
 }
 
 class Invite {

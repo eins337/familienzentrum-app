@@ -183,7 +183,4 @@ class AdminService {
       supa.from('documents').insert({'title': title, 'file_url': fileUrl, 'size_label': sizeLabel, 'group_id': groupId});
 
   Future<void> deleteDocument(String id) => supa.from('documents').delete().eq('id', id);
-
-  Future<void> saveSpeiseplan(List<SpeiseplanItem> items) =>
-      supa.from('speiseplan').upsert({'id': 'current', 'items': items.map((i) => i.toMap()).toList()});
 }

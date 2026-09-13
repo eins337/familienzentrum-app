@@ -83,6 +83,16 @@ class KitaService {
     return row == null ? null : Speiseplan.fromMap(row);
   }
 
+  /// Replaces the current Speiseplan with a new PDF — the singleton row
+  /// under `speiseplan.id = 'current'` powers the Feed card and Infos tab.
+  Future<void> publishSpeiseplan({required String fileUrl, required String fileName, required int kw}) => supa.from('speiseplan').upsert({
+        'id': 'current',
+        'file_url': fileUrl,
+        'file_name': fileName,
+        'kw': kw,
+        'updated_at': DateTime.now().toIso8601String(),
+      });
+
   Future<void> createSickReport({
     required String childId,
     required String familyId,
