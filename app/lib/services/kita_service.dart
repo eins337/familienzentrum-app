@@ -56,6 +56,10 @@ class KitaService {
       })
       .eq('id', childId);
 
+  /// Parents maintain their own child's "Wichtig für die Kita" hints —
+  /// these surface live in the team's Gruppe view.
+  Future<void> updateChildTags(String childId, List<String> tags) => supa.from('children').update({'tags': tags}).eq('id', childId);
+
   Stream<List<KitaEvent>> streamUpcomingEvents() {
     final today = DateTime.now();
     final todayStr = '${today.year.toString().padLeft(4, '0')}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
