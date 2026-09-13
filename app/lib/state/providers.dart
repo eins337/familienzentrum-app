@@ -80,9 +80,10 @@ final closuresProvider = FutureProvider<List<Closure>>((ref) => ref.watch(kitaSe
 final documentsProvider = FutureProvider<List<DocumentItem>>((ref) => ref.watch(kitaServiceProvider).fetchDocuments());
 
 final myChatsProvider = StreamProvider<List<Chat>>((ref) {
-  final uid = ref.watch(profileProvider).valueOrNull?.id;
-  if (uid == null) return Stream.value(const []);
-  return ref.watch(chatsServiceProvider).streamMyChats(uid);
+  final profile = ref.watch(profileProvider).valueOrNull;
+  if (profile == null) return Stream.value(const []);
+  final relevantGroupIds = profile.isTeam ? profile.groupIds.toSet() : ref.watch(myChildrenProvider).valueOrNull?.map((c) => c.groupId).whereType<String>().toSet() ?? {};
+  return ref.watch(chatsServiceProvider).streamMyChats(profile.id, relevantGroupIds: relevantGroupIds);
 });
 
 final chatMessagesProvider = StreamProvider.family<List<Message>, String>(

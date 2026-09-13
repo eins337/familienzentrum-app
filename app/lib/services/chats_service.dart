@@ -1,13 +1,20 @@
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/models.dart';
 import 'supabase_service.dart';
 
 class ChatsService {
-  Stream<List<Chat>> streamMyChats(String uid) {
+  /// [relevantGroupIds] surfaces the open "Eltern/Team Gruppe X" channels
+  /// for the caller's own groups (parent: their children's groups; team:
+  /// their assigned groups) alongside their direct 1:1 chats.
+  Stream<List<Chat>> streamMyChats(String uid, {Set<String> relevantGroupIds = const {}}) {
     return supa
         .from('chats')
         .stream(primaryKey: ['id'])
         .order('last_message_at', ascending: false)
-        .map((rows) => rows.map(Chat.fromMap).where((c) => c.participantIds.contains(uid)).toList());
+        .map((rows) => rows
+            .map(Chat.fromMap)
+            .where((c) => c.participantIds.contains(uid) || (c.channel != null && relevantGroupIds.contains(c.groupId)))
+            .toList());
   }
 
   Stream<List<Message>> streamMessages(String chatId) {
@@ -42,5 +49,29 @@ class ChatsService {
         .select()
         .single();
     return Chat.fromMap(row);
+  }
+
+  /// The persistent "Eltern Gruppe X" / "Team Gruppe X" channel — an open
+  /// group chat scoped by `group_id` + `channel`, not by participant_ids
+  /// (see migration 0014 for why: these read/write as any signed-in user,
+  /// matching how `posts` group-visibility already works in this app).
+  Future<Chat> findOrCreateGroupChat({required String groupId, required String channel, required String name}) async {
+    final existing = await supa.from('chats').select().eq('is_group', true).eq('group_id', groupId).eq('channel', channel).maybeSingle();
+    if (existing != null) return Chat.fromMap(existing);
+    try {
+      final row = await supa
+          .from('chats')
+          .insert({'is_group': true, 'group_id': groupId, 'channel': channel, 'name': name, 'participant_ids': <String>[]})
+          .select()
+          .single();
+      return Chat.fromMap(row);
+    } on PostgrestException catch (e) {
+      // Someone else created the same channel a moment ago (unique index) — fetch theirs.
+      if (e.code == '23505') {
+        final row = await supa.from('chats').select().eq('is_group', true).eq('group_id', groupId).eq('channel', channel).single();
+        return Chat.fromMap(row);
+      }
+      rethrow;
+    }
   }
 }

@@ -283,6 +283,7 @@ class Chat {
     this.isGroup = false,
     this.name,
     this.groupId,
+    this.channel,
     this.participantIds = const [],
     required this.createdAt,
     required this.lastMessageAt,
@@ -292,6 +293,8 @@ class Chat {
   final bool isGroup;
   final String? name;
   final String? groupId;
+  /// 'eltern' | 'team' for a group channel; null for a direct 1:1 chat.
+  final String? channel;
   final List<String> participantIds;
   final DateTime createdAt;
   final DateTime lastMessageAt;
@@ -301,6 +304,7 @@ class Chat {
         isGroup: m['is_group'] as bool? ?? false,
         name: m['name'] as String?,
         groupId: m['group_id'] as String?,
+        channel: m['channel'] as String?,
         participantIds: _strList(m['participant_ids']),
         createdAt: DateTime.parse(m['created_at'] as String),
         lastMessageAt: DateTime.parse(m['last_message_at'] as String),

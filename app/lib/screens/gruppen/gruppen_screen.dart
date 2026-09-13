@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../state/providers.dart';
 import '../../theme/tokens.dart';
 import '../../utils/group_colors.dart';
+import '../../widgets/n_button.dart';
 import '../../widgets/n_card.dart';
 import '../../widgets/n_header.dart';
 
@@ -13,6 +14,9 @@ class GruppenScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final groupsAsync = ref.watch(groupsProvider);
+    final profile = ref.watch(profileProvider).valueOrNull;
+    final myChildren = ref.watch(myChildrenProvider).valueOrNull ?? [];
+    final isTeam = profile?.isTeam ?? false;
 
     return Scaffold(
       appBar: NHeader(title: 'Gruppen', subtitle: 'Blau · Gelb · Rot', hasUnread: true, onBell: () => context.push('/mitteilungen')),
@@ -20,19 +24,28 @@ class GruppenScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
         error: (e, _) => Center(child: Text('Fehler: $e')),
         data: (groups) {
+          final myGroupIds = myChildren.map((c) => c.groupId).whereType<String>().toSet();
+          final visibleGroups = isTeam ? groups : groups.where((g) => myGroupIds.contains(g.id)).toList();
+
           return ListView(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
             children: [
-              const Text('Jede Gruppe hat einen eigenen Feed, eigene Termine und einen Elternchat.',
-                  style: TextStyle(fontSize: 12, color: AppColors.muted)),
+              Text(
+                isTeam ? 'Jede Gruppe hat einen eigenen Feed, eigene Termine und einen Elternchat.' : 'Der Feed, die Termine und der Elternchat deiner Gruppe.',
+                style: const TextStyle(fontSize: 12, color: AppColors.muted),
+              ),
               const SizedBox(height: 8),
-              for (final g in groups) ...[
+              for (final g in visibleGroups) ...[
                 _GroupRow(groupId: g.id, name: g.name, childCount: g.childCount, onTap: () => context.push('/gruppen/${g.id}')),
+                const SizedBox(height: 8),
+              ],
+              if (!isTeam && visibleGroups.isNotEmpty) ...[
+                const SizedBox(height: 2),
+                _ShortcutRow(groupId: visibleGroups.first.id),
                 const SizedBox(height: 8),
               ],
               const SizedBox(height: 4),
               NCard(
-                background: Colors.transparent,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -56,6 +69,48 @@ class GruppenScreen extends ConsumerWidget {
           );
         },
       ),
+    );
+  }
+}
+
+class _ShortcutRow extends ConsumerWidget {
+  const _ShortcutRow({required this.groupId});
+  final String groupId;
+
+  Future<void> _openChannel(BuildContext context, WidgetRef ref, String channel) async {
+    try {
+      final label = channel == 'eltern' ? 'Eltern Gruppe ${groupName(groupId)}' : 'Team Gruppe ${groupName(groupId)}';
+      final chat = await ref.read(chatsServiceProvider).findOrCreateGroupChat(groupId: groupId, channel: channel, name: label);
+      if (context.mounted) context.push('/chats/${chat.id}');
+    } catch (e) {
+      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Fehler: $e')));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Row(
+      children: [
+        Expanded(
+          child: NButton(
+            label: 'Elternchat',
+            variant: NButtonVariant.secondary,
+            small: true,
+            icon: const Icon(Icons.chat_bubble_outline_rounded),
+            onPressed: () => _openChannel(context, ref, 'eltern'),
+          ),
+        ),
+        const SizedBox(width: 6),
+        Expanded(
+          child: NButton(
+            label: 'An alle Erzieher',
+            variant: NButtonVariant.secondary,
+            small: true,
+            icon: const Icon(Icons.groups_2_outlined),
+            onPressed: () => _openChannel(context, ref, 'team'),
+          ),
+        ),
+      ],
     );
   }
 }

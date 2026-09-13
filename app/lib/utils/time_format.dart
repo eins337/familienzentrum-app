@@ -22,3 +22,22 @@ String formatDateLong(DateTime dt) => '${dt.day.toString().padLeft(2, '0')}.${dt
 String monthNameShort(int month) => _monthsShort[month - 1];
 
 String weekdayShort(int weekday) => _weekdaysShort[weekday - 1];
+
+/// ISO-8601 week number (Kalenderwoche), matching the "KW 38" labels used
+/// for the Speiseplan and Wochenrückblick.
+int isoWeekNumber(DateTime date) {
+  final d = DateTime.utc(date.year, date.month, date.day);
+  final thursday = d.add(Duration(days: 3 - ((d.weekday + 6) % 7)));
+  final firstThursday = DateTime.utc(thursday.year, 1, 4);
+  final firstThursdayWeekStart = firstThursday.subtract(Duration(days: (firstThursday.weekday + 6) % 7));
+  return (thursday.difference(firstThursdayWeekStart).inDays / 7).floor() + 1;
+}
+
+/// The Sunday-20:00 cutoff after which a Wochenrückblick posted in [postedAt]'s
+/// ISO week is considered expired.
+bool isWochenrueckblickExpired(DateTime postedAt) {
+  final weekday = postedAt.weekday; // Monday = 1 ... Sunday = 7
+  final sundayOfWeek = DateTime(postedAt.year, postedAt.month, postedAt.day).add(Duration(days: 7 - weekday));
+  final cutoff = DateTime(sundayOfWeek.year, sundayOfWeek.month, sundayOfWeek.day, 20);
+  return DateTime.now().isAfter(cutoff);
+}

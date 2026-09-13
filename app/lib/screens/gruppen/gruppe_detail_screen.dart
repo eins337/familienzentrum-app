@@ -5,12 +5,24 @@ import '../../models/models.dart';
 import '../../state/providers.dart';
 import '../../theme/tokens.dart';
 import '../../utils/group_colors.dart';
+import '../../utils/time_format.dart';
 import '../../widgets/n_avatar.dart';
 import '../../widgets/n_button.dart';
 import '../../widgets/n_card.dart';
 import '../../widgets/n_header.dart';
 import '../../widgets/post_card.dart';
+import '../../widgets/wochenrueckblick_card.dart';
 import 'gruppe_gallery.dart';
+
+Future<void> _openChannel(BuildContext context, WidgetRef ref, String groupId, String channel) async {
+  try {
+    final label = channel == 'eltern' ? 'Eltern Gruppe ${groupName(groupId)}' : 'Team Gruppe ${groupName(groupId)}';
+    final chat = await ref.read(chatsServiceProvider).findOrCreateGroupChat(groupId: groupId, channel: channel, name: label);
+    if (context.mounted) context.push('/chats/${chat.id}');
+  } catch (e) {
+    if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Fehler: $e')));
+  }
+}
 
 class GruppeDetailScreen extends ConsumerWidget {
   const GruppeDetailScreen({super.key, required this.groupId});
@@ -62,12 +74,84 @@ class GruppeDetailScreen extends ConsumerWidget {
           const SizedBox(height: 10),
           Row(
             children: [
-              Expanded(child: NButton(label: 'Elternchat', variant: NButtonVariant.secondary, small: true, onPressed: () => context.push('/chats'))),
+              Expanded(child: NButton(label: 'Elternchat', variant: NButtonVariant.secondary, small: true, onPressed: () => _openChannel(context, ref, groupId, 'eltern'))),
+              const SizedBox(width: 6),
+              Expanded(child: NButton(label: 'Erzieher', variant: NButtonVariant.secondary, small: true, onPressed: () => _openChannel(context, ref, groupId, 'team'))),
               const SizedBox(width: 6),
               Expanded(child: NButton(label: 'Spielanfrage', variant: NButtonVariant.secondary, small: true, onPressed: () => context.push('/spielanfrage-neu'))),
             ],
           ),
           const SizedBox(height: 10),
+          postsAsync.when(
+            loading: () => const SizedBox(),
+            error: (_, __) => const SizedBox(),
+            data: (posts) {
+              final rueckblicke = posts.where((p) => p.kind == 'wochenrueckblick' && !isWochenrueckblickExpired(p.createdAt)).toList()
+                ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+              final current = rueckblicke.firstOrNull;
+              if (current == null && !(profile?.isTeam ?? false)) return const SizedBox();
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Column(
+                  children: [
+                    if (current != null) WochenrueckblickCard(post: current),
+                    if (profile?.isTeam ?? false) ...[
+                      const SizedBox(height: 8),
+                      NButton(
+                        label: 'Neuen Wochenrückblick erstellen',
+                        variant: NButtonVariant.primary,
+                        small: true,
+                        block: true,
+                        onPressed: () => context.push('/post-erstellen?groupId=$groupId&kind=wochenrueckblick'),
+                      ),
+                    ],
+                  ],
+                ),
+              );
+            },
+          ),
+          if (profile?.isTeam ?? false)
+            childrenAsync.when(
+              loading: () => const SizedBox(),
+              error: (_, __) => const SizedBox(),
+              data: (children) {
+                final withHints = children.where((c) => c.tags.isNotEmpty).toList();
+                if (withHints.isEmpty) return const SizedBox();
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: NCard(
+                    background: AppColors.warningSoft,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.info_outline_rounded, size: 15, color: AppColors.warningInk),
+                            const SizedBox(width: 7),
+                            Text('Wichtige Hinweise der Familien', style: AppText.outfit(size: 14, weight: FontWeight.w600, color: AppColors.warningInk)),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        for (final c in withHints)
+                          Container(
+                            margin: const EdgeInsets.only(bottom: 6),
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                            decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(AppRadius.input)),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(c.name, style: AppText.outfit(size: 13.5, weight: FontWeight.w600, color: AppColors.ink)),
+                                const SizedBox(height: 3),
+                                Text(c.tags.join(' · '), style: AppText.nunito(size: 12, color: AppColors.ink2)),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
           childrenAsync.when(
             loading: () => const SizedBox(),
             error: (_, __) => const SizedBox(),
@@ -100,10 +184,11 @@ class GruppeDetailScreen extends ConsumerWidget {
             loading: () => const Padding(padding: EdgeInsets.all(24), child: Center(child: CircularProgressIndicator(color: AppColors.primary))),
             error: (e, _) => Text('Fehler: $e'),
             data: (posts) {
-              final galleryUrls = [for (final p in posts) if (p.kind == 'foto') ...p.photoUrls];
+              final visiblePosts = posts.where((p) => p.kind != 'wochenrueckblick').toList();
+              final galleryUrls = [for (final p in visiblePosts) if (p.kind == 'foto') ...p.photoUrls];
               return Column(
                 children: [
-                  for (final p in posts) ...[PostCard(post: p, showGroupHeader: false), const SizedBox(height: 10)],
+                  for (final p in visiblePosts) ...[PostCard(post: p, showGroupHeader: false), const SizedBox(height: 10)],
                   if (galleryUrls.isNotEmpty) ...[GruppeGallery(photoUrls: galleryUrls), const SizedBox(height: 10)],
                 ],
               );

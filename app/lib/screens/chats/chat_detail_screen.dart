@@ -66,7 +66,12 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                         child: Text('Heute', style: TextStyle(fontSize: 10.5, color: AppColors.muted)),
                       ),
                     ),
-                    for (final m in messages) _MessageBubble(message: m, mine: m.senderId == myId),
+                    for (final m in messages)
+                      _MessageBubble(
+                        message: m,
+                        mine: m.senderId == myId,
+                        senderName: (chat?.isGroup ?? false) && m.senderId != myId ? profiles[m.senderId]?.displayName : null,
+                      ),
                     if (playdate != null && playdate.status == 'pending') ...[
                       const SizedBox(height: 8),
                       Align(alignment: Alignment.centerLeft, child: _PlaydateInlineCard(playdate: playdate)),
@@ -113,29 +118,44 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
 }
 
 class _MessageBubble extends StatelessWidget {
-  const _MessageBubble({required this.message, required this.mine});
+  const _MessageBubble({required this.message, required this.mine, this.senderName});
   final Message message;
   final bool mine;
+  final String? senderName;
 
   @override
   Widget build(BuildContext context) {
+    final radius = BorderRadius.only(
+      topLeft: const Radius.circular(AppRadius.chatBubble),
+      topRight: const Radius.circular(AppRadius.chatBubble),
+      bottomLeft: Radius.circular(mine ? AppRadius.chatBubble : AppRadius.chatBubbleTail),
+      bottomRight: Radius.circular(mine ? AppRadius.chatBubbleTail : AppRadius.chatBubble),
+    );
+
     return Align(
       alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         margin: const EdgeInsets.only(bottom: 8),
         constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.78),
-        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
         decoration: BoxDecoration(
-          color: mine ? const Color(0xFF2B2741) : AppColors.surface,
-          border: Border.all(color: mine ? AppColors.primary.withValues(alpha: 0.45) : AppColors.divider),
-          borderRadius: BorderRadius.circular(14),
+          color: mine ? AppColors.primary : AppColors.surface,
+          border: mine ? null : Border.all(color: AppColors.cardBorder),
+          borderRadius: radius,
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(message.body, style: const TextStyle(fontSize: 13, height: 1.45, color: AppColors.ink)),
+            if (senderName != null) ...[
+              Text(senderName!, style: AppText.outfit(size: 10.5, weight: FontWeight.w800, color: AppColors.primary)),
+              const SizedBox(height: 2),
+            ],
+            Text(message.body, style: TextStyle(fontSize: 13, height: 1.45, color: mine ? AppColors.surface : AppColors.ink)),
             const SizedBox(height: 3),
-            Text(_timeLabel(message.createdAt), style: const TextStyle(fontSize: 9.5, color: AppColors.muted)),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Text(_timeLabel(message.createdAt), style: TextStyle(fontSize: 9.5, color: mine ? AppColors.surface.withValues(alpha: 0.75) : AppColors.muted)),
+            ),
           ],
         ),
       ),
