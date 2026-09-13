@@ -7,8 +7,8 @@ class NAvatar extends StatelessWidget {
     super.key,
     required this.initials,
     this.size = 32,
-    this.background = AppColors.neutral800,
-    this.foreground = AppColors.text,
+    this.background = AppColors.soft,
+    this.foreground = AppColors.ink,
     this.borderColor,
     this.shape = BoxShape.circle,
     this.radius,
@@ -36,7 +36,7 @@ class NAvatar extends StatelessWidget {
       ),
       child: Text(
         initials,
-        style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500, fontSize: size * 0.34, color: foreground),
+        style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: size * 0.34, color: foreground),
       ),
     );
   }

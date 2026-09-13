@@ -84,25 +84,25 @@ class _AdminInvitesScreenState extends ConsumerState<AdminInvitesScreen> {
         children: [
           if (_justCreated != null) ...[
             NCard(
-              borderColor: AppColors.accent,
+              borderColor: AppColors.primary,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('EINLADUNG ERSTELLT', style: TextStyle(fontSize: 10, letterSpacing: 1.1, color: AppColors.accent, fontWeight: FontWeight.w500)),
+                  const Text('EINLADUNG ERSTELLT', style: TextStyle(fontFamily: 'Outfit', fontSize: 10, letterSpacing: 1.3, color: AppColors.primary, fontWeight: FontWeight.w800)),
                   const SizedBox(height: 8),
-                  Text('${_justCreated!.displayName} (${_justCreated!.email}) meldet sich mit diesem Code an:', style: const TextStyle(fontSize: 13, color: AppColors.text)),
+                  Text('${_justCreated!.displayName} (${_justCreated!.email}) meldet sich mit diesem Code an:', style: const TextStyle(fontSize: 13, color: AppColors.ink)),
                   const SizedBox(height: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                    decoration: BoxDecoration(color: AppColors.neutral900, borderRadius: BorderRadius.circular(AppRadius.md)),
-                    child: Text(_justCreated!.code, style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500, fontSize: 22, letterSpacing: 3, color: AppColors.accent)),
+                    decoration: BoxDecoration(color: AppColors.soft, borderRadius: BorderRadius.circular(AppRadius.md)),
+                    child: Text(_justCreated!.code, style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 22, letterSpacing: 3, color: AppColors.primary)),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 12),
           ],
-          const Text('Rolle', style: TextStyle(fontSize: 12, color: AppColors.neutral400)),
+          const Text('Rolle', style: TextStyle(fontSize: 12, color: AppColors.muted)),
           const SizedBox(height: 5),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -120,7 +120,7 @@ class _AdminInvitesScreenState extends ConsumerState<AdminInvitesScreen> {
           NField(label: 'Name (z.B. Elternteil)', controller: _nameCtrl, hintText: 'Sandra Weber'),
           if (_role == 'parent') ...[
             const SizedBox(height: 10),
-            const Text('Familie', style: TextStyle(fontSize: 12, color: AppColors.neutral400)),
+            const Text('Familie', style: TextStyle(fontSize: 12, color: AppColors.muted)),
             const SizedBox(height: 5),
             StreamBuilder<List<Family>>(
               stream: familiesAsync,
@@ -147,7 +147,7 @@ class _AdminInvitesScreenState extends ConsumerState<AdminInvitesScreen> {
             const SizedBox(height: 10),
             NField(label: 'Titel (optional)', controller: _staffTitleCtrl, hintText: 'z.B. Gruppenleitung'),
             const SizedBox(height: 10),
-            const Text('Gruppen', style: TextStyle(fontSize: 12, color: AppColors.neutral400)),
+            const Text('Gruppen', style: TextStyle(fontSize: 12, color: AppColors.muted)),
             const SizedBox(height: 5),
             groupsAsync.when(
               loading: () => const SizedBox(),
@@ -161,8 +161,8 @@ class _AdminInvitesScreenState extends ConsumerState<AdminInvitesScreen> {
                       selected: _groupIds.contains(g.id),
                       onSelected: (sel) => setState(() => sel ? _groupIds.add(g.id) : _groupIds.remove(g.id)),
                       backgroundColor: AppColors.surface,
-                      selectedColor: AppColors.accent800,
-                      labelStyle: TextStyle(fontSize: 12, color: _groupIds.contains(g.id) ? AppColors.accent100 : AppColors.text),
+                      selectedColor: AppColors.primarySoft,
+                      labelStyle: TextStyle(fontSize: 12, color: _groupIds.contains(g.id) ? AppColors.primaryInk : AppColors.ink),
                       side: BorderSide.none,
                     ),
                 ],
@@ -172,13 +172,13 @@ class _AdminInvitesScreenState extends ConsumerState<AdminInvitesScreen> {
           const SizedBox(height: 14),
           NButton(label: 'Einladung erstellen', variant: NButtonVariant.primary, block: true, loading: _creating, onPressed: _create),
           const SizedBox(height: 18),
-          const Text('BISHERIGE EINLADUNGEN', style: TextStyle(fontSize: 10, letterSpacing: 1.1, color: AppColors.accent, fontWeight: FontWeight.w500)),
+          const Text('BISHERIGE EINLADUNGEN', style: TextStyle(fontFamily: 'Outfit', fontSize: 10, letterSpacing: 1.3, color: AppColors.primary, fontWeight: FontWeight.w800)),
           const SizedBox(height: 8),
           StreamBuilder<List<Invite>>(
             stream: invitesAsync,
             builder: (context, snap) {
               final invites = snap.data ?? [];
-              if (invites.isEmpty) return const Text('Noch keine Einladungen.', style: TextStyle(fontSize: 12.5, color: AppColors.neutral500));
+              if (invites.isEmpty) return const Text('Noch keine Einladungen.', style: TextStyle(fontSize: 12.5, color: AppColors.muted));
               return Column(
                 children: [
                   for (final inv in invites)
@@ -192,14 +192,14 @@ class _AdminInvitesScreenState extends ConsumerState<AdminInvitesScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Text(inv.displayName, style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500, fontSize: 13.5, color: AppColors.text)),
-                                  Text(inv.email, style: const TextStyle(fontSize: 11, color: AppColors.neutral500)),
+                                  Text(inv.displayName, style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 13.5, color: AppColors.ink)),
+                                  Text(inv.email, style: const TextStyle(fontSize: 11, color: AppColors.muted)),
                                 ],
                               ),
                             ),
                             NTag(inv.redeemedAt != null ? 'eingelöst' : 'offen', variant: inv.redeemedAt != null ? NTagVariant.accent : NTagVariant.neutral),
                             IconButton(
-                              icon: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.neutral500),
+                              icon: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.muted),
                               onPressed: () => ref.read(adminServiceProvider).deleteInvite(inv.email),
                             ),
                           ],

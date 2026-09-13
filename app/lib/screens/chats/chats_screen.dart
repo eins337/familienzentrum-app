@@ -37,7 +37,7 @@ class _ChatsScreenState extends ConsumerState<ChatsScreen> {
     return Scaffold(
       appBar: NHeader(title: 'Nachrichten', subtitle: 'Eltern & Team', hasUnread: true, onBell: () => context.push('/mitteilungen')),
       body: chatsAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator(color: AppColors.accent)),
+        loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
         error: (e, _) => Center(child: Text('Fehler: $e')),
         data: (allChats) {
           final query = _query.trim().toLowerCase();
@@ -56,21 +56,21 @@ class _ChatsScreenState extends ConsumerState<ChatsScreen> {
               if (chats.isEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 40),
-                  child: Center(child: Text(query.isEmpty ? 'Noch keine Chats.' : 'Keine Treffer für „$_query“.', style: const TextStyle(color: AppColors.neutral500))),
+                  child: Center(child: Text(query.isEmpty ? 'Noch keine Chats.' : 'Keine Treffer für „$_query“.', style: const TextStyle(color: AppColors.muted))),
                 ),
               const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-                decoration: BoxDecoration(color: AppColors.neutral900, borderRadius: BorderRadius.circular(AppRadius.md)),
+                decoration: BoxDecoration(color: AppColors.soft, borderRadius: BorderRadius.circular(AppRadius.md)),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.lock_outline_rounded, size: 13, color: AppColors.accent),
+                    const Icon(Icons.lock_outline_rounded, size: 13, color: AppColors.primary),
                     const SizedBox(width: 8),
                     const Expanded(
                       child: Text(
                         'Du siehst nur Familien, die ihre Kontaktdaten für den Elternchat freigegeben haben.',
-                        style: TextStyle(fontSize: 11, color: AppColors.neutral400, height: 1.45),
+                        style: TextStyle(fontSize: 11, color: AppColors.muted, height: 1.45),
                       ),
                     ),
                   ],
@@ -108,9 +108,9 @@ class _ChatRow extends ConsumerWidget {
       subtitle = null;
       avatar = NAvatar(
         initials: groupInitial(chat.groupId),
-        background: chat.groupId != null ? groupColor(chat.groupId) : AppColors.accent.withValues(alpha: 0.15),
-        foreground: chat.groupId != null ? AppColors.bg : AppColors.accent,
-        borderColor: chat.groupId == null ? AppColors.accent : null,
+        background: chat.groupId != null ? groupColor(chat.groupId) : AppColors.primary.withValues(alpha: 0.15),
+        foreground: chat.groupId != null ? AppColors.background : AppColors.primary,
+        borderColor: chat.groupId == null ? AppColors.primary : null,
       );
     } else {
       subtitle = null;
@@ -133,16 +133,16 @@ class _ChatRow extends ConsumerWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: Text(title, style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500, fontSize: 14, color: AppColors.text), overflow: TextOverflow.ellipsis),
+                      child: Text(title, style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 14, color: AppColors.ink), overflow: TextOverflow.ellipsis),
                     ),
-                    Text(formatRelative(chat.lastMessageAt), style: const TextStyle(fontSize: 10, color: AppColors.neutral500)),
+                    Text(formatRelative(chat.lastMessageAt), style: const TextStyle(fontSize: 10, color: AppColors.muted)),
                   ],
                 ),
                 if (subtitle != null) Text(subtitle, style: const TextStyle(fontSize: 10, color: AppColors.groupBlau)),
                 if (lastMessage != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 2),
-                    child: Text(lastMessage.body, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12.5, color: AppColors.neutral400)),
+                    child: Text(lastMessage.body, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12.5, color: AppColors.muted)),
                   ),
               ],
             ),

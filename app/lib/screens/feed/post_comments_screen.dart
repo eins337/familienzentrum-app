@@ -53,7 +53,7 @@ class _PostCommentsScreenState extends ConsumerState<PostCommentsScreen> {
               builder: (context, snap) {
                 final comments = snap.data ?? [];
                 if (comments.isEmpty) {
-                  return const Center(child: Text('Noch keine Kommentare.', style: TextStyle(color: AppColors.neutral500)));
+                  return const Center(child: Text('Noch keine Kommentare.', style: TextStyle(color: AppColors.muted)));
                 }
                 return ListView.separated(
                   padding: const EdgeInsets.all(16),
@@ -74,13 +74,13 @@ class _PostCommentsScreenState extends ConsumerState<PostCommentsScreen> {
                             children: [
                               Row(
                                 children: [
-                                  Text(name, style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500, fontSize: 13, color: AppColors.text)),
+                                  Text(name, style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.ink)),
                                   const SizedBox(width: 6),
-                                  Text(formatRelative(c.createdAt), style: const TextStyle(fontSize: 10, color: AppColors.neutral500)),
+                                  Text(formatRelative(c.createdAt), style: const TextStyle(fontSize: 10, color: AppColors.muted)),
                                 ],
                               ),
                               const SizedBox(height: 2),
-                              Text(c.body, style: const TextStyle(fontSize: 13, color: AppColors.text, height: 1.4)),
+                              Text(c.body, style: const TextStyle(fontSize: 13, color: AppColors.ink, height: 1.4)),
                             ],
                           ),
                         ),
@@ -100,17 +100,17 @@ class _PostCommentsScreenState extends ConsumerState<PostCommentsScreen> {
                   Expanded(
                     child: TextField(
                       controller: _draftCtrl,
-                      style: const TextStyle(fontFamily: 'Inter', fontSize: 14, color: AppColors.text),
+                      style: const TextStyle(fontFamily: 'Nunito Sans', fontSize: 14, color: AppColors.ink),
                       decoration: InputDecoration(
                         hintText: 'Kommentar schreiben',
-                        hintStyle: const TextStyle(color: AppColors.neutral600),
+                        hintStyle: const TextStyle(color: AppColors.mutedAlt),
                         filled: true,
                         fillColor: AppColors.surface,
                         isDense: true,
                         contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.md), borderSide: const BorderSide(color: AppColors.divider)),
                         enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.md), borderSide: const BorderSide(color: AppColors.divider)),
-                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.md), borderSide: const BorderSide(color: AppColors.accent)),
+                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.md), borderSide: const BorderSide(color: AppColors.primary)),
                       ),
                       onSubmitted: (_) => _send(),
                     ),
@@ -123,8 +123,8 @@ class _PostCommentsScreenState extends ConsumerState<PostCommentsScreen> {
                       width: 40,
                       height: 40,
                       alignment: Alignment.center,
-                      decoration: BoxDecoration(border: Border.all(color: AppColors.accent), borderRadius: BorderRadius.circular(AppRadius.md)),
-                      child: const Icon(Icons.send_rounded, size: 17, color: AppColors.accent),
+                      decoration: BoxDecoration(border: Border.all(color: AppColors.primary), borderRadius: BorderRadius.circular(AppRadius.md)),
+                      child: const Icon(Icons.send_rounded, size: 17, color: AppColors.primary),
                     ),
                   ),
                 ],

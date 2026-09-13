@@ -41,7 +41,7 @@ class _AdminSickReportsScreenState extends ConsumerState<AdminSickReportsScreen>
             stream: reportsAsync,
             builder: (context, snap) {
               final reports = snap.data ?? [];
-              if (reports.isEmpty) return const Padding(padding: EdgeInsets.only(top: 20), child: Text('Keine Krankmeldungen.', style: TextStyle(color: AppColors.neutral500)));
+              if (reports.isEmpty) return const Padding(padding: EdgeInsets.only(top: 20), child: Text('Keine Krankmeldungen.', style: TextStyle(color: AppColors.muted)));
               return Column(
                 children: [
                   for (final r in reports)
@@ -55,13 +55,13 @@ class _AdminSickReportsScreenState extends ConsumerState<AdminSickReportsScreen>
                               children: [
                                 if (r.groupId != null) NTag('Gruppe ${groupName(r.groupId)}', variant: NTagVariant.neutral),
                                 const Spacer(),
-                                Text(formatRelative(r.createdAt), style: const TextStyle(fontSize: 11, color: AppColors.neutral500)),
+                                Text(formatRelative(r.createdAt), style: const TextStyle(fontSize: 11, color: AppColors.muted)),
                               ],
                             ),
                             const SizedBox(height: 4),
-                            Text(children[r.childId]?.name ?? r.childName ?? '…', style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500, fontSize: 15, color: AppColors.text)),
-                            Text(r.dateLabel, style: const TextStyle(fontSize: 12, color: AppColors.neutral400)),
-                            if (r.reason != null) Text(r.reason!, style: const TextStyle(fontSize: 12.5, color: AppColors.text)),
+                            Text(children[r.childId]?.name ?? r.childName ?? '…', style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 15, color: AppColors.ink)),
+                            Text(r.dateLabel, style: const TextStyle(fontSize: 12, color: AppColors.muted)),
+                            if (r.reason != null) Text(r.reason!, style: const TextStyle(fontSize: 12.5, color: AppColors.ink)),
                             if (!r.acknowledged) ...[
                               const SizedBox(height: 8),
                               NButton(label: 'Als erledigt markieren', variant: NButtonVariant.secondary, small: true, onPressed: () => ref.read(kitaServiceProvider).acknowledgeSickReport(r.id)),

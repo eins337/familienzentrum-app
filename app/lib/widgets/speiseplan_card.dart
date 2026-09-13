@@ -14,7 +14,7 @@ class SpeiseplanCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('SPEISEPLAN · DIESE WOCHE',
-              style: TextStyle(fontSize: 10, letterSpacing: 1.1, color: AppColors.accent, fontWeight: FontWeight.w500)),
+              style: TextStyle(fontFamily: 'Outfit', fontSize: 10, letterSpacing: 1.3, color: AppColors.primary, fontWeight: FontWeight.w800)),
           const SizedBox(height: 6),
           for (final item in speiseplan.items)
             Padding(
@@ -22,8 +22,8 @@ class SpeiseplanCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(width: 24, child: Text(item.day, style: const TextStyle(fontSize: 12.5, color: AppColors.neutral500))),
-                  Expanded(child: Text(item.text, style: const TextStyle(fontSize: 12.5, color: AppColors.text))),
+                  SizedBox(width: 24, child: Text(item.day, style: const TextStyle(fontSize: 12.5, color: AppColors.muted))),
+                  Expanded(child: Text(item.text, style: const TextStyle(fontSize: 12.5, color: AppColors.ink))),
                 ],
               ),
             ),

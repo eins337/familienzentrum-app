@@ -40,10 +40,10 @@ class _AdminFamiliesScreenState extends ConsumerState<AdminFamiliesScreen> {
       context: context,
       builder: (context) => SimpleDialog(
         backgroundColor: AppColors.surface,
-        title: const Text('Gruppe wählen', style: TextStyle(color: AppColors.text)),
+        title: const Text('Gruppe wählen', style: TextStyle(color: AppColors.ink)),
         children: [
           for (final g in groups)
-            SimpleDialogOption(onPressed: () => Navigator.pop(context, g.id), child: Text('Gruppe ${g.name}', style: const TextStyle(color: AppColors.text))),
+            SimpleDialogOption(onPressed: () => Navigator.pop(context, g.id), child: Text('Gruppe ${g.name}', style: const TextStyle(color: AppColors.ink))),
         ],
       ),
     );
@@ -67,10 +67,10 @@ class _AdminFamiliesScreenState extends ConsumerState<AdminFamiliesScreen> {
       context: context,
       builder: (context) => SimpleDialog(
         backgroundColor: AppColors.surface,
-        title: const Text('Gruppe wählen', style: TextStyle(color: AppColors.text)),
+        title: const Text('Gruppe wählen', style: TextStyle(color: AppColors.ink)),
         children: [
           for (final g in groups)
-            SimpleDialogOption(onPressed: () => Navigator.pop(context, g.id), child: Text('Gruppe ${g.name}', style: const TextStyle(color: AppColors.text))),
+            SimpleDialogOption(onPressed: () => Navigator.pop(context, g.id), child: Text('Gruppe ${g.name}', style: const TextStyle(color: AppColors.ink))),
         ],
       ),
     );
@@ -128,8 +128,8 @@ Future<String?> _promptText(BuildContext context, {required String title, String
     context: context,
     builder: (context) => AlertDialog(
       backgroundColor: AppColors.surface,
-      title: Text(title, style: const TextStyle(color: AppColors.text)),
-      content: TextField(controller: ctrl, autofocus: true, style: const TextStyle(color: AppColors.text), decoration: InputDecoration(hintText: hint)),
+      title: Text(title, style: const TextStyle(color: AppColors.ink)),
+      content: TextField(controller: ctrl, autofocus: true, style: const TextStyle(color: AppColors.ink), decoration: InputDecoration(hintText: hint)),
       actions: [
         TextButton(onPressed: () => Navigator.pop(context), child: const Text('Abbrechen')),
         TextButton(onPressed: () => Navigator.pop(context, ctrl.text), child: const Text('Speichern')),
@@ -170,10 +170,10 @@ class _FamilyTile extends ConsumerWidget {
             child: Row(
               children: [
                 Expanded(
-                  child: Text(family.name, style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500, fontSize: 15, color: AppColors.text)),
+                  child: Text(family.name, style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 15, color: AppColors.ink)),
                 ),
-                Text('${children.length} Kinder', style: const TextStyle(fontSize: 11, color: AppColors.neutral500)),
-                Icon(expanded ? Icons.expand_less_rounded : Icons.expand_more_rounded, color: AppColors.neutral500),
+                Text('${children.length} Kinder', style: const TextStyle(fontSize: 11, color: AppColors.muted)),
+                Icon(expanded ? Icons.expand_less_rounded : Icons.expand_more_rounded, color: AppColors.muted),
               ],
             ),
           ),
@@ -186,14 +186,14 @@ class _FamilyTile extends ConsumerWidget {
                   children: [
                     Container(width: 8, height: 8, decoration: BoxDecoration(shape: BoxShape.circle, color: groupColor(c.groupId))),
                     const SizedBox(width: 8),
-                    Expanded(child: Text(c.name, style: const TextStyle(fontSize: 13, color: AppColors.text))),
-                    Text('Gruppe ${groupName(c.groupId)}', style: const TextStyle(fontSize: 11, color: AppColors.neutral500)),
+                    Expanded(child: Text(c.name, style: const TextStyle(fontSize: 13, color: AppColors.ink))),
+                    Text('Gruppe ${groupName(c.groupId)}', style: const TextStyle(fontSize: 11, color: AppColors.muted)),
                     IconButton(
-                      icon: const Icon(Icons.edit_outlined, size: 16, color: AppColors.neutral600),
+                      icon: const Icon(Icons.edit_outlined, size: 16, color: AppColors.mutedAlt),
                       onPressed: () => onEditChild(c),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.delete_outline_rounded, size: 16, color: AppColors.neutral600),
+                      icon: const Icon(Icons.delete_outline_rounded, size: 16, color: AppColors.mutedAlt),
                       onPressed: () => ref.read(adminServiceProvider).deleteChild(c.id),
                     ),
                   ],

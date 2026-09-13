@@ -56,7 +56,7 @@ class _UserRow extends ConsumerWidget {
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
           backgroundColor: AppColors.surface,
-          title: Text(user.displayName, style: const TextStyle(color: AppColors.text)),
+          title: Text(user.displayName, style: const TextStyle(color: AppColors.ink)),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -68,7 +68,7 @@ class _UserRow extends ConsumerWidget {
                 NRadioRow(label: 'Admin-Rechte', selected: isAdmin, onTap: () => setState(() => isAdmin = !isAdmin)),
                 if (role == 'team') ...[
                   const SizedBox(height: 8),
-                  TextField(controller: staffTitleCtrl, style: const TextStyle(color: AppColors.text), decoration: const InputDecoration(hintText: 'Titel, z.B. Gruppenleitung')),
+                  TextField(controller: staffTitleCtrl, style: const TextStyle(color: AppColors.ink), decoration: const InputDecoration(hintText: 'Titel, z.B. Gruppenleitung')),
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 6,
@@ -120,28 +120,28 @@ class _UserRow extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    Flexible(child: Text(user.displayName, style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500, fontSize: 13.5, color: AppColors.text), overflow: TextOverflow.ellipsis)),
+                    Flexible(child: Text(user.displayName, style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 13.5, color: AppColors.ink), overflow: TextOverflow.ellipsis)),
                     if (user.isAdmin) ...[const SizedBox(width: 6), const NTag('Admin', variant: NTagVariant.accent)],
                     if (user.disabled) ...[const SizedBox(width: 6), const NTag('Gesperrt', variant: NTagVariant.outline)],
                   ],
                 ),
-                Text(user.email, style: const TextStyle(fontSize: 11, color: AppColors.neutral500)),
-                Text(user.isTeam ? (user.staffTitle ?? 'Kita-Team') : 'Familie', style: const TextStyle(fontSize: 11, color: AppColors.neutral400)),
+                Text(user.email, style: const TextStyle(fontSize: 11, color: AppColors.muted)),
+                Text(user.isTeam ? (user.staffTitle ?? 'Kita-Team') : 'Familie', style: const TextStyle(fontSize: 11, color: AppColors.muted)),
               ],
             ),
           ),
           if (!isSelf) ...[
             IconButton(
-              icon: Icon(user.disabled ? Icons.lock_open_rounded : Icons.lock_outline_rounded, size: 18, color: AppColors.neutral500),
+              icon: Icon(user.disabled ? Icons.lock_open_rounded : Icons.lock_outline_rounded, size: 18, color: AppColors.muted),
               onPressed: () => ref.read(adminServiceProvider).setUserAccountDisabled(user.id, !user.disabled),
             ),
-            IconButton(icon: const Icon(Icons.edit_outlined, size: 18, color: AppColors.neutral500), onPressed: () => _edit(context, ref)),
+            IconButton(icon: const Icon(Icons.edit_outlined, size: 18, color: AppColors.muted), onPressed: () => _edit(context, ref)),
             IconButton(
-              icon: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.neutral500),
+              icon: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.muted),
               onPressed: () => ref.read(adminServiceProvider).deleteUserAccount(user.id),
             ),
           ] else
-            IconButton(icon: const Icon(Icons.edit_outlined, size: 18, color: AppColors.neutral500), onPressed: () => _edit(context, ref)),
+            IconButton(icon: const Icon(Icons.edit_outlined, size: 18, color: AppColors.muted), onPressed: () => _edit(context, ref)),
         ],
       ),
     );

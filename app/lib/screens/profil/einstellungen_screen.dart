@@ -50,7 +50,7 @@ class EinstellungenScreen extends ConsumerWidget {
                   padding: const EdgeInsets.only(top: 9),
                   child: Row(
                     children: [
-                      const Expanded(child: Text('Mein Kontakt im Elternchat', style: TextStyle(fontSize: 13, color: AppColors.text))),
+                      const Expanded(child: Text('Mein Kontakt im Elternchat', style: TextStyle(fontSize: 13, color: AppColors.ink))),
                       const NTag('Sichtbar', variant: NTagVariant.accent),
                     ],
                   ),
@@ -59,7 +59,7 @@ class EinstellungenScreen extends ConsumerWidget {
                   padding: EdgeInsets.only(top: 9),
                   child: Row(
                     children: [
-                      Expanded(child: Text('Spielanfragen empfangen', style: TextStyle(fontSize: 13, color: AppColors.text))),
+                      Expanded(child: Text('Spielanfragen empfangen', style: TextStyle(fontSize: 13, color: AppColors.ink))),
                       NTag('Nur eigene Gruppe', variant: NTagVariant.accent),
                     ],
                   ),
@@ -68,7 +68,7 @@ class EinstellungenScreen extends ConsumerWidget {
                   padding: EdgeInsets.only(top: 9),
                   child: Row(
                     children: [
-                      Expanded(child: Text('Fotofreigabe', style: TextStyle(fontSize: 13, color: AppColors.text))),
+                      Expanded(child: Text('Fotofreigabe', style: TextStyle(fontSize: 13, color: AppColors.ink))),
                       NTag('Nur App', variant: NTagVariant.accent),
                     ],
                   ),
@@ -83,8 +83,8 @@ class EinstellungenScreen extends ConsumerWidget {
               children: [
                 const _Kicker('Konto'),
                 const SizedBox(height: 6),
-                Text(profile.email, style: const TextStyle(fontSize: 13, color: AppColors.text)),
-                if (family != null) Text(family.name, style: const TextStyle(fontSize: 11.5, color: AppColors.neutral500)),
+                Text(profile.email, style: const TextStyle(fontSize: 13, color: AppColors.ink)),
+                if (family != null) Text(family.name, style: const TextStyle(fontSize: 11.5, color: AppColors.muted)),
                 const Divider(height: 20),
                 NButton(label: 'Passwort ändern', variant: NButtonVariant.ghost, small: true, onPressed: () => _showChangePasswordDialog(context, ref)),
                 NButton(label: 'Sprache: Deutsch', variant: NButtonVariant.ghost, small: true, onPressed: () {}),
@@ -118,7 +118,7 @@ Future<void> _showChangePasswordDialog(BuildContext context, WidgetRef ref) asyn
     builder: (context) => StatefulBuilder(
       builder: (context, setState) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const Text('Passwort ändern', style: TextStyle(color: AppColors.text)),
+        title: const Text('Passwort ändern', style: TextStyle(color: AppColors.ink)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -176,7 +176,7 @@ class _Kicker extends StatelessWidget {
   final String text;
   @override
   Widget build(BuildContext context) =>
-      Text(text.toUpperCase(), style: const TextStyle(fontSize: 10, letterSpacing: 1.1, color: AppColors.accent, fontWeight: FontWeight.w500));
+      Text(text.toUpperCase(), style: const TextStyle(fontFamily: 'Outfit', fontSize: 10, letterSpacing: 1.3, color: AppColors.primary, fontWeight: FontWeight.w800));
 }
 
 class _Toggle extends StatelessWidget {
@@ -191,7 +191,7 @@ class _Toggle extends StatelessWidget {
       padding: const EdgeInsets.only(top: 9),
       child: Row(
         children: [
-          Expanded(child: Text(label, style: const TextStyle(fontSize: 13, color: AppColors.text))),
+          Expanded(child: Text(label, style: const TextStyle(fontSize: 13, color: AppColors.ink))),
           InkWell(onTap: () => onChanged(!value), child: NTag(value ? 'An' : 'Aus', variant: value ? NTagVariant.accent : NTagVariant.neutral)),
         ],
       ),

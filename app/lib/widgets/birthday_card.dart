@@ -21,7 +21,7 @@ class BirthdayCard extends StatelessWidget {
             children: [
               Text('🎂', style: TextStyle(fontSize: 14)),
               SizedBox(width: 6),
-              Text('BALD GEBURTSTAG', style: TextStyle(fontSize: 10, letterSpacing: 1.1, color: AppColors.accent, fontWeight: FontWeight.w500)),
+              Text('BALD GEBURTSTAG', style: TextStyle(fontFamily: 'Outfit', fontSize: 10, letterSpacing: 1.3, color: AppColors.primary, fontWeight: FontWeight.w800)),
             ],
           ),
           const SizedBox(height: 8),
@@ -35,7 +35,7 @@ class BirthdayCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       _label(c),
-                      style: const TextStyle(fontSize: 13, color: AppColors.text),
+                      style: const TextStyle(fontSize: 13, color: AppColors.ink),
                     ),
                   ),
                 ],

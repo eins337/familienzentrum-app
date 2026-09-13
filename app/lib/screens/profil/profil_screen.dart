@@ -33,11 +33,11 @@ class _ProfilScreenState extends ConsumerState<ProfilScreen> {
     return Scaffold(
       appBar: NHeader(title: 'Profil', subtitle: 'Familie', hasUnread: true, onBell: () => context.push('/mitteilungen')),
       body: childrenAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator(color: AppColors.accent)),
+        loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
         error: (e, _) => Center(child: Text('Fehler: $e')),
         data: (children) {
           if (children.isEmpty) {
-            return const Center(child: Text('Noch kein Kind hinterlegt.', style: TextStyle(color: AppColors.neutral500)));
+            return const Center(child: Text('Noch kein Kind hinterlegt.', style: TextStyle(color: AppColors.muted)));
           }
           final child = children.firstWhere((c) => c.id == _selectedChildId, orElse: () => children.first);
 
@@ -54,8 +54,8 @@ class _ProfilScreenState extends ConsumerState<ProfilScreen> {
                         selected: c.id == child.id,
                         onSelected: (_) => setState(() => _selectedChildId = c.id),
                         backgroundColor: AppColors.surface,
-                        selectedColor: AppColors.accent800,
-                        labelStyle: TextStyle(color: c.id == child.id ? AppColors.accent100 : AppColors.text, fontSize: 12),
+                        selectedColor: AppColors.primarySoft,
+                        labelStyle: TextStyle(color: c.id == child.id ? AppColors.primaryInk : AppColors.ink, fontSize: 12),
                         side: BorderSide.none,
                       ),
                   ],
@@ -71,18 +71,18 @@ class _ProfilScreenState extends ConsumerState<ProfilScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(child.name, style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500, fontSize: 20, color: AppColors.text)),
+                        Text(child.name, style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 20, color: AppColors.ink)),
                         const SizedBox(height: 3),
                         Row(
                           children: [
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                               decoration: BoxDecoration(color: groupColor(child.groupId), borderRadius: BorderRadius.circular(6)),
-                              child: Text('Gruppe ${groupName(child.groupId)}', style: const TextStyle(fontSize: 11, color: AppColors.bg)),
+                              child: Text('Gruppe ${groupName(child.groupId)}', style: const TextStyle(fontSize: 11, color: AppColors.background)),
                             ),
                             if (child.birthYear != null) ...[
                               const SizedBox(width: 6),
-                              Text('${child.age} Jahre', style: const TextStyle(fontSize: 11, color: AppColors.neutral500)),
+                              Text('${child.age} Jahre', style: const TextStyle(fontSize: 11, color: AppColors.muted)),
                             ],
                           ],
                         ),
@@ -108,11 +108,11 @@ class _ProfilScreenState extends ConsumerState<ProfilScreen> {
                               children: [
                                 NAvatar(initials: _initials(profiles[m.userId]?.displayName ?? '?'), size: 28),
                                 const SizedBox(width: 9),
-                                Text(profiles[m.userId]?.displayName ?? '…', style: const TextStyle(fontSize: 13, color: AppColors.text)),
+                                Text(profiles[m.userId]?.displayName ?? '…', style: const TextStyle(fontSize: 13, color: AppColors.ink)),
                                 const Spacer(),
                                 Text(
                                   m.userId == profile.id ? '${m.relation} · du' : m.relation,
-                                  style: const TextStyle(fontSize: 11, color: AppColors.neutral500),
+                                  style: const TextStyle(fontSize: 11, color: AppColors.muted),
                                 ),
                               ],
                             ),
@@ -185,15 +185,15 @@ class _TeamProfil extends StatelessWidget {
         children: [
           Row(
             children: [
-              NAvatar(initials: profile.displayName.isEmpty ? '?' : profile.displayName[0].toUpperCase(), size: 56, borderColor: AppColors.accent, foreground: AppColors.accent, background: Colors.transparent),
+              NAvatar(initials: profile.displayName.isEmpty ? '?' : profile.displayName[0].toUpperCase(), size: 56, borderColor: AppColors.primary, foreground: AppColors.primary, background: Colors.transparent),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(profile.displayName, style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500, fontSize: 20, color: AppColors.text)),
-                    Text(profile.staffTitle ?? 'Kita-Team', style: const TextStyle(fontSize: 12, color: AppColors.neutral400)),
+                    Text(profile.displayName, style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 20, color: AppColors.ink)),
+                    Text(profile.staffTitle ?? 'Kita-Team', style: const TextStyle(fontSize: 12, color: AppColors.muted)),
                   ],
                 ),
               ),
@@ -223,7 +223,7 @@ class _Kicker extends StatelessWidget {
   final String text;
   @override
   Widget build(BuildContext context) =>
-      Text(text.toUpperCase(), style: const TextStyle(fontSize: 10, letterSpacing: 1.1, color: AppColors.accent, fontWeight: FontWeight.w500));
+      Text(text.toUpperCase(), style: const TextStyle(fontFamily: 'Outfit', fontSize: 10, letterSpacing: 1.3, color: AppColors.primary, fontWeight: FontWeight.w800));
 }
 
 class _ToggleRow extends StatelessWidget {
@@ -238,7 +238,7 @@ class _ToggleRow extends StatelessWidget {
       padding: const EdgeInsets.only(top: 9),
       child: Row(
         children: [
-          Expanded(child: Text(label, style: const TextStyle(fontSize: 13, color: AppColors.text))),
+          Expanded(child: Text(label, style: const TextStyle(fontSize: 13, color: AppColors.ink))),
           InkWell(
             onTap: onTap,
             child: NTag(active ? 'Aktiv' : 'Aus', variant: active ? NTagVariant.accent : NTagVariant.neutral),

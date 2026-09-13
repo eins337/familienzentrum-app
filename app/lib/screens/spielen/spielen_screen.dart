@@ -20,7 +20,7 @@ class SpielenScreen extends ConsumerWidget {
     return Scaffold(
       appBar: NHeader(title: 'Spielen', subtitle: 'Verabredungen der Kinder', hasUnread: true, onBell: () => context.push('/mitteilungen')),
       body: playdatesAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator(color: AppColors.accent)),
+        loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
         error: (e, _) => Center(child: Text('Fehler: $e')),
         data: (all) {
           final waiting = all.where((p) => p.status == 'pending' && p.toFamilyId == myFamilyId).toList();
@@ -71,7 +71,7 @@ class _SectionLabel extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Text(text.toUpperCase(),
-          style: TextStyle(fontSize: 10, letterSpacing: 1.1, color: accent ? AppColors.accent : AppColors.neutral500, fontWeight: FontWeight.w500)),
+          style: TextStyle(fontFamily: 'Outfit', fontSize: 10, letterSpacing: 1.3, color: accent ? AppColors.primary : AppColors.muted, fontWeight: FontWeight.w800)),
     );
   }
 }
@@ -102,22 +102,22 @@ class _WaitingCardState extends ConsumerState<_WaitingCard> {
         children: [
           Row(
             children: [
-              Container(width: 30, height: 30, decoration: const BoxDecoration(shape: BoxShape.circle, color: AppColors.neutral800)),
+              Container(width: 30, height: 30, decoration: const BoxDecoration(shape: BoxShape.circle, color: AppColors.soft)),
               const SizedBox(width: 9),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('$fromFamily fragt an', style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500, fontSize: 13.5, color: AppColors.text)),
-                    Text('$fromChild möchte mit $toChild spielen', style: const TextStyle(fontSize: 11, color: AppColors.neutral500)),
+                    Text('$fromFamily fragt an', style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 13.5, color: AppColors.ink)),
+                    Text('$fromChild möchte mit $toChild spielen', style: const TextStyle(fontSize: 11, color: AppColors.muted)),
                   ],
                 ),
               ),
             ],
           ),
           const SizedBox(height: 9),
-          const Text('Vorgeschlagene Termine — wähle, was passt:', style: TextStyle(fontSize: 11.5, color: AppColors.neutral400)),
+          const Text('Vorgeschlagene Termine — wähle, was passt:', style: TextStyle(fontSize: 11.5, color: AppColors.muted)),
           const SizedBox(height: 6),
           for (var i = 0; i < p.proposedSlots.length; i++)
             Padding(
@@ -128,16 +128,16 @@ class _WaitingCardState extends ConsumerState<_WaitingCard> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                   decoration: BoxDecoration(
-                    border: Border.all(color: _selected == i ? AppColors.accent : AppColors.divider),
+                    border: Border.all(color: _selected == i ? AppColors.primary : AppColors.divider),
                     borderRadius: BorderRadius.circular(AppRadius.md),
                   ),
                   child: Row(
                     children: [
                       Text('${p.proposedSlots[i].date} · ${p.proposedSlots[i].timeRange}',
-                          style: TextStyle(fontSize: 12.5, color: _selected == i ? AppColors.accent : AppColors.text)),
+                          style: TextStyle(fontSize: 12.5, color: _selected == i ? AppColors.primary : AppColors.ink)),
                       const Spacer(),
                       if (p.proposedSlots[i].location != null)
-                        Text(p.proposedSlots[i].location!, style: const TextStyle(fontSize: 11, color: AppColors.neutral400)),
+                        Text(p.proposedSlots[i].location!, style: const TextStyle(fontSize: 11, color: AppColors.muted)),
                     ],
                   ),
                 ),
@@ -160,7 +160,7 @@ class _WaitingCardState extends ConsumerState<_WaitingCard> {
           const SizedBox(height: 4),
           Text(
             _selected == null ? 'Wähle einen Termin, oder schlage einen eigenen vor.' : 'Tippe auf bestätigen — die Familie wird dann benachrichtigt.',
-            style: const TextStyle(fontSize: 10.5, color: AppColors.neutral500),
+            style: const TextStyle(fontSize: 10.5, color: AppColors.muted),
           ),
         ],
       ),
@@ -189,10 +189,10 @@ class _ConfirmedRow extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('$fromChild & $toChild', style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500, fontSize: 14.5, color: AppColors.text)),
+                Text('$fromChild & $toChild', style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 14.5, color: AppColors.ink)),
                 if (slot != null)
                   Text('${slot.date} · ${slot.timeRange}${slot.location != null ? ' · ${slot.location}' : ''}',
-                      style: const TextStyle(fontSize: 11.5, color: AppColors.neutral400)),
+                      style: const TextStyle(fontSize: 11.5, color: AppColors.muted)),
               ],
             ),
           ),
@@ -226,8 +226,8 @@ class _SentCard extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 6),
-          Text('Anfrage an $toFamily', style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500, fontSize: 14.5, color: AppColors.text)),
-          Text('${playdate.proposedSlots.length} Terminvorschläge · $fromChild', style: const TextStyle(fontSize: 11.5, color: AppColors.neutral400)),
+          Text('Anfrage an $toFamily', style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 14.5, color: AppColors.ink)),
+          Text('${playdate.proposedSlots.length} Terminvorschläge · $fromChild', style: const TextStyle(fontSize: 11.5, color: AppColors.muted)),
         ],
       ),
     );

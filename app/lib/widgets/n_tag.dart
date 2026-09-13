@@ -3,7 +3,8 @@ import '../theme/tokens.dart';
 
 enum NTagVariant { accent, neutral, outline }
 
-/// Nocturne `.tag` / `.tag-accent` / `.tag-neutral` / `.tag-outline`.
+/// v2 Badge/Pill — soft-colored, matches the README badge scale
+/// (10–10.5px/800).
 class NTag extends StatelessWidget {
   const NTag(this.label, {super.key, this.variant = NTagVariant.neutral, this.icon, this.color, this.textColor});
 
@@ -17,29 +18,29 @@ class NTag extends StatelessWidget {
   Widget build(BuildContext context) {
     final bg = color ??
         switch (variant) {
-          NTagVariant.accent => AppColors.accent800,
-          NTagVariant.neutral => AppColors.neutral800,
+          NTagVariant.accent => AppColors.primarySoft,
+          NTagVariant.neutral => AppColors.soft,
           NTagVariant.outline => Colors.transparent,
         };
     final fg = textColor ??
         switch (variant) {
-          NTagVariant.accent => AppColors.accent100,
-          NTagVariant.neutral => AppColors.neutral100,
-          NTagVariant.outline => AppColors.accent,
+          NTagVariant.accent => AppColors.primaryInk,
+          NTagVariant.neutral => AppColors.ink2,
+          NTagVariant.outline => AppColors.primary,
         };
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: bg,
-        borderRadius: BorderRadius.circular(AppRadius.md * 0.75),
-        border: variant == NTagVariant.outline ? Border.all(color: AppColors.accent) : null,
+        borderRadius: BorderRadius.circular(AppRadius.pill),
+        border: variant == NTagVariant.outline ? Border.all(color: AppColors.primary) : null,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[IconTheme(data: IconThemeData(color: fg, size: 9), child: icon!), const SizedBox(width: 4)],
-          Text(label, style: TextStyle(fontSize: 11, letterSpacing: 0.02, color: fg)),
+          Text(label, style: AppText.sectionLabel(color: fg, size: 10.5)),
         ],
       ),
     );

@@ -39,10 +39,10 @@ class _InfosScreenState extends ConsumerState<InfosScreen> {
           const SizedBox(height: 12),
           if (_tab == 'termine') ...[
             eventsAsync.when(
-              loading: () => const Center(child: CircularProgressIndicator(color: AppColors.accent)),
+              loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
               error: (e, _) => Text('Fehler: $e'),
               data: (events) {
-                if (events.isEmpty) return const Text('Keine anstehenden Termine.', style: TextStyle(color: AppColors.neutral500));
+                if (events.isEmpty) return const Text('Keine anstehenden Termine.', style: TextStyle(color: AppColors.muted));
                 final grouped = <String, List<KitaEvent>>{};
                 for (final e in events) {
                   final key = '${_monthName(e.eventDate.month)} ${e.eventDate.year}';
@@ -55,7 +55,7 @@ class _InfosScreenState extends ConsumerState<InfosScreen> {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 6, top: 4),
                         child: Text(entry.key.toUpperCase(),
-                            style: const TextStyle(fontSize: 10, letterSpacing: 1.1, color: AppColors.accent, fontWeight: FontWeight.w500)),
+                            style: const TextStyle(fontFamily: 'Outfit', fontSize: 10, letterSpacing: 1.3, color: AppColors.primary, fontWeight: FontWeight.w800)),
                       ),
                       for (final e in entry.value) ...[_EventRow(event: e), const SizedBox(height: 8)],
                     ],
@@ -75,7 +75,7 @@ class _InfosScreenState extends ConsumerState<InfosScreen> {
                         const Padding(
                           padding: EdgeInsets.only(bottom: 6, top: 4),
                           child: Text('FERIEN & SCHLIESSTAGE',
-                              style: TextStyle(fontSize: 10, letterSpacing: 1.1, color: AppColors.accent, fontWeight: FontWeight.w500)),
+                              style: TextStyle(fontFamily: 'Outfit', fontSize: 10, letterSpacing: 1.3, color: AppColors.primary, fontWeight: FontWeight.w800)),
                         ),
                         NCard(
                           child: Column(
@@ -85,10 +85,10 @@ class _InfosScreenState extends ConsumerState<InfosScreen> {
                                   padding: const EdgeInsets.only(bottom: 5),
                                   child: Row(
                                     children: [
-                                      Text(c.title, style: const TextStyle(fontSize: 12.5, color: AppColors.text)),
+                                      Text(c.title, style: const TextStyle(fontSize: 12.5, color: AppColors.ink)),
                                       const Spacer(),
                                       Text('${formatDateShort(c.startDate)}–${formatDateShort(c.endDate)}',
-                                          style: const TextStyle(fontSize: 12.5, color: AppColors.neutral400)),
+                                          style: const TextStyle(fontSize: 12.5, color: AppColors.muted)),
                                     ],
                                   ),
                                 ),
@@ -103,19 +103,19 @@ class _InfosScreenState extends ConsumerState<InfosScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('KONTAKT', style: TextStyle(fontSize: 10, letterSpacing: 1.1, color: AppColors.accent, fontWeight: FontWeight.w500)),
+                  Text('KONTAKT', style: TextStyle(fontFamily: 'Outfit', fontSize: 10, letterSpacing: 1.3, color: AppColors.primary, fontWeight: FontWeight.w800)),
                   SizedBox(height: 8),
-                  Text('Ev. Familienzentrum Lank\nLeitung: Frau Petersen', style: TextStyle(fontSize: 13, height: 1.6, color: AppColors.text)),
-                  Text('02150 · 12 34 56', style: TextStyle(fontSize: 13, height: 1.6, color: AppColors.accent300)),
+                  Text('Ev. Familienzentrum Lank\nLeitung: Frau Petersen', style: TextStyle(fontSize: 13, height: 1.6, color: AppColors.ink)),
+                  Text('02150 · 12 34 56', style: TextStyle(fontSize: 13, height: 1.6, color: AppColors.primary)),
                 ],
               ),
             ),
           ] else
             documentsAsync.when(
-              loading: () => const Center(child: CircularProgressIndicator(color: AppColors.accent)),
+              loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
               error: (e, _) => Text('Fehler: $e'),
               data: (docs) {
-                if (docs.isEmpty) return const Text('Keine Dokumente.', style: TextStyle(color: AppColors.neutral500));
+                if (docs.isEmpty) return const Text('Keine Dokumente.', style: TextStyle(color: AppColors.muted));
                 return Column(
                   children: [for (final d in docs) ...[_DocRow(doc: d), const SizedBox(height: 8)]],
                 );
@@ -147,8 +147,8 @@ class _EventRow extends ConsumerWidget {
             width: 38,
             child: Column(
               children: [
-                Text(weekdayShort(event.eventDate.weekday), style: const TextStyle(fontSize: 10, color: AppColors.neutral500)),
-                Text('${event.eventDate.day}', style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500, fontSize: 20, color: AppColors.text)),
+                Text(weekdayShort(event.eventDate.weekday), style: const TextStyle(fontSize: 10, color: AppColors.muted)),
+                Text('${event.eventDate.day}', style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 20, color: AppColors.ink)),
               ],
             ),
           ),
@@ -158,8 +158,8 @@ class _EventRow extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(event.title, style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500, fontSize: 14, color: AppColors.text)),
-                Text([event.timeLabel, event.location].whereType<String>().join(' · '), style: const TextStyle(fontSize: 11.5, color: AppColors.neutral400)),
+                Text(event.title, style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 14, color: AppColors.ink)),
+                Text([event.timeLabel, event.location].whereType<String>().join(' · '), style: const TextStyle(fontSize: 11.5, color: AppColors.muted)),
               ],
             ),
           ),
@@ -185,19 +185,19 @@ class _DocRow extends StatelessWidget {
       onTap: () => launchUrl(Uri.parse(doc.fileUrl), mode: LaunchMode.externalApplication),
       child: Row(
         children: [
-          const Icon(Icons.description_outlined, size: 18, color: AppColors.accent),
+          const Icon(Icons.description_outlined, size: 18, color: AppColors.primary),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(doc.title, style: const TextStyle(fontSize: 13, color: AppColors.text)),
-                if (doc.sizeLabel != null) Text(doc.sizeLabel!, style: const TextStyle(fontSize: 10, color: AppColors.neutral500)),
+                Text(doc.title, style: const TextStyle(fontSize: 13, color: AppColors.ink)),
+                if (doc.sizeLabel != null) Text(doc.sizeLabel!, style: const TextStyle(fontSize: 10, color: AppColors.muted)),
               ],
             ),
           ),
-          const Icon(Icons.open_in_new_rounded, size: 14, color: AppColors.neutral500),
+          const Icon(Icons.open_in_new_rounded, size: 14, color: AppColors.muted),
         ],
       ),
     );

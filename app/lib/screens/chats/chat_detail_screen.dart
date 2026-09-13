@@ -53,7 +53,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
         children: [
           Expanded(
             child: messagesAsync.when(
-              loading: () => const Center(child: CircularProgressIndicator(color: AppColors.accent)),
+              loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
               error: (e, _) => Center(child: Text('Fehler: $e')),
               data: (messages) {
                 final playdate = playdateAsync.valueOrNull;
@@ -63,7 +63,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                     const Center(
                       child: Padding(
                         padding: EdgeInsets.only(bottom: 6),
-                        child: Text('Heute', style: TextStyle(fontSize: 10.5, color: AppColors.neutral500)),
+                        child: Text('Heute', style: TextStyle(fontSize: 10.5, color: AppColors.muted)),
                       ),
                     ),
                     for (final m in messages) _MessageBubble(message: m, mine: m.senderId == myId),
@@ -85,17 +85,17 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                   Expanded(
                     child: TextField(
                       controller: _draftCtrl,
-                      style: const TextStyle(fontFamily: 'Inter', fontSize: 14, color: AppColors.text),
+                      style: const TextStyle(fontFamily: 'Nunito Sans', fontSize: 14, color: AppColors.ink),
                       decoration: InputDecoration(
                         hintText: 'Nachricht schreiben',
-                        hintStyle: const TextStyle(color: AppColors.neutral600),
+                        hintStyle: const TextStyle(color: AppColors.mutedAlt),
                         filled: true,
                         fillColor: AppColors.surface,
                         isDense: true,
                         contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.md), borderSide: const BorderSide(color: AppColors.divider)),
                         enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.md), borderSide: const BorderSide(color: AppColors.divider)),
-                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.md), borderSide: const BorderSide(color: AppColors.accent)),
+                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.md), borderSide: const BorderSide(color: AppColors.primary)),
                       ),
                       onSubmitted: (_) => _send(),
                     ),
@@ -127,15 +127,15 @@ class _MessageBubble extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
         decoration: BoxDecoration(
           color: mine ? const Color(0xFF2B2741) : AppColors.surface,
-          border: Border.all(color: mine ? AppColors.accent.withValues(alpha: 0.45) : AppColors.divider),
+          border: Border.all(color: mine ? AppColors.primary.withValues(alpha: 0.45) : AppColors.divider),
           borderRadius: BorderRadius.circular(14),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text(message.body, style: const TextStyle(fontSize: 13, height: 1.45, color: AppColors.text)),
+            Text(message.body, style: const TextStyle(fontSize: 13, height: 1.45, color: AppColors.ink)),
             const SizedBox(height: 3),
-            Text(_timeLabel(message.createdAt), style: const TextStyle(fontSize: 9.5, color: AppColors.neutral500)),
+            Text(_timeLabel(message.createdAt), style: const TextStyle(fontSize: 9.5, color: AppColors.muted)),
           ],
         ),
       ),
@@ -164,13 +164,13 @@ class _PlaydateInlineCardState extends ConsumerState<_PlaydateInlineCard> {
     final toChild = children[p.toChildId]?.name ?? '…';
 
     return NCard(
-      borderColor: AppColors.accent,
+      borderColor: AppColors.primary,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('SPIELANFRAGE', style: TextStyle(fontSize: 10, letterSpacing: 1.1, color: AppColors.accent, fontWeight: FontWeight.w500)),
+          const Text('SPIELANFRAGE', style: TextStyle(fontFamily: 'Outfit', fontSize: 10, letterSpacing: 1.3, color: AppColors.primary, fontWeight: FontWeight.w800)),
           const SizedBox(height: 4),
-          Text('$fromChild & $toChild', style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500, fontSize: 14.5, color: AppColors.text)),
+          Text('$fromChild & $toChild', style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 14.5, color: AppColors.ink)),
           const SizedBox(height: 8),
           for (var i = 0; i < p.proposedSlots.length; i++)
             Padding(
@@ -181,16 +181,16 @@ class _PlaydateInlineCardState extends ConsumerState<_PlaydateInlineCard> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                   decoration: BoxDecoration(
-                    border: Border.all(color: _selected == i ? AppColors.accent : AppColors.divider),
+                    border: Border.all(color: _selected == i ? AppColors.primary : AppColors.divider),
                     borderRadius: BorderRadius.circular(AppRadius.md),
                   ),
                   child: Row(
                     children: [
                       Text('${p.proposedSlots[i].date} · ${p.proposedSlots[i].timeRange}',
-                          style: TextStyle(fontSize: 12.5, color: _selected == i ? AppColors.accent : AppColors.text)),
+                          style: TextStyle(fontSize: 12.5, color: _selected == i ? AppColors.primary : AppColors.ink)),
                       const Spacer(),
                       if (p.proposedSlots[i].location != null)
-                        Text(p.proposedSlots[i].location!, style: const TextStyle(fontSize: 11, color: AppColors.neutral400)),
+                        Text(p.proposedSlots[i].location!, style: const TextStyle(fontSize: 11, color: AppColors.muted)),
                     ],
                   ),
                 ),

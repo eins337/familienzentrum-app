@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../theme/tokens.dart';
 
-/// Nocturne `.seg` / `.seg-opt` — a segmented control used for the
-/// Eltern/Kita-Team role switcher, info tabs, and radio-style pickers.
+/// v2 SegmentedControl — `soft` track, selected option shown as a white
+/// pill with a soft shadow, animated per the README's tab-pill transition.
 class NSegmented<T> extends StatelessWidget {
   const NSegmented({super.key, required this.value, required this.options, required this.onChanged, this.expand = false});
 
@@ -14,21 +14,23 @@ class NSegmented<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final children = <Widget>[];
-    for (var i = 0; i < options.length; i++) {
-      final (optValue, label) = options[i];
+    for (final (optValue, label) in options) {
       final selected = optValue == value;
-      final opt = InkWell(
+      final opt = GestureDetector(
         onTap: () => onChanged(optValue),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+        child: AnimatedContainer(
+          duration: AppMotion.tabPill,
+          curve: Curves.easeOut,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            border: Border(left: i > 0 ? const BorderSide(color: AppColors.divider) : BorderSide.none),
-            boxShadow: selected ? [const BoxShadow(color: AppColors.accent, spreadRadius: 1, blurRadius: 0)] : null,
+            color: selected ? AppColors.surface : Colors.transparent,
+            borderRadius: BorderRadius.circular(AppRadius.buttonSm),
+            boxShadow: selected ? AppShadows.card : null,
           ),
           child: Text(
             label,
-            style: TextStyle(fontSize: 13, color: selected ? AppColors.accent : AppColors.text),
+            style: AppText.outfit(size: 12.5, weight: FontWeight.w600, color: selected ? AppColors.primary : AppColors.ink2),
           ),
         ),
       );
@@ -36,11 +38,11 @@ class NSegmented<T> extends StatelessWidget {
     }
 
     return Container(
+      padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.divider),
-        borderRadius: BorderRadius.circular(AppRadius.md),
+        color: AppColors.soft,
+        borderRadius: BorderRadius.circular(AppRadius.buttonSm + 3),
       ),
-      clipBehavior: Clip.antiAlias,
       child: Row(mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min, children: children),
     );
   }

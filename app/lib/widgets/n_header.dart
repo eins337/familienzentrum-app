@@ -53,14 +53,14 @@ class NHeader extends StatelessWidget implements PreferredSizeWidget {
                     title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500, fontSize: 15, color: AppColors.text),
+                    style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 17, color: AppColors.ink),
                   ),
                   if (subtitle != null)
                     Text(
                       subtitle!,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 10, color: AppColors.neutral500),
+                      style: const TextStyle(fontSize: 10, color: AppColors.muted),
                     ),
                 ],
               ),
@@ -91,21 +91,21 @@ class _IconBtn extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadius.md),
+        borderRadius: BorderRadius.circular(AppRadius.iconBackplate),
         child: Container(
-          width: 36,
-          height: 36,
+          width: 34,
+          height: 34,
           alignment: Alignment.center,
-          decoration: BoxDecoration(border: Border.all(color: AppColors.divider), borderRadius: BorderRadius.circular(AppRadius.md)),
+          decoration: BoxDecoration(color: AppColors.soft, borderRadius: BorderRadius.circular(AppRadius.iconBackplate)),
           child: Stack(
             clipBehavior: Clip.none,
             children: [
-              Icon(icon, size: 17, color: AppColors.text),
+              Icon(icon, size: 17, color: AppColors.ink),
               if (dot)
                 Positioned(
                   top: -1,
                   right: -1,
-                  child: Container(width: 6, height: 6, decoration: const BoxDecoration(shape: BoxShape.circle, color: AppColors.accent)),
+                  child: Container(width: 8, height: 8, decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.error, border: Border.all(color: AppColors.surface, width: 1.5))),
                 ),
             ],
           ),

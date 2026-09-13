@@ -42,18 +42,18 @@ class MitteilungenScreen extends ConsumerWidget {
     return Scaffold(
       appBar: const NHeader(title: 'Mitteilungen', showBack: true),
       body: items.isEmpty
-          ? const Center(child: Text('Keine Mitteilungen.', style: TextStyle(color: AppColors.neutral500)))
+          ? const Center(child: Text('Keine Mitteilungen.', style: TextStyle(color: AppColors.muted)))
           : ListView(
               padding: const EdgeInsets.fromLTRB(16, 14, 16, 24),
               children: [
                 if (neu.isNotEmpty) ...[
-                  const Text('NEU', style: TextStyle(fontSize: 10, letterSpacing: 1.1, color: AppColors.accent, fontWeight: FontWeight.w500)),
+                  const Text('NEU', style: TextStyle(fontFamily: 'Outfit', fontSize: 10, letterSpacing: 1.3, color: AppColors.primary, fontWeight: FontWeight.w800)),
                   const SizedBox(height: 6),
                   for (final i in neu) ...[_Row(item: i, accent: true), const SizedBox(height: 8)],
                 ],
                 if (aelter.isNotEmpty) ...[
                   const SizedBox(height: 6),
-                  const Text('ÄLTER', style: TextStyle(fontSize: 10, letterSpacing: 1.1, color: AppColors.neutral500, fontWeight: FontWeight.w500)),
+                  const Text('ÄLTER', style: TextStyle(fontFamily: 'Outfit', fontSize: 10, letterSpacing: 1.3, color: AppColors.muted, fontWeight: FontWeight.w800)),
                   const SizedBox(height: 6),
                   for (final i in aelter) ...[_Row(item: i, accent: false), const SizedBox(height: 8)],
                 ],
@@ -80,20 +80,20 @@ class _Row extends StatelessWidget {
     return Opacity(
       opacity: accent ? 1 : 0.8,
       child: NCard(
-        borderColor: accent ? AppColors.accent : null,
+        borderColor: accent ? AppColors.primary : null,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(item.icon, size: 16, color: accent ? AppColors.accent : AppColors.text),
+            Icon(item.icon, size: 16, color: accent ? AppColors.primary : AppColors.ink),
             const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(item.text, style: const TextStyle(fontSize: 13, height: 1.45, color: AppColors.text)),
+                  Text(item.text, style: const TextStyle(fontSize: 13, height: 1.45, color: AppColors.ink)),
                   const SizedBox(height: 2),
-                  Text(formatRelative(item.time), style: const TextStyle(fontSize: 10.5, color: AppColors.neutral500)),
+                  Text(formatRelative(item.time), style: const TextStyle(fontSize: 10.5, color: AppColors.muted)),
                 ],
               ),
             ),

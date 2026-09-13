@@ -1,46 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'tokens.dart';
 
-/// Builds the app's single (dark-only) theme — the design has no light
-/// variant, matching the prototype which is Nocturne-dark throughout.
+/// Builds the app's single (light) theme — Familienzentrum Lank v2 design:
+/// Outfit for headings/buttons/numbers, Nunito Sans for body/meta/inputs.
 ThemeData buildAppTheme() {
-  const headingStyle = TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500, height: 1.12);
-
   final base = ThemeData(
     useMaterial3: true,
-    brightness: Brightness.dark,
-    scaffoldBackgroundColor: AppColors.bg,
-    fontFamily: 'Inter',
-    colorScheme: const ColorScheme.dark(
-      surface: AppColors.bg,
-      primary: AppColors.accent,
-      secondary: AppColors.accent2,
-      onSurface: AppColors.text,
-      error: AppColors.groupRot,
+    brightness: Brightness.light,
+    scaffoldBackgroundColor: AppColors.background,
+    colorScheme: const ColorScheme.light(
+      surface: AppColors.background,
+      primary: AppColors.primary,
+      secondary: AppColors.info,
+      onSurface: AppColors.ink,
+      error: AppColors.error,
     ),
   );
 
+  final textTheme = GoogleFonts.nunitoSansTextTheme(base.textTheme).apply(bodyColor: AppColors.ink, displayColor: AppColors.ink);
+
   return base.copyWith(
-    textTheme: base.textTheme
-        .apply(bodyColor: AppColors.text, displayColor: AppColors.text, fontFamily: 'Inter')
-        .copyWith(
-          headlineMedium: headingStyle.copyWith(fontSize: 32, color: AppColors.text),
-          headlineSmall: headingStyle.copyWith(fontSize: 25, color: AppColors.text),
-          titleLarge: headingStyle.copyWith(fontSize: 20, color: AppColors.text),
-          titleMedium: headingStyle.copyWith(fontSize: 17, color: AppColors.text),
-          titleSmall: headingStyle.copyWith(fontSize: 15, color: AppColors.text, fontWeight: FontWeight.w500),
-          bodyMedium: const TextStyle(fontFamily: 'Inter', fontSize: 15, height: 1.55, color: AppColors.text),
-          bodySmall: const TextStyle(fontFamily: 'Inter', fontSize: 13, color: AppColors.text),
-          labelSmall: const TextStyle(fontFamily: 'Inter', fontSize: 11, letterSpacing: 0.02, color: AppColors.neutral500),
-        ),
+    textTheme: textTheme.copyWith(
+      headlineMedium: AppText.outfit(size: 26, color: AppColors.ink, height: 1.18),
+      headlineSmall: AppText.outfit(size: 21, color: AppColors.ink),
+      titleLarge: AppText.outfit(size: 19, color: AppColors.ink),
+      titleMedium: AppText.outfit(size: 17, color: AppColors.ink),
+      titleSmall: AppText.outfit(size: 15, color: AppColors.ink),
+      bodyMedium: AppText.nunito(size: 13.5, color: AppColors.ink, height: 1.55),
+      bodySmall: AppText.nunito(size: 12, color: AppColors.ink2),
+      labelSmall: AppText.nunito(size: 11, color: AppColors.muted),
+    ),
     splashFactory: NoSplash.splashFactory,
-    highlightColor: AppColors.text.withValues(alpha: 0.07),
+    highlightColor: AppColors.ink.withValues(alpha: 0.04),
     dividerColor: AppColors.divider,
     dividerTheme: const DividerThemeData(color: AppColors.divider, thickness: 1, space: 1),
     textSelectionTheme: TextSelectionThemeData(
-      cursorColor: AppColors.accent,
-      selectionColor: AppColors.accent.withValues(alpha: 0.3),
-      selectionHandleColor: AppColors.accent,
+      cursorColor: AppColors.primary,
+      selectionColor: AppColors.primary.withValues(alpha: 0.25),
+      selectionHandleColor: AppColors.primary,
     ),
   );
 }

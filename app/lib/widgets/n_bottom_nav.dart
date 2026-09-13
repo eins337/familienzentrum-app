@@ -7,7 +7,8 @@ class NNavItem {
   final String label;
 }
 
-/// The 5-tab (or 6 for Kita-Team) bottom bar from the prototype's footer.
+/// The 5-tab bottom bar — white surface, 28px active-icon pill in
+/// `primarySoft`, Outfit 10px/600 labels, per the README.
 class NBottomNav extends StatelessWidget {
   const NBottomNav({super.key, required this.items, required this.currentIndex, required this.onTap});
 
@@ -20,9 +21,9 @@ class NBottomNav extends StatelessWidget {
     return SafeArea(
       top: false,
       child: Container(
-        padding: const EdgeInsets.fromLTRB(8, 8, 8, 6),
+        padding: const EdgeInsets.fromLTRB(8, 10, 8, 6),
         decoration: const BoxDecoration(
-          color: AppColors.bg,
+          color: AppColors.surface,
           border: Border(top: BorderSide(color: AppColors.divider)),
         ),
         child: Row(
@@ -31,16 +32,28 @@ class NBottomNav extends StatelessWidget {
               Expanded(
                 child: InkWell(
                   onTap: () => onTap(i),
+                  borderRadius: BorderRadius.circular(AppRadius.pill),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    padding: const EdgeInsets.symmetric(vertical: 2),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(items[i].icon, size: 19, color: i == currentIndex ? AppColors.accent : AppColors.neutral600),
+                        AnimatedContainer(
+                          duration: AppMotion.tabPill,
+                          curve: Curves.easeOut,
+                          width: 46,
+                          height: 28,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: i == currentIndex ? AppColors.primarySoft : Colors.transparent,
+                            borderRadius: BorderRadius.circular(AppRadius.pill),
+                          ),
+                          child: Icon(items[i].icon, size: 19, color: i == currentIndex ? AppColors.primary : AppColors.mutedAlt),
+                        ),
                         const SizedBox(height: 3),
                         Text(
                           items[i].label,
-                          style: TextStyle(fontSize: 9.5, color: i == currentIndex ? AppColors.accent : AppColors.neutral600),
+                          style: AppText.outfit(size: 10, weight: FontWeight.w600, color: i == currentIndex ? AppColors.primary : AppColors.mutedAlt),
                         ),
                       ],
                     ),

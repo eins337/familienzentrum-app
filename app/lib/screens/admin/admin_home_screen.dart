@@ -27,19 +27,19 @@ class AdminHomeScreen extends StatelessWidget {
               onTap: () => context.push(item.$4),
               child: Row(
                 children: [
-                  Icon(item.$3, size: 20, color: AppColors.accent),
+                  Icon(item.$3, size: 20, color: AppColors.primary),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(item.$1, style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500, fontSize: 14.5, color: AppColors.text)),
-                        Text(item.$2, style: const TextStyle(fontSize: 11.5, color: AppColors.neutral400)),
+                        Text(item.$1, style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 14.5, color: AppColors.ink)),
+                        Text(item.$2, style: const TextStyle(fontSize: 11.5, color: AppColors.muted)),
                       ],
                     ),
                   ),
-                  const Icon(Icons.chevron_right_rounded, color: AppColors.neutral600),
+                  const Icon(Icons.chevron_right_rounded, color: AppColors.mutedAlt),
                 ],
               ),
             ),

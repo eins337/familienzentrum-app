@@ -143,12 +143,12 @@ class _EventRsvpCardState extends ConsumerState<_EventRsvpCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(e.title, style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500, fontSize: 13.5, color: AppColors.text)),
-                    Text(formatDateLong(e.eventDate), style: const TextStyle(fontSize: 11, color: AppColors.neutral500)),
+                    Text(e.title, style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 13.5, color: AppColors.ink)),
+                    Text(formatDateLong(e.eventDate), style: const TextStyle(fontSize: 11, color: AppColors.muted)),
                   ],
                 ),
               ),
-              IconButton(icon: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.neutral500), onPressed: () => ref.read(adminServiceProvider).deleteEvent(e.id)),
+              IconButton(icon: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.muted), onPressed: () => ref.read(adminServiceProvider).deleteEvent(e.id)),
             ],
           ),
           InkWell(
@@ -157,12 +157,12 @@ class _EventRsvpCardState extends ConsumerState<_EventRsvpCard> {
               padding: const EdgeInsets.only(top: 4),
               child: Row(
                 children: [
-                  Icon(e.rsvpUids.isEmpty ? Icons.person_off_outlined : Icons.people_outline_rounded, size: 14, color: AppColors.neutral500),
+                  Icon(e.rsvpUids.isEmpty ? Icons.person_off_outlined : Icons.people_outline_rounded, size: 14, color: AppColors.muted),
                   const SizedBox(width: 6),
-                  Text('${e.rsvpUids.length} Zusage${e.rsvpUids.length == 1 ? '' : 'n'}', style: const TextStyle(fontSize: 12, color: AppColors.neutral400)),
+                  Text('${e.rsvpUids.length} Zusage${e.rsvpUids.length == 1 ? '' : 'n'}', style: const TextStyle(fontSize: 12, color: AppColors.muted)),
                   if (e.rsvpUids.isNotEmpty) ...[
                     const SizedBox(width: 4),
-                    Icon(_expanded ? Icons.expand_less_rounded : Icons.expand_more_rounded, size: 16, color: AppColors.neutral500),
+                    Icon(_expanded ? Icons.expand_less_rounded : Icons.expand_more_rounded, size: 16, color: AppColors.muted),
                   ],
                 ],
               ),
@@ -177,7 +177,7 @@ class _EventRsvpCardState extends ConsumerState<_EventRsvpCard> {
                   for (final uid in e.rsvpUids)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 3),
-                      child: Text(profiles[uid]?.displayName ?? uid, style: const TextStyle(fontSize: 12.5, color: AppColors.text)),
+                      child: Text(profiles[uid]?.displayName ?? uid, style: const TextStyle(fontSize: 12.5, color: AppColors.ink)),
                     ),
                 ],
               ),
@@ -265,9 +265,9 @@ class _ClosuresTabState extends ConsumerState<_ClosuresTab> {
                     child: NCard(
                       child: Row(
                         children: [
-                          Expanded(child: Text(c.title, style: const TextStyle(fontSize: 13, color: AppColors.text))),
-                          Text('${formatDateShort(c.startDate)}–${formatDateShort(c.endDate)}', style: const TextStyle(fontSize: 11, color: AppColors.neutral500)),
-                          IconButton(icon: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.neutral500), onPressed: () => ref.read(adminServiceProvider).deleteClosure(c.id)),
+                          Expanded(child: Text(c.title, style: const TextStyle(fontSize: 13, color: AppColors.ink))),
+                          Text('${formatDateShort(c.startDate)}–${formatDateShort(c.endDate)}', style: const TextStyle(fontSize: 11, color: AppColors.muted)),
+                          IconButton(icon: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.muted), onPressed: () => ref.read(adminServiceProvider).deleteClosure(c.id)),
                         ],
                       ),
                     ),
@@ -354,10 +354,10 @@ class _DocumentsTabState extends ConsumerState<_DocumentsTab> {
                       onTap: () => launchUrl(Uri.parse(d.fileUrl), mode: LaunchMode.externalApplication),
                       child: Row(
                         children: [
-                          const Icon(Icons.description_outlined, size: 16, color: AppColors.accent),
+                          const Icon(Icons.description_outlined, size: 16, color: AppColors.primary),
                           const SizedBox(width: 8),
-                          Expanded(child: Text(d.title, style: const TextStyle(fontSize: 13, color: AppColors.text))),
-                          IconButton(icon: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.neutral500), onPressed: () => ref.read(adminServiceProvider).deleteDocument(d.id)),
+                          Expanded(child: Text(d.title, style: const TextStyle(fontSize: 13, color: AppColors.ink))),
+                          IconButton(icon: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.muted), onPressed: () => ref.read(adminServiceProvider).deleteDocument(d.id)),
                         ],
                       ),
                     ),
@@ -410,7 +410,7 @@ class _SpeiseplanTabState extends ConsumerState<_SpeiseplanTab> {
               padding: const EdgeInsets.only(bottom: 8),
               child: Row(
                 children: [
-                  SizedBox(width: 30, child: Text(_days[i], style: const TextStyle(fontSize: 12.5, color: AppColors.neutral500))),
+                  SizedBox(width: 30, child: Text(_days[i], style: const TextStyle(fontSize: 12.5, color: AppColors.muted))),
                   Expanded(child: NInput(controller: _ctrls[i])),
                 ],
               ),

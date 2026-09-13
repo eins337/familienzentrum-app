@@ -48,7 +48,7 @@ class _MetaRow extends ConsumerWidget {
         Expanded(
           child: Text(
             '$authorName · ${formatRelative(post.createdAt)}',
-            style: const TextStyle(fontSize: 10, color: AppColors.neutral500),
+            style: const TextStyle(fontSize: 10, color: AppColors.muted),
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -64,7 +64,7 @@ class _PinnedCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return NCard(
-      borderColor: AppColors.accent,
+      borderColor: AppColors.primary,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -72,14 +72,14 @@ class _PinnedCard extends StatelessWidget {
             children: [
               const NTag('Angepinnt', variant: NTagVariant.accent),
               const Spacer(),
-              Text(formatRelative(post.createdAt), style: const TextStyle(fontSize: 11, color: AppColors.neutral500)),
+              Text(formatRelative(post.createdAt), style: const TextStyle(fontSize: 11, color: AppColors.muted)),
             ],
           ),
           const SizedBox(height: 8),
           if (post.title != null)
-            Text(post.title!, style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500, fontSize: 16, color: AppColors.text)),
+            Text(post.title!, style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 16, color: AppColors.ink)),
           const SizedBox(height: 4),
-          Text(post.body, style: const TextStyle(fontSize: 13, color: AppColors.text, height: 1.4)),
+          Text(post.body, style: const TextStyle(fontSize: 13, color: AppColors.ink, height: 1.4)),
           if (post.fileName != null) ...[
             const SizedBox(height: 8),
             _AttachmentRow(post: post),
@@ -103,17 +103,17 @@ class _AttachmentRow extends StatelessWidget {
           : () => launchUrl(Uri.parse(post.fileUrl!), mode: LaunchMode.externalApplication),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
-        decoration: BoxDecoration(color: AppColors.neutral900, borderRadius: BorderRadius.circular(AppRadius.sm)),
+        decoration: BoxDecoration(color: AppColors.soft, borderRadius: BorderRadius.circular(AppRadius.sm)),
         child: Row(
           children: [
-            const Icon(Icons.description_outlined, size: 15, color: AppColors.accent),
+            const Icon(Icons.description_outlined, size: 15, color: AppColors.primary),
             const SizedBox(width: 8),
-            Expanded(child: Text(post.fileName!, style: const TextStyle(fontSize: 12, color: AppColors.text))),
+            Expanded(child: Text(post.fileName!, style: const TextStyle(fontSize: 12, color: AppColors.ink))),
             if (post.fileSizeLabel != null) ...[
-              Text(post.fileSizeLabel!, style: const TextStyle(fontSize: 10, color: AppColors.neutral500)),
+              Text(post.fileSizeLabel!, style: const TextStyle(fontSize: 10, color: AppColors.muted)),
               const SizedBox(width: 6),
             ],
-            if (post.fileUrl != null) const Icon(Icons.open_in_new_rounded, size: 13, color: AppColors.neutral500),
+            if (post.fileUrl != null) const Icon(Icons.open_in_new_rounded, size: 13, color: AppColors.muted),
           ],
         ),
       ),
@@ -142,7 +142,7 @@ class _PhotoCard extends ConsumerWidget {
             child: Row(
               children: [
                 if (showGroupHeader && post.groupId != null) ...[
-                  NAvatar(initials: groupInitial(post.groupId), size: 24, background: groupColor(post.groupId), foreground: AppColors.bg),
+                  NAvatar(initials: groupInitial(post.groupId), size: 24, background: groupColor(post.groupId), foreground: AppColors.background),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Column(
@@ -150,7 +150,7 @@ class _PhotoCard extends ConsumerWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text('Gruppe ${groupName(post.groupId)}',
-                            style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500, fontSize: 12.5, color: AppColors.text)),
+                            style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 12.5, color: AppColors.ink)),
                         _MetaRow(post: post),
                       ],
                     ),
@@ -169,9 +169,9 @@ class _PhotoCard extends ConsumerWidget {
             child: post.photoUrls.isNotEmpty
                 ? CachedNetworkImage(imageUrl: post.photoUrls.first, fit: BoxFit.cover)
                 : Container(
-                    color: AppColors.neutral900,
+                    color: AppColors.soft,
                     alignment: Alignment.center,
-                    child: const Icon(Icons.image_outlined, color: AppColors.neutral700, size: 32),
+                    child: const Icon(Icons.image_outlined, color: AppColors.border, size: 32),
                   ),
           ),
           Padding(
@@ -179,16 +179,16 @@ class _PhotoCard extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(post.body, style: const TextStyle(fontSize: 13, height: 1.5, color: AppColors.text)),
+                Text(post.body, style: const TextStyle(fontSize: 13, height: 1.5, color: AppColors.ink)),
                 if (isGroupVisible) ...[
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      const Icon(Icons.info_outline_rounded, size: 11, color: AppColors.neutral500),
+                      const Icon(Icons.info_outline_rounded, size: 11, color: AppColors.muted),
                       const SizedBox(width: 5),
                       Expanded(
                         child: Text('Fotos nur für Familien der Gruppe ${groupName(post.groupId)} · Speichern deaktiviert',
-                            style: const TextStyle(fontSize: 10.5, color: AppColors.neutral500)),
+                            style: const TextStyle(fontSize: 10.5, color: AppColors.muted)),
                       ),
                     ],
                   ),
@@ -201,7 +201,7 @@ class _PhotoCard extends ConsumerWidget {
                     _ActionBtn(
                       icon: liked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
                       label: '${post.likes.length}',
-                      color: liked ? AppColors.accent : AppColors.text,
+                      color: liked ? AppColors.primary : AppColors.ink,
                       onTap: () => ref.read(postsServiceProvider).toggleLike(post.id),
                     ),
                     _ActionBtn(
@@ -248,12 +248,12 @@ class _PollCardState extends ConsumerState<_PollCard> {
             children: [
               const NTag('Umfrage', variant: NTagVariant.outline),
               const Spacer(),
-              Text(formatRelative(post.createdAt), style: const TextStyle(fontSize: 11, color: AppColors.neutral500)),
+              Text(formatRelative(post.createdAt), style: const TextStyle(fontSize: 11, color: AppColors.muted)),
             ],
           ),
           const SizedBox(height: 6),
           if (post.title != null)
-            Text(post.title!, style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500, fontSize: 15, color: AppColors.text)),
+            Text(post.title!, style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 15, color: AppColors.ink)),
           const SizedBox(height: 6),
           if (poll != null)
             ...poll.options.asMap().entries.map((entry) {
@@ -269,9 +269,9 @@ class _PollCardState extends ConsumerState<_PollCard> {
                     decoration: BoxDecoration(border: Border.all(color: AppColors.divider), borderRadius: BorderRadius.circular(AppRadius.md)),
                     child: Row(
                       children: [
-                        Text(opt.label, style: const TextStyle(fontSize: 13, color: AppColors.text)),
+                        Text(opt.label, style: const TextStyle(fontSize: 13, color: AppColors.ink)),
                         const Spacer(),
-                        Text('${opt.votes}', style: const TextStyle(fontSize: 12, color: AppColors.neutral400)),
+                        Text('${opt.votes}', style: const TextStyle(fontSize: 12, color: AppColors.muted)),
                       ],
                     ),
                   ),
@@ -284,11 +284,11 @@ class _PollCardState extends ConsumerState<_PollCard> {
               children: [
                 Text(
                   voted ? 'Danke! Das Team sieht deine Zusage.' : '${poll?.voterIds.length ?? 0} Familien haben geantwortet.',
-                  style: const TextStyle(fontSize: 10.5, color: AppColors.neutral500),
+                  style: const TextStyle(fontSize: 10.5, color: AppColors.muted),
                 ),
                 if ((profile?.isTeam ?? false) && (poll?.voterIds.isNotEmpty ?? false)) ...[
                   const SizedBox(width: 4),
-                  Icon(_expanded ? Icons.expand_less_rounded : Icons.expand_more_rounded, size: 14, color: AppColors.neutral500),
+                  Icon(_expanded ? Icons.expand_less_rounded : Icons.expand_more_rounded, size: 14, color: AppColors.muted),
                 ],
               ],
             ),
@@ -302,7 +302,7 @@ class _PollCardState extends ConsumerState<_PollCard> {
                   for (final uid in poll.voterIds)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 3),
-                      child: Text(profiles[uid]?.displayName ?? uid, style: const TextStyle(fontSize: 12, color: AppColors.text)),
+                      child: Text(profiles[uid]?.displayName ?? uid, style: const TextStyle(fontSize: 12, color: AppColors.ink)),
                     ),
                 ],
               ),
@@ -320,7 +320,7 @@ class _InfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return NCard(
-      borderColor: AppColors.neutral600,
+      borderColor: AppColors.mutedAlt,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -328,19 +328,19 @@ class _InfoCard extends StatelessWidget {
             children: [
               const NTag('Hinweis', variant: NTagVariant.neutral),
               const Spacer(),
-              Text(formatRelative(post.createdAt), style: const TextStyle(fontSize: 11, color: AppColors.neutral500)),
+              Text(formatRelative(post.createdAt), style: const TextStyle(fontSize: 11, color: AppColors.muted)),
             ],
           ),
           const SizedBox(height: 6),
           if (post.title != null)
-            Text(post.title!, style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500, fontSize: 15, color: AppColors.text)),
+            Text(post.title!, style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 15, color: AppColors.ink)),
           const SizedBox(height: 4),
-          Text(post.body, style: const TextStyle(fontSize: 13, color: AppColors.text, height: 1.4)),
+          Text(post.body, style: const TextStyle(fontSize: 13, color: AppColors.ink, height: 1.4)),
           if (post.kind == 'termin' && post.eventDate != null) ...[
             const SizedBox(height: 6),
             Text(
               '${formatDateLong(post.eventDate!)}${post.eventLocation != null ? ' · ${post.eventLocation}' : ''}',
-              style: const TextStyle(fontSize: 11.5, color: AppColors.neutral400),
+              style: const TextStyle(fontSize: 11.5, color: AppColors.muted),
             ),
           ],
           if (post.fileName != null) ...[
@@ -354,7 +354,7 @@ class _InfoCard extends StatelessWidget {
 }
 
 class _ActionBtn extends StatelessWidget {
-  const _ActionBtn({required this.icon, required this.label, required this.onTap, this.color = AppColors.text});
+  const _ActionBtn({required this.icon, required this.label, required this.onTap, this.color = AppColors.ink});
   final IconData icon;
   final String label;
   final VoidCallback onTap;

@@ -103,6 +103,12 @@ final myPlaydatesProvider = StreamProvider<List<PlaydateRequest>>((ref) {
   return ref.watch(playdatesServiceProvider).streamMyPlaydates(familyId);
 });
 
+final mySickReportsProvider = StreamProvider<List<SickReport>>((ref) {
+  final familyId = ref.watch(profileProvider).valueOrNull?.familyId;
+  if (familyId == null) return Stream.value(const []);
+  return ref.watch(kitaServiceProvider).streamSickReportsForFamily(familyId);
+});
+
 final allFamiliesProvider = StreamProvider<Map<String, Family>>((ref) {
   return supa.from('families').stream(primaryKey: ['id']).map(
         (rows) => {for (final r in rows) r['id'] as String: Family.fromMap(r)},

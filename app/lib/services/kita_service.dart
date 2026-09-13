@@ -35,6 +35,14 @@ class KitaService {
     return row?['user_id'] as String?;
   }
 
+  /// A real team account assigned to [groupId] — used by the "Erzieher
+  /// schreiben" quick action, since `group_team_members` is a display-only
+  /// roster with no link to an actual login.
+  Future<String?> fetchPrimaryTeamMemberUid(String groupId) async {
+    final rows = await supa.from('profiles').select('id').eq('role', 'team').contains('group_ids', [groupId]).limit(1);
+    return rows.isEmpty ? null : rows.first['id'] as String?;
+  }
+
   Future<List<Child>> fetchChildrenInGroup(String groupId) async {
     final rows = await supa.from('children').select().eq('group_id', groupId);
     return rows.map(Child.fromMap).toList();
@@ -79,16 +87,27 @@ class KitaService {
     required String childId,
     required String familyId,
     String? groupId,
-    required String dateLabel,
+    required DateTime startDate,
+    required DateTime endDate,
     String? reason,
-  }) =>
-      supa.from('sick_reports').insert({
-        'child_id': childId,
-        'family_id': familyId,
-        'group_id': groupId,
-        'date_label': dateLabel,
-        'reason': reason,
-      });
+  }) {
+    final days = endDate.difference(startDate).inDays + 1;
+    final dateLabel = startDate.isAtSameMomentAs(endDate)
+        ? '${_short(startDate)} · 1 Tag'
+        : '${_short(startDate)} – ${_short(endDate)} · $days Tage';
+    return supa.from('sick_reports').insert({
+      'child_id': childId,
+      'family_id': familyId,
+      'group_id': groupId,
+      'date_label': dateLabel,
+      'start_date': _iso(startDate),
+      'end_date': _iso(endDate),
+      'reason': reason,
+    });
+  }
+
+  String _short(DateTime d) => '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.';
+  String _iso(DateTime d) => d.toIso8601String().split('T').first;
 
   Stream<List<SickReport>> streamSickReports({bool onlyOpen = true}) {
     final base = supa.from('sick_reports').stream(primaryKey: ['id']).order('created_at', ascending: false);
@@ -98,5 +117,20 @@ class KitaService {
     });
   }
 
+  /// Sick reports for one family — used to show the parent-facing "active
+  /// Krankmeldung" status card on Feed/Profil.
+  Stream<List<SickReport>> streamSickReportsForFamily(String familyId) {
+    return supa
+        .from('sick_reports')
+        .stream(primaryKey: ['id'])
+        .eq('family_id', familyId)
+        .order('created_at', ascending: false)
+        .map((rows) => rows.map(SickReport.fromMap).toList());
+  }
+
   Future<void> acknowledgeSickReport(String id) => supa.from('sick_reports').update({'acknowledged': true}).eq('id', id);
+
+  /// The "Zurücknehmen" action a parent can take on their own family's
+  /// still-open Krankmeldung.
+  Future<void> cancelSickReport(String id) => supa.from('sick_reports').update({'cancelled': true}).eq('id', id);
 }

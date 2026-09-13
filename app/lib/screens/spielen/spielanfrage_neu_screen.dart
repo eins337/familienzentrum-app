@@ -90,7 +90,7 @@ class _SpielanfrageNeuScreenState extends ConsumerState<SpielanfrageNeuScreen> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 14, 16, 24),
         children: [
-          const Text('Wer möchte spielen?', style: TextStyle(fontSize: 12, color: AppColors.neutral400)),
+          const Text('Wer möchte spielen?', style: TextStyle(fontSize: 12, color: AppColors.muted)),
           const SizedBox(height: 6),
           myChildrenAsync.when(
             loading: () => const SizedBox(),
@@ -109,7 +109,7 @@ class _SpielanfrageNeuScreenState extends ConsumerState<SpielanfrageNeuScreen> {
             ),
           ),
           const SizedBox(height: 14),
-          const Text('Anfrage an', style: TextStyle(fontSize: 12, color: AppColors.neutral400)),
+          const Text('Anfrage an', style: TextStyle(fontSize: 12, color: AppColors.muted)),
           const SizedBox(height: 6),
           if (myFamilyId != null)
             FutureBuilder<List<Child>>(
@@ -131,24 +131,24 @@ class _SpielanfrageNeuScreenState extends ConsumerState<SpielanfrageNeuScreen> {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 7),
                         child: NCard(
-                          borderColor: _targetChild?.id == c.id ? AppColors.accent : null,
+                          borderColor: _targetChild?.id == c.id ? AppColors.primary : null,
                           onTap: () => setState(() => _targetChild = c),
                           child: Row(
                             children: [
-                              Container(width: 28, height: 28, decoration: const BoxDecoration(shape: BoxShape.circle, color: AppColors.neutral800)),
+                              Container(width: 28, height: 28, decoration: const BoxDecoration(shape: BoxShape.circle, color: AppColors.soft)),
                               const SizedBox(width: 9),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Text(c.name, style: const TextStyle(fontSize: 13, color: AppColors.text)),
+                                    Text(c.name, style: const TextStyle(fontSize: 13, color: AppColors.ink)),
                                     Text('Gruppe ${groupName(c.groupId)} · ${families[c.familyId]?.name ?? ''}',
-                                        style: const TextStyle(fontSize: 10.5, color: AppColors.neutral500)),
+                                        style: const TextStyle(fontSize: 10.5, color: AppColors.muted)),
                                   ],
                                 ),
                               ),
-                              if (_targetChild?.id == c.id) const Icon(Icons.check_rounded, size: 16, color: AppColors.accent),
+                              if (_targetChild?.id == c.id) const Icon(Icons.check_rounded, size: 16, color: AppColors.primary),
                             ],
                           ),
                         ),
@@ -158,7 +158,7 @@ class _SpielanfrageNeuScreenState extends ConsumerState<SpielanfrageNeuScreen> {
               },
             ),
           const SizedBox(height: 14),
-          const Text('Terminvorschläge', style: TextStyle(fontSize: 12, color: AppColors.neutral400)),
+          const Text('Terminvorschläge', style: TextStyle(fontSize: 12, color: AppColors.muted)),
           const SizedBox(height: 6),
           for (var i = 0; i < _slots.length; i++)
             Padding(
@@ -192,7 +192,7 @@ class _SpielanfrageNeuScreenState extends ConsumerState<SpielanfrageNeuScreen> {
           ),
           const SizedBox(height: 8),
           const Text('Die Familie sieht nur deinen Vornamen und die Gruppe deines Kindes.',
-              textAlign: TextAlign.center, style: TextStyle(fontSize: 10.5, color: AppColors.neutral500)),
+              textAlign: TextAlign.center, style: TextStyle(fontSize: 10.5, color: AppColors.muted)),
         ],
       ),
     );
@@ -212,8 +212,8 @@ class _ChoiceChip extends StatelessWidget {
       borderRadius: BorderRadius.circular(AppRadius.md),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(border: Border.all(color: selected ? AppColors.accent : AppColors.divider), borderRadius: BorderRadius.circular(AppRadius.md)),
-        child: Text(label, style: TextStyle(fontSize: 13, color: selected ? AppColors.accent : AppColors.text)),
+        decoration: BoxDecoration(border: Border.all(color: selected ? AppColors.primary : AppColors.divider), borderRadius: BorderRadius.circular(AppRadius.md)),
+        child: Text(label, style: TextStyle(fontSize: 13, color: selected ? AppColors.primary : AppColors.ink)),
       ),
     );
   }

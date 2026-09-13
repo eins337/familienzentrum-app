@@ -7,7 +7,7 @@ Color groupColor(String? groupId) => switch (groupId) {
       'blau' => AppColors.groupBlau,
       'gelb' => AppColors.groupGelb,
       'rot' => AppColors.groupRot,
-      _ => AppColors.neutral600,
+      _ => AppColors.mutedAlt,
     };
 
 String groupInitial(String? groupId) => switch (groupId) {

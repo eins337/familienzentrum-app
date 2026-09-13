@@ -36,7 +36,7 @@ class NField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(fontSize: 12, color: AppColors.text.withValues(alpha: 0.7))),
+        Text(label, style: AppText.nunito(size: 12, weight: FontWeight.w600, color: AppColors.ink2)),
         const SizedBox(height: 5),
         NInput(
           controller: controller,
@@ -96,27 +96,27 @@ class NInput extends StatelessWidget {
       readOnly: readOnly,
       onTap: onTap,
       autofocus: autofocus,
-      cursorColor: AppColors.accent,
-      style: const TextStyle(fontFamily: 'Inter', fontSize: 14, color: AppColors.text),
+      cursorColor: AppColors.primary,
+      style: AppText.nunito(size: 14, color: AppColors.ink),
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: const TextStyle(fontFamily: 'Inter', fontSize: 14, color: AppColors.neutral600),
+        hintStyle: AppText.nunito(size: 14, color: AppColors.mutedAlt),
         filled: true,
-        fillColor: AppColors.surface,
+        fillColor: AppColors.surfaceAlt,
         isDense: true,
         prefixIcon: prefixIcon,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: const BorderSide(color: AppColors.divider),
+          borderRadius: BorderRadius.circular(AppRadius.input),
+          borderSide: const BorderSide(color: AppColors.cardBorder),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: const BorderSide(color: AppColors.divider),
+          borderRadius: BorderRadius.circular(AppRadius.input),
+          borderSide: const BorderSide(color: AppColors.cardBorder),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: const BorderSide(color: AppColors.accent),
+          borderRadius: BorderRadius.circular(AppRadius.input),
+          borderSide: const BorderSide(color: AppColors.primary, width: 1.4),
         ),
       ),
     );

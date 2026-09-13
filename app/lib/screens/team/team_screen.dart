@@ -83,7 +83,7 @@ class TeamScreen extends ConsumerWidget {
                 reports = reports.where((r) => r.groupId == null || profile.groupIds.contains(r.groupId)).toList();
               }
               if (reports.isEmpty) {
-                return const Text('Keine offenen Krankmeldungen.', style: TextStyle(fontSize: 12.5, color: AppColors.neutral500));
+                return const Text('Keine offenen Krankmeldungen.', style: TextStyle(fontSize: 12.5, color: AppColors.muted));
               }
               return Column(
                 children: [
@@ -99,10 +99,10 @@ class TeamScreen extends ConsumerWidget {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(children[r.childId]?.name ?? r.childName ?? '…',
-                                      style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500, fontSize: 14, color: AppColors.text)),
+                                      style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 14, color: AppColors.ink)),
                                   Text(
                                     [r.dateLabel, r.reason].whereType<String>().join(' · '),
-                                    style: const TextStyle(fontSize: 11.5, color: AppColors.neutral400),
+                                    style: const TextStyle(fontSize: 11.5, color: AppColors.muted),
                                   ),
                                 ],
                               ),
@@ -132,5 +132,5 @@ class _Kicker extends StatelessWidget {
   final String text;
   @override
   Widget build(BuildContext context) =>
-      Text(text.toUpperCase(), style: const TextStyle(fontSize: 10, letterSpacing: 1.1, color: AppColors.accent, fontWeight: FontWeight.w500));
+      Text(text.toUpperCase(), style: const TextStyle(fontFamily: 'Outfit', fontSize: 10, letterSpacing: 1.3, color: AppColors.primary, fontWeight: FontWeight.w800));
 }

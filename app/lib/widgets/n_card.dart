@@ -3,13 +3,14 @@ import '../theme/tokens.dart';
 
 enum NCardElevation { none, sm, md, lg }
 
-/// Nocturne `.card` (+ `.elev-sm/md/lg`).
-class NCard extends StatelessWidget {
+/// v2 Card — white surface, 20px radius, `cardBorder` hairline, optional
+/// colored 4px left rail (used for group-colored / pinned / status cards).
+class NCard extends StatefulWidget {
   const NCard({
     super.key,
     required this.child,
     this.elevation = NCardElevation.sm,
-    this.padding = const EdgeInsets.all(AppSpace.s3),
+    this.padding = const EdgeInsets.all(AppSpace.cardPadding),
     this.borderColor,
     this.background = AppColors.surface,
     this.onTap,
@@ -24,32 +25,51 @@ class NCard extends StatelessWidget {
   final VoidCallback? onTap;
   final bool row;
 
-  List<BoxShadow>? get _shadow => switch (elevation) {
+  @override
+  State<NCard> createState() => _NCardState();
+}
+
+class _NCardState extends State<NCard> {
+  bool _pressed = false;
+
+  List<BoxShadow>? get _shadow => switch (widget.elevation) {
         NCardElevation.none => null,
-        NCardElevation.sm => AppShadows.sm,
-        NCardElevation.md => AppShadows.md,
-        NCardElevation.lg => AppShadows.lg,
+        NCardElevation.sm => AppShadows.card,
+        NCardElevation.md => AppShadows.cardElevated,
+        NCardElevation.lg => AppShadows.cardElevated,
       };
 
   @override
   Widget build(BuildContext context) {
     final content = Container(
-      padding: padding,
+      padding: widget.padding,
       decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(AppRadius.md),
+        color: widget.background,
+        borderRadius: BorderRadius.circular(AppRadius.card),
         boxShadow: _shadow,
-        border: borderColor != null ? Border(left: BorderSide(color: borderColor!, width: 2)) : null,
+        border: Border.all(color: AppColors.cardBorder),
       ),
-      child: child,
+      child: widget.borderColor == null
+          ? widget.child
+          : Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(width: 4, margin: const EdgeInsets.only(right: 11), decoration: BoxDecoration(color: widget.borderColor, borderRadius: BorderRadius.circular(2))),
+                Expanded(child: widget.child),
+              ],
+            ),
     );
 
-    if (onTap == null) return content;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadius.md),
+    if (widget.onTap == null) return content;
+    return AnimatedScale(
+      scale: _pressed ? AppMotion.cardPressScale : 1,
+      duration: AppMotion.press,
+      curve: Curves.easeOut,
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => _pressed = true),
+        onTapCancel: () => setState(() => _pressed = false),
+        onTapUp: (_) => setState(() => _pressed = false),
+        onTap: widget.onTap,
         child: content,
       ),
     );
@@ -63,9 +83,6 @@ class NCardKicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      text.toUpperCase(),
-      style: const TextStyle(fontSize: 10, letterSpacing: 1.1, color: AppColors.accent, fontWeight: FontWeight.w500),
-    );
+    return Text(text.toUpperCase(), style: AppText.sectionLabel(color: AppColors.primary));
   }
 }

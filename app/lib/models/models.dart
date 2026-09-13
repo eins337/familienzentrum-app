@@ -399,8 +399,11 @@ class SickReport {
     required this.familyId,
     this.groupId,
     required this.dateLabel,
+    required this.startDate,
+    required this.endDate,
     this.reason,
     this.acknowledged = false,
+    this.cancelled = false,
     required this.createdAt,
     this.childName,
   });
@@ -410,10 +413,23 @@ class SickReport {
   final String familyId;
   final String? groupId;
   final String dateLabel;
+  final DateTime startDate;
+  final DateTime endDate;
   final String? reason;
   final bool acknowledged;
+  final bool cancelled;
   final DateTime createdAt;
   final String? childName;
+
+  int get days => endDate.difference(startDate).inDays + 1;
+
+  /// Today falls within the reported range and it hasn't been withdrawn.
+  bool get isActive {
+    if (cancelled) return false;
+    final today = DateTime.now();
+    final d = DateTime(today.year, today.month, today.day);
+    return !d.isBefore(startDate) && !d.isAfter(endDate);
+  }
 
   factory SickReport.fromMap(Json m) => SickReport(
         id: m['id'] as String,
@@ -421,8 +437,11 @@ class SickReport {
         familyId: m['family_id'] as String,
         groupId: m['group_id'] as String?,
         dateLabel: m['date_label'] as String,
+        startDate: DateTime.parse(m['start_date'] as String),
+        endDate: DateTime.parse(m['end_date'] as String),
         reason: m['reason'] as String?,
         acknowledged: m['acknowledged'] as bool? ?? false,
+        cancelled: m['cancelled'] as bool? ?? false,
         createdAt: DateTime.parse(m['created_at'] as String),
         childName: (m['children'] as Json?)?['name'] as String?,
       );

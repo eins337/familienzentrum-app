@@ -26,9 +26,9 @@ class EventCard extends ConsumerWidget {
             child: Column(
               children: [
                 Text(monthNameShort(event.eventDate.month).toUpperCase(),
-                    style: const TextStyle(fontSize: 10, letterSpacing: 1, color: AppColors.accent)),
+                    style: const TextStyle(fontSize: 10, letterSpacing: 1, color: AppColors.primary)),
                 Text('${event.eventDate.day}',
-                    style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500, fontSize: 23, color: AppColors.text)),
+                    style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 23, color: AppColors.ink)),
               ],
             ),
           ),
@@ -38,17 +38,17 @@ class EventCard extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(event.title, style: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w500, fontSize: 15, color: AppColors.text)),
+                Text(event.title, style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 15, color: AppColors.ink)),
                 Text(
                   [event.timeLabel, event.location, event.groupId == null ? 'alle Gruppen' : null].whereType<String>().join(' · '),
-                  style: const TextStyle(fontSize: 11.5, color: AppColors.neutral400),
+                  style: const TextStyle(fontSize: 11.5, color: AppColors.muted),
                 ),
               ],
             ),
           ),
           NButton(
             label: rsvped ? 'Dabei ✓' : 'Zusagen',
-            variant: NButtonVariant.primary,
+            variant: rsvped ? NButtonVariant.success : NButtonVariant.primary,
             small: true,
             onPressed: () => ref.read(kitaServiceProvider).toggleRsvp(event.id),
           ),

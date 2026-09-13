@@ -128,7 +128,7 @@ class _PostCreateScreenState extends ConsumerState<PostCreateScreen> {
           const SizedBox(height: 10),
           NField(label: 'Text', controller: _bodyCtrl, hintText: 'Schreib den Eltern, was heute los war …', minLines: 4, maxLines: 8),
           const SizedBox(height: 10),
-          const Text('Art des Beitrags', style: TextStyle(fontSize: 12, color: AppColors.neutral400)),
+          const Text('Art des Beitrags', style: TextStyle(fontSize: 12, color: AppColors.muted)),
           const SizedBox(height: 5),
           Wrap(
             spacing: 6,
@@ -141,7 +141,7 @@ class _PostCreateScreenState extends ConsumerState<PostCreateScreen> {
             ],
           ),
           const SizedBox(height: 12),
-          const Text('Sichtbar für', style: TextStyle(fontSize: 12, color: AppColors.neutral400)),
+          const Text('Sichtbar für', style: TextStyle(fontSize: 12, color: AppColors.muted)),
           const SizedBox(height: 5),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
@@ -165,7 +165,7 @@ class _PostCreateScreenState extends ConsumerState<PostCreateScreen> {
           ),
           if (_kind == 'info') ...[
             const SizedBox(height: 12),
-            const Text('Anhang (optional)', style: TextStyle(fontSize: 12, color: AppColors.neutral400)),
+            const Text('Anhang (optional)', style: TextStyle(fontSize: 12, color: AppColors.muted)),
             const SizedBox(height: 5),
             NButton(
               label: _attachedFile?.name ?? 'Datei anhängen',
@@ -177,7 +177,7 @@ class _PostCreateScreenState extends ConsumerState<PostCreateScreen> {
           ],
           if (_kind == 'foto') ...[
             const SizedBox(height: 12),
-            const Text('Fotos', style: TextStyle(fontSize: 12, color: AppColors.neutral400)),
+            const Text('Fotos', style: TextStyle(fontSize: 12, color: AppColors.muted)),
             const SizedBox(height: 5),
             Wrap(
               spacing: 7,
@@ -193,8 +193,8 @@ class _PostCreateScreenState extends ConsumerState<PostCreateScreen> {
                   child: Container(
                     width: 78,
                     height: 78,
-                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.neutral700, style: BorderStyle.solid)),
-                    child: const Icon(Icons.add_rounded, color: AppColors.neutral600),
+                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border, style: BorderStyle.solid)),
+                    child: const Icon(Icons.add_rounded, color: AppColors.mutedAlt),
                   ),
                 ),
               ],
@@ -202,7 +202,7 @@ class _PostCreateScreenState extends ConsumerState<PostCreateScreen> {
           ],
           if (_kind == 'termin') ...[
             const SizedBox(height: 12),
-            const Text('Termin', style: TextStyle(fontSize: 12, color: AppColors.neutral400)),
+            const Text('Termin', style: TextStyle(fontSize: 12, color: AppColors.muted)),
             const SizedBox(height: 5),
             NButton(
               label: _eventDate == null ? 'Datum & Uhrzeit wählen' : '${_eventDate!.day.toString().padLeft(2, '0')}.${_eventDate!.month.toString().padLeft(2, '0')}.${_eventDate!.year} · ${_eventDate!.hour.toString().padLeft(2, '0')}:${_eventDate!.minute.toString().padLeft(2, '0')}',
@@ -221,7 +221,7 @@ class _PostCreateScreenState extends ConsumerState<PostCreateScreen> {
           ],
           if (_kind == 'umfrage') ...[
             const SizedBox(height: 12),
-            const Text('Antwortoptionen', style: TextStyle(fontSize: 12, color: AppColors.neutral400)),
+            const Text('Antwortoptionen', style: TextStyle(fontSize: 12, color: AppColors.muted)),
             const SizedBox(height: 5),
             for (var i = 0; i < _pollOptions.length; i++) ...[
               NInput(controller: _pollOptions[i], hintText: 'Option ${i + 1}'),
@@ -266,10 +266,10 @@ class _KindChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
         decoration: BoxDecoration(
-          border: Border.all(color: selected ? AppColors.accent : AppColors.divider),
+          border: Border.all(color: selected ? AppColors.primary : AppColors.divider),
           borderRadius: BorderRadius.circular(AppRadius.md),
         ),
-        child: Text(label, style: TextStyle(fontSize: 12, color: selected ? AppColors.accent : AppColors.text)),
+        child: Text(label, style: TextStyle(fontSize: 12, color: selected ? AppColors.primary : AppColors.ink)),
       ),
     );
   }
@@ -280,7 +280,7 @@ Widget kIsWebSafeImage(XFile file) {
     width: 78,
     height: 78,
     child: kIsWeb
-        ? Image.network(file.path, fit: BoxFit.cover, errorBuilder: (_, __, ___) => Container(color: AppColors.neutral800))
-        : Image.file(File(file.path), fit: BoxFit.cover, errorBuilder: (_, __, ___) => Container(color: AppColors.neutral800)),
+        ? Image.network(file.path, fit: BoxFit.cover, errorBuilder: (_, __, ___) => Container(color: AppColors.soft))
+        : Image.file(File(file.path), fit: BoxFit.cover, errorBuilder: (_, __, ___) => Container(color: AppColors.soft)),
   );
 }
