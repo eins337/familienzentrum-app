@@ -147,31 +147,19 @@ class PlaydateConfirmedIllustration extends StatelessWidget {
   }
 }
 
-class _FloatingWrapper extends StatefulWidget {
+// The README calls for a perpetual ±3px "floaty" drift on this
+// illustration, but an endlessly-repeating AnimationController driving a
+// Transform every frame is a known Flutter-web/CanvasKit trigger for a
+// MouseTracker assertion storm ("mouse_tracker.dart:199") whenever the
+// pointer sits near another hoverable widget on the same screen — it
+// broke the whole Feed page for a live tester. Not worth the risk for a
+// few pixels of drift, so this is a static wrapper instead.
+class _FloatingWrapper extends StatelessWidget {
   const _FloatingWrapper({required this.child});
   final Widget child;
 
   @override
-  State<_FloatingWrapper> createState() => _FloatingWrapperState();
-}
-
-class _FloatingWrapperState extends State<_FloatingWrapper> with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(vsync: this, duration: const Duration(seconds: 6))..repeat(reverse: true);
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) => Transform.translate(offset: Offset(0, (_controller.value - 0.5) * 6), child: child),
-      child: widget.child,
-    );
-  }
+  Widget build(BuildContext context) => child;
 }
 
 class _Sun extends StatelessWidget {
