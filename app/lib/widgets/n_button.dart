@@ -19,6 +19,7 @@ class NButton extends StatefulWidget {
     this.loading = false,
     this.iconOnly = false,
     this.alignStart = false,
+    this.textColor,
   });
 
   final String? label;
@@ -31,6 +32,9 @@ class NButton extends StatefulWidget {
   final bool loading;
   final bool iconOnly;
   final bool alignStart;
+  /// Overrides the variant's default label/icon color — e.g. a coral
+  /// "Abmelden" ghost button without needing a whole new boxed variant.
+  final Color? textColor;
 
   @override
   State<NButton> createState() => _NButtonState();
@@ -47,7 +51,7 @@ class _NButtonState extends State<NButton> {
         NButtonVariant.danger => AppColors.errorSoft,
       };
 
-  Color get _fg => switch (widget.variant) {
+  Color get _fg => widget.textColor ?? switch (widget.variant) {
         NButtonVariant.primary => AppColors.surface,
         NButtonVariant.secondary => AppColors.ink,
         NButtonVariant.ghost => AppColors.primary,

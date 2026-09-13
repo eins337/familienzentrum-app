@@ -116,8 +116,27 @@ class _InfosScreenState extends ConsumerState<InfosScreen> {
               error: (e, _) => Text('Fehler: $e'),
               data: (docs) {
                 if (docs.isEmpty) return const Text('Keine Dokumente.', style: TextStyle(color: AppColors.muted));
+                final speiseplaene = docs.where((d) => d.title.toLowerCase().startsWith('speiseplan')).toList();
+                final rest = docs.where((d) => !d.title.toLowerCase().startsWith('speiseplan')).toList();
                 return Column(
-                  children: [for (final d in docs) ...[_DocRow(doc: d), const SizedBox(height: 8)]],
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (speiseplaene.isNotEmpty) ...[
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 6),
+                        child: Text('SPEISEPLÄNE', style: TextStyle(fontFamily: 'Outfit', fontSize: 10, letterSpacing: 1.3, color: AppColors.primary, fontWeight: FontWeight.w800)),
+                      ),
+                      for (final d in speiseplaene) ...[_DocRow(doc: d), const SizedBox(height: 8)],
+                      if (rest.isNotEmpty) const SizedBox(height: 4),
+                    ],
+                    if (rest.isNotEmpty) ...[
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 6),
+                        child: Text('ELTERNBRIEFE & FORMULARE', style: TextStyle(fontFamily: 'Outfit', fontSize: 10, letterSpacing: 1.3, color: AppColors.primary, fontWeight: FontWeight.w800)),
+                      ),
+                      for (final d in rest) ...[_DocRow(doc: d), const SizedBox(height: 8)],
+                    ],
+                  ],
                 );
               },
             ),
@@ -165,7 +184,7 @@ class _EventRow extends ConsumerWidget {
           ),
           NButton(
             label: rsvped ? 'Dabei ✓' : 'Zusagen',
-            variant: NButtonVariant.primary,
+            variant: rsvped ? NButtonVariant.success : NButtonVariant.primary,
             small: true,
             onPressed: () => ref.read(kitaServiceProvider).toggleRsvp(event.id),
           ),

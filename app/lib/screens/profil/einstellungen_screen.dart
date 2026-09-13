@@ -87,11 +87,22 @@ class EinstellungenScreen extends ConsumerWidget {
                 if (family != null) Text(family.name, style: const TextStyle(fontSize: 11.5, color: AppColors.muted)),
                 const Divider(height: 20),
                 NButton(label: 'Passwort ändern', variant: NButtonVariant.ghost, small: true, onPressed: () => _showChangePasswordDialog(context, ref)),
-                NButton(label: 'Sprache: Deutsch', variant: NButtonVariant.ghost, small: true, onPressed: () {}),
-                NButton(label: 'Datenschutz & Nutzungsbedingungen', variant: NButtonVariant.ghost, small: true, onPressed: () {}),
+                NButton(
+                  label: 'Sprache: Deutsch',
+                  variant: NButtonVariant.ghost,
+                  small: true,
+                  onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Die App ist aktuell nur auf Deutsch verfügbar.'))),
+                ),
+                NButton(
+                  label: 'Datenschutz & Nutzungsbedingungen',
+                  variant: NButtonVariant.ghost,
+                  small: true,
+                  onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Bitte wende dich für die Datenschutzerklärung an die Kita-Leitung.'))),
+                ),
                 NButton(
                   label: 'Abmelden',
                   variant: NButtonVariant.ghost,
+                  textColor: AppColors.error,
                   small: true,
                   onPressed: () async {
                     await ref.read(authServiceProvider).signOut();
@@ -128,7 +139,7 @@ Future<void> _showChangePasswordDialog(BuildContext context, WidgetRef ref) asyn
             NField(label: 'Passwort bestätigen', controller: confirmCtrl, obscureText: true),
             if (error != null) ...[
               const SizedBox(height: 8),
-              Text(error!, style: const TextStyle(fontSize: 12, color: AppColors.groupRot)),
+              Text(error!, style: const TextStyle(fontSize: 12, color: AppColors.error)),
             ],
           ],
         ),
