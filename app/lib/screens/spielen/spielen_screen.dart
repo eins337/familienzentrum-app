@@ -40,7 +40,19 @@ class SpielenScreen extends ConsumerWidget {
               ),
               if (waiting.isNotEmpty) ...[
                 const SizedBox(height: 10),
-                const _SectionLabel('Warten auf dich'),
+                Row(
+                  children: [
+                    const _SectionLabel('Warten auf dich'),
+                    const SizedBox(width: 6),
+                    Container(
+                      width: 16,
+                      height: 16,
+                      alignment: Alignment.center,
+                      decoration: const BoxDecoration(shape: BoxShape.circle, color: AppColors.error),
+                      child: Text('${waiting.length}', style: AppText.outfit(size: 9.5, weight: FontWeight.w700, color: AppColors.surface)),
+                    ),
+                  ],
+                ),
                 for (final p in waiting) ...[_WaitingCard(playdate: p), const SizedBox(height: 8)],
               ],
               if (confirmed.isNotEmpty) ...[

@@ -64,7 +64,7 @@ class _NButtonState extends State<NButton> {
         NButtonVariant.secondary => Border.all(color: AppColors.border),
         NButtonVariant.ghost => null,
         NButtonVariant.success => null,
-        NButtonVariant.danger => Border.all(color: const Color(0xFFF0C8BB)),
+        NButtonVariant.danger => Border.all(color: AppColors.errorBorder),
       };
 
   List<BoxShadow>? get _shadow => widget.variant == NButtonVariant.primary ? AppShadows.primaryButton : null;

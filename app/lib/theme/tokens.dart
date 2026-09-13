@@ -39,6 +39,7 @@ class AppColors {
 
   static const error = Color(0xFFD9694F);
   static const errorSoft = Color(0xFFFBE7E1);
+  static const errorBorder = Color(0xFFF0C8BB);
   static const errorInk = Color(0xFF8E3A26);
   static const errorInk2 = Color(0xFF7A3E2D);
 
