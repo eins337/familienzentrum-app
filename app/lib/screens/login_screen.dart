@@ -49,11 +49,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Padding(
+        child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 28, 20, 32),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+          children: [
               const LoginIllustration(),
               const SizedBox(height: 22),
               const Text(
@@ -80,7 +78,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               NButton(label: 'Anmelden', variant: NButtonVariant.primary, block: true, loading: _loading, onPressed: _doLogin),
               const SizedBox(height: 2),
               const NButton(label: 'Code vergessen?', variant: NButtonVariant.ghost, block: true, small: true),
-              const Spacer(),
+              const SizedBox(height: 32),
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(color: AppColors.soft, borderRadius: BorderRadius.circular(AppRadius.input)),
@@ -98,8 +96,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ],
                 ),
               ),
-            ],
-          ),
+          ],
         ),
       ),
     );
