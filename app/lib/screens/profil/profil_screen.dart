@@ -309,8 +309,12 @@ class _SickActiveCard extends ConsumerWidget {
           const SizedBox(height: 6),
           InkWell(
             onTap: () async {
-              await ref.read(kitaServiceProvider).cancelSickReport(report.id);
-              if (context.mounted) showNToast(context, 'Krankmeldung zurückgenommen.');
+              try {
+                await ref.read(kitaServiceProvider).cancelSickReport(report.id);
+                if (context.mounted) showNToast(context, 'Krankmeldung zurückgenommen.');
+              } catch (e) {
+                if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Fehler: $e')));
+              }
             },
             child: const Text('Zurücknehmen', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 12.5, color: AppColors.successInk)),
           ),
