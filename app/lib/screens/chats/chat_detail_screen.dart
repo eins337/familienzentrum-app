@@ -29,7 +29,14 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
     final myId = ref.read(profileProvider).valueOrNull?.id;
     if (text.isEmpty || myId == null) return;
     _draftCtrl.clear();
-    await ref.read(chatsServiceProvider).sendMessage(widget.chatId, myId, text);
+    try {
+      await ref.read(chatsServiceProvider).sendMessage(widget.chatId, myId, text);
+    } catch (e) {
+      if (mounted) {
+        _draftCtrl.text = text;
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Nachricht konnte nicht gesendet werden: $e')));
+      }
+    }
   }
 
   @override
@@ -74,7 +81,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                       ),
                     if (playdate != null && playdate.status == 'pending') ...[
                       const SizedBox(height: 8),
-                      Align(alignment: Alignment.centerLeft, child: _PlaydateInlineCard(playdate: playdate)),
+                      Align(alignment: Alignment.centerLeft, child: _PlaydateInlineCard(playdate: playdate, chatId: widget.chatId)),
                     ],
                   ],
                 );
@@ -166,8 +173,9 @@ class _MessageBubble extends StatelessWidget {
 }
 
 class _PlaydateInlineCard extends ConsumerStatefulWidget {
-  const _PlaydateInlineCard({required this.playdate});
+  const _PlaydateInlineCard({required this.playdate, required this.chatId});
   final PlaydateRequest playdate;
+  final String chatId;
 
   @override
   ConsumerState<_PlaydateInlineCard> createState() => _PlaydateInlineCardState();
@@ -175,6 +183,35 @@ class _PlaydateInlineCard extends ConsumerStatefulWidget {
 
 class _PlaydateInlineCardState extends ConsumerState<_PlaydateInlineCard> {
   int? _selected;
+  bool _busy = false;
+
+  // playdateForChatProvider is a one-shot FutureProvider, not a stream — it
+  // never notices a confirm/decline on its own, so without this the card
+  // kept showing "pending" with live buttons even after a successful action.
+  Future<void> _confirm() async {
+    if (_selected == null) return;
+    setState(() => _busy = true);
+    try {
+      await ref.read(playdatesServiceProvider).confirmSlot(widget.playdate.id, _selected!);
+      ref.invalidate(playdateForChatProvider(widget.chatId));
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Fehler: $e')));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _decline() async {
+    setState(() => _busy = true);
+    try {
+      await ref.read(playdatesServiceProvider).declineRequest(widget.playdate.id);
+      ref.invalidate(playdateForChatProvider(widget.chatId));
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Fehler: $e')));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -223,11 +260,12 @@ class _PlaydateInlineCardState extends ConsumerState<_PlaydateInlineCard> {
                   label: 'Termin bestätigen',
                   variant: NButtonVariant.primary,
                   small: true,
-                  onPressed: _selected == null ? null : () => ref.read(playdatesServiceProvider).confirmSlot(p.id, _selected!),
+                  loading: _busy,
+                  onPressed: (_selected == null || _busy) ? null : _confirm,
                 ),
               ),
               const SizedBox(width: 6),
-              NButton(label: 'Absagen', variant: NButtonVariant.secondary, small: true, onPressed: () => ref.read(playdatesServiceProvider).declineRequest(p.id)),
+              NButton(label: 'Absagen', variant: NButtonVariant.secondary, small: true, onPressed: _busy ? null : _decline),
             ],
           ),
         ],
