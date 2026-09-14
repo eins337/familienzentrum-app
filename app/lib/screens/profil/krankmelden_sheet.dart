@@ -77,18 +77,21 @@ class _KrankmeldenSheetState extends ConsumerState<KrankmeldenSheet> {
     final child = children[widget.childId];
     final firstName = child?.name.split(' ').first ?? 'Kind';
 
-    return Padding(
-      padding: EdgeInsets.fromLTRB(16, 12, 16, MediaQuery.of(context).viewInsets.bottom + 32),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Center(
-            child: Container(width: 36, height: 4, decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(2))),
-          ),
-          const SizedBox(height: 14),
-          if (_step == 'form') ..._buildForm(child, firstName) else ..._buildSuccess(child, firstName),
-        ],
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.9),
+      child: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(16, 12, 16, MediaQuery.of(context).viewInsets.bottom + 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(width: 36, height: 4, decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(2))),
+            ),
+            const SizedBox(height: 14),
+            if (_step == 'form') ..._buildForm(child, firstName) else ..._buildSuccess(child, firstName),
+          ],
+        ),
       ),
     );
   }

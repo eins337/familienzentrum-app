@@ -178,7 +178,7 @@ class _QuickActionsRow extends ConsumerWidget {
             label: 'Spielanfrage',
             color: AppColors.info,
             softColor: AppColors.infoSoft,
-            onTap: () => context.push('/spielanfrage-neu?childId=${child.id}'),
+            onTap: () => context.push('/spielanfrage-neu?myChildId=${child.id}'),
           ),
         ),
       ],

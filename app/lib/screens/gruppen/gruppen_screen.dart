@@ -15,7 +15,7 @@ class GruppenScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final groupsAsync = ref.watch(groupsProvider);
     final profile = ref.watch(profileProvider).valueOrNull;
-    final myChildren = ref.watch(myChildrenProvider).valueOrNull ?? [];
+    final myChildrenAsync = ref.watch(myChildrenProvider);
     final isTeam = profile?.isTeam ?? false;
 
     return Scaffold(
@@ -24,6 +24,17 @@ class GruppenScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
         error: (e, _) => Center(child: Text('Fehler: $e')),
         data: (groups) {
+          // Surface myChildrenProvider's own loading/error state instead of
+          // silently defaulting to an empty list — a parent whose child
+          // list hadn't loaded yet (or failed to) saw a blank "no groups"
+          // screen with no explanation of why.
+          if (!isTeam && myChildrenAsync.isLoading) {
+            return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+          }
+          if (!isTeam && myChildrenAsync.hasError) {
+            return Center(child: Text('Fehler: ${myChildrenAsync.error}'));
+          }
+          final myChildren = myChildrenAsync.valueOrNull ?? [];
           final myGroupIds = myChildren.map((c) => c.groupId).whereType<String>().toSet();
           final visibleGroups = isTeam ? groups : groups.where((g) => myGroupIds.contains(g.id)).toList();
 
@@ -35,6 +46,18 @@ class GruppenScreen extends ConsumerWidget {
                 style: const TextStyle(fontSize: 12, color: AppColors.muted),
               ),
               const SizedBox(height: 8),
+              if (!isTeam && visibleGroups.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: NCard(
+                    child: Text(
+                      myChildren.isEmpty
+                          ? 'Für dein Konto ist noch kein Kind hinterlegt. Bitte wende dich an das Team, damit dein Kind einer Familie zugeordnet wird.'
+                          : 'Deinem Kind ist noch keine Gruppe zugeordnet. Bitte wende dich an das Team.',
+                      style: const TextStyle(fontSize: 12.5, color: AppColors.muted),
+                    ),
+                  ),
+                ),
               for (final g in visibleGroups) ...[
                 _GroupRow(groupId: g.id, name: g.name, childCount: g.childCount, onTap: () => context.push('/gruppen/${g.id}')),
                 const SizedBox(height: 8),

@@ -10,8 +10,18 @@ import '../../widgets/n_field.dart';
 import '../../widgets/n_header.dart';
 
 class SpielanfrageNeuScreen extends ConsumerStatefulWidget {
-  const SpielanfrageNeuScreen({super.key, this.preselectedChildId});
+  const SpielanfrageNeuScreen({super.key, this.preselectedChildId, this.preselectedMyChildId});
+
+  /// A child from ANOTHER family to preselect as the invite target (e.g.
+  /// tapped from that child's row in a Gruppe's "Kinder der Gruppe" list).
   final String? preselectedChildId;
+
+  /// The caller's OWN child to preselect as the requester (e.g. tapped from
+  /// the Feed's "Spielanfrage" quick action, which only knows your own
+  /// child). Kept separate from [preselectedChildId] since the two chip
+  /// lists are disjoint — a value meant for one can never match the other.
+  final String? preselectedMyChildId;
+
   @override
   ConsumerState<SpielanfrageNeuScreen> createState() => _SpielanfrageNeuScreenState();
 }
@@ -23,11 +33,27 @@ class _SpielanfrageNeuScreenState extends ConsumerState<SpielanfrageNeuScreen> {
   final _locationCtrl = TextEditingController(text: 'Spielplatz Nierster Straße');
   final _messageCtrl = TextEditingController(text: 'Hallo! Passt einer der Termine bei euch?');
   bool _sending = false;
+  Future<List<Child>>? _othersFutureCache;
+  String? _othersFutureFamilyId;
 
   @override
   void initState() {
     super.initState();
     _slots.add((TextEditingController(), TextEditingController()));
+    _myChildId = widget.preselectedMyChildId;
+  }
+
+  /// Fetched once per familyId and cached — building this Future inline in
+  /// `build()` (the original code) meant every setState() (typing in a
+  /// field, adding a slot, picking a child) created a brand-new Future, so
+  /// the target list flashed back to "loading" and silently re-fetched on
+  /// every keystroke, discarding the visible selection each time.
+  Future<List<Child>> _othersFuture(String familyId) {
+    if (_othersFutureFamilyId != familyId) {
+      _othersFutureFamilyId = familyId;
+      _othersFutureCache = ref.read(kitaServiceProvider).fetchOtherChildren(familyId);
+    }
+    return _othersFutureCache!;
   }
 
   @override
@@ -113,7 +139,7 @@ class _SpielanfrageNeuScreenState extends ConsumerState<SpielanfrageNeuScreen> {
           const SizedBox(height: 6),
           if (myFamilyId != null)
             FutureBuilder<List<Child>>(
-              future: ref.read(kitaServiceProvider).fetchOtherChildren(myFamilyId),
+              future: _othersFuture(myFamilyId),
               builder: (context, snap) {
                 final others = snap.data ?? [];
                 final families = familiesAsync.valueOrNull ?? {};

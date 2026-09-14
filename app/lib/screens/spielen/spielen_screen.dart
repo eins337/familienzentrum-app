@@ -98,6 +98,30 @@ class _WaitingCard extends ConsumerStatefulWidget {
 
 class _WaitingCardState extends ConsumerState<_WaitingCard> {
   int? _selected;
+  bool _busy = false;
+
+  Future<void> _confirm() async {
+    if (_selected == null) return;
+    setState(() => _busy = true);
+    try {
+      await ref.read(playdatesServiceProvider).confirmSlot(widget.playdate.id, _selected!);
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Fehler: $e')));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _decline() async {
+    setState(() => _busy = true);
+    try {
+      await ref.read(playdatesServiceProvider).declineRequest(widget.playdate.id);
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Fehler: $e')));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -162,11 +186,12 @@ class _WaitingCardState extends ConsumerState<_WaitingCard> {
                   label: 'Termin bestätigen',
                   variant: NButtonVariant.primary,
                   small: true,
-                  onPressed: _selected == null ? null : () => ref.read(playdatesServiceProvider).confirmSlot(p.id, _selected!),
+                  loading: _busy,
+                  onPressed: (_selected == null || _busy) ? null : _confirm,
                 ),
               ),
               const SizedBox(width: 6),
-              NButton(label: 'Absagen', variant: NButtonVariant.secondary, small: true, onPressed: () => ref.read(playdatesServiceProvider).declineRequest(p.id)),
+              NButton(label: 'Absagen', variant: NButtonVariant.secondary, small: true, onPressed: _busy ? null : _decline),
             ],
           ),
           const SizedBox(height: 4),

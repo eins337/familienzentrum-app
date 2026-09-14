@@ -4,13 +4,21 @@ import 'supabase_service.dart';
 class PostsService {
   /// Kita-wide feed: posts with no group_id, or group posts where the
   /// caller may see them — RLS already limits to "signed in", we just sort.
+  ///
+  /// Sorted client-side (not via chained `.order()` calls) because
+  /// `SupabaseStreamBuilder` only remembers a single order column — a
+  /// second `.order()` call silently overwrites the first instead of
+  /// adding a secondary sort key, which was dropping the pinned-first
+  /// ordering entirely.
   Stream<List<Post>> streamFeed() {
-    return supa
-        .from('posts')
-        .stream(primaryKey: ['id'])
-        .order('pinned', ascending: false)
-        .order('created_at', ascending: false)
-        .map((rows) => rows.map(Post.fromMap).toList());
+    return supa.from('posts').stream(primaryKey: ['id']).map((rows) {
+      final posts = rows.map(Post.fromMap).toList();
+      posts.sort((a, b) {
+        if (a.pinned != b.pinned) return a.pinned ? -1 : 1;
+        return b.createdAt.compareTo(a.createdAt);
+      });
+      return posts;
+    });
   }
 
   Stream<List<Post>> streamGroupPosts(String groupId) {
