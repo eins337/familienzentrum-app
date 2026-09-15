@@ -89,6 +89,10 @@ class Child {
     this.tags = const [],
     this.photoConsentGroup = true,
     this.photoConsentWebsite = false,
+    this.bringTime,
+    this.bringTimeNote,
+    this.bringTimeUpdatedAt,
+    this.bringTimeUpdatedBy,
     required this.createdAt,
   });
 
@@ -102,6 +106,14 @@ class Child {
   final List<String> tags;
   final bool photoConsentGroup;
   final bool photoConsentWebsite;
+
+  /// The time the family drops this child off, e.g. "08:00" — free text so
+  /// families can note something like "08:00 (montags 08:30)" rather than
+  /// being forced into a single fixed slot.
+  final String? bringTime;
+  final String? bringTimeNote;
+  final DateTime? bringTimeUpdatedAt;
+  final String? bringTimeUpdatedBy;
   final DateTime createdAt;
 
   int get age {
@@ -136,6 +148,10 @@ class Child {
         tags: _strList(m['tags']),
         photoConsentGroup: m['photo_consent_group'] as bool? ?? true,
         photoConsentWebsite: m['photo_consent_website'] as bool? ?? false,
+        bringTime: m['bring_time'] as String?,
+        bringTimeNote: m['bring_time_note'] as String?,
+        bringTimeUpdatedAt: m['bring_time_updated_at'] != null ? DateTime.parse(m['bring_time_updated_at'] as String) : null,
+        bringTimeUpdatedBy: m['bring_time_updated_by'] as String?,
         createdAt: DateTime.parse(m['created_at'] as String),
       );
 }
@@ -585,5 +601,37 @@ class Invite {
         redeemedAt: m['redeemed_at'] != null ? DateTime.parse(m['redeemed_at'] as String) : null,
         createdAt: DateTime.parse(m['created_at'] as String),
         familyName: (m['families'] as Json?)?['name'] as String?,
+      );
+}
+
+class MarketplaceItem {
+  MarketplaceItem({
+    required this.id,
+    required this.authorId,
+    this.familyId,
+    required this.title,
+    this.description,
+    this.status = 'available',
+    required this.createdAt,
+    this.authorName,
+  });
+
+  final String id;
+  final String authorId;
+  final String? familyId;
+  final String title;
+  final String? description;
+  final String status; // 'available' | 'reserved' | 'given_away'
+  final DateTime createdAt;
+  final String? authorName; // joined convenience field, not a DB column
+
+  factory MarketplaceItem.fromMap(Json m) => MarketplaceItem(
+        id: m['id'] as String,
+        authorId: m['author_id'] as String,
+        familyId: m['family_id'] as String?,
+        title: m['title'] as String,
+        description: m['description'] as String?,
+        status: m['status'] as String? ?? 'available',
+        createdAt: DateTime.parse(m['created_at'] as String),
       );
 }

@@ -199,6 +199,35 @@ class _ProfilScreenState extends ConsumerState<ProfilScreen> {
                 ),
               ),
               const SizedBox(height: 10),
+              NCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Expanded(child: _Kicker('Bringzeit')),
+                        InkWell(
+                          onTap: () => _editBringzeit(context, ref, child),
+                          child: const Text('Bearbeiten', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 12, color: AppColors.primary)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 7),
+                    if (child.bringTime == null || child.bringTime!.isEmpty)
+                      const Text('Noch keine Bringzeit hinterlegt.', style: TextStyle(fontSize: 12.5, color: AppColors.muted))
+                    else ...[
+                      Text(child.bringTime!, style: AppText.outfit(size: 15, weight: FontWeight.w600, color: AppColors.ink)),
+                      if (child.bringTimeNote != null && child.bringTimeNote!.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(child.bringTimeNote!, style: const TextStyle(fontSize: 12, color: AppColors.muted)),
+                      ],
+                    ],
+                    const SizedBox(height: 4),
+                    const Text('Das Team der Gruppe wird über Änderungen informiert.', style: TextStyle(fontSize: 11, color: AppColors.muted)),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
               NButton(label: '${child.name.split(' ').first} krankmelden', variant: NButtonVariant.secondary, block: true, small: true, onPressed: () => context.push('/krankmelden/${child.id}')),
               const SizedBox(height: 8),
               NButton(label: 'Infos & Termine', variant: NButtonVariant.secondary, block: true, small: true, onPressed: () => context.push('/infos')),
@@ -439,6 +468,88 @@ class _HinweiseSheetState extends ConsumerState<_HinweiseSheet> {
               children: [for (final t in _tags) _SelectableChip(label: t, selected: true, onTap: () => _toggle(t))],
             ),
           ],
+          const SizedBox(height: 16),
+          NButton(label: 'Speichern', variant: NButtonVariant.primary, block: true, loading: _saving, onPressed: _save),
+        ],
+      ),
+    );
+  }
+}
+
+Future<void> _editBringzeit(BuildContext context, WidgetRef ref, Child child) async {
+  final saved = await showModalBottomSheet<bool>(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: AppColors.background,
+    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.sheetTop))),
+    builder: (context) => _BringzeitSheet(child: child),
+  );
+  if (saved == true && context.mounted) {
+    showNToast(context, 'Bringzeit gespeichert — für das Team der Gruppe ${groupName(child.groupId)} sichtbar.');
+  }
+}
+
+class _BringzeitSheet extends ConsumerStatefulWidget {
+  const _BringzeitSheet({required this.child});
+  final Child child;
+
+  @override
+  ConsumerState<_BringzeitSheet> createState() => _BringzeitSheetState();
+}
+
+class _BringzeitSheetState extends ConsumerState<_BringzeitSheet> {
+  late final _timeCtrl = TextEditingController(text: widget.child.bringTime ?? '');
+  late final _noteCtrl = TextEditingController(text: widget.child.bringTimeNote ?? '');
+  bool _saving = false;
+
+  @override
+  void dispose() {
+    _timeCtrl.dispose();
+    _noteCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    final time = _timeCtrl.text.trim();
+    if (time.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Bitte eine Bringzeit angeben.')));
+      return;
+    }
+    final myUid = ref.read(profileProvider).valueOrNull?.id;
+    if (myUid == null) return;
+    setState(() => _saving = true);
+    try {
+      await ref.read(kitaServiceProvider).updateBringTime(
+            widget.child.id,
+            bringTime: time,
+            note: _noteCtrl.text.trim().isEmpty ? null : _noteCtrl.text.trim(),
+            updatedByUid: myUid,
+          );
+      if (mounted) Navigator.of(context).pop(true);
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Fehler: $e')));
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16, 12, 16, MediaQuery.of(context).viewInsets.bottom + 24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(child: Container(width: 36, height: 4, decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(2)))),
+          const SizedBox(height: 14),
+          Text('Bringzeit von ${widget.child.name.split(' ').first}', style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 17, color: AppColors.ink)),
+          const SizedBox(height: 4),
+          const Text('Das Team der Gruppe wird über Änderungen informiert.', style: TextStyle(fontSize: 12.5, color: AppColors.muted)),
+          const SizedBox(height: 14),
+          NField(label: 'Bringzeit', controller: _timeCtrl, hintText: 'z.B. 08:00'),
+          const SizedBox(height: 10),
+          NField(label: 'Notiz (optional)', controller: _noteCtrl, hintText: 'z.B. montags 08:30'),
           const SizedBox(height: 16),
           NButton(label: 'Speichern', variant: NButtonVariant.primary, block: true, loading: _saving, onPressed: _save),
         ],

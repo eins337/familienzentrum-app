@@ -69,6 +69,33 @@ class GruppenScreen extends ConsumerWidget {
               ],
               const SizedBox(height: 4),
               NCard(
+                onTap: () => context.push('/tauschboerse'),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 34,
+                      height: 34,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(color: AppColors.infoSoft, borderRadius: BorderRadius.circular(AppRadius.iconBackplate)),
+                      child: const Icon(Icons.swap_horiz_rounded, size: 18, color: AppColors.info),
+                    ),
+                    const SizedBox(width: 11),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text('Tauschbörse', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 14.5, color: AppColors.ink)),
+                          Text('Kleidung & Spielzeug tauschen — für alle Eltern', style: TextStyle(fontSize: 11, color: AppColors.muted)),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right_rounded, size: 18, color: AppColors.mutedAlt),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+              NCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

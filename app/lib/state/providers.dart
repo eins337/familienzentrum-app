@@ -5,6 +5,7 @@ import '../services/admin_service.dart';
 import '../services/auth_service.dart';
 import '../services/chats_service.dart';
 import '../services/kita_service.dart';
+import '../services/marketplace_service.dart';
 import '../services/playdates_service.dart';
 import '../services/posts_service.dart';
 import '../services/supabase_service.dart';
@@ -15,6 +16,7 @@ final chatsServiceProvider = Provider((ref) => ChatsService());
 final playdatesServiceProvider = Provider((ref) => PlaydatesService());
 final kitaServiceProvider = Provider((ref) => KitaService());
 final adminServiceProvider = Provider((ref) => AdminService());
+final marketplaceServiceProvider = Provider((ref) => MarketplaceService());
 
 /// Raw Supabase auth state (SIGNED_IN / SIGNED_OUT / ...).
 final authStateProvider = StreamProvider<AuthState>((ref) => supa.auth.onAuthStateChange);
@@ -71,7 +73,22 @@ final allChildrenProvider = StreamProvider<Map<String, Child>>((ref) {
       );
 });
 
-final feedPostsProvider = StreamProvider<List<Post>>((ref) => ref.watch(postsServiceProvider).streamFeed());
+/// Scoped to the caller's own groups — the `posts` table's RLS is
+/// intentionally open ("readable by signed-in") the same way `children`/
+/// `groups` are, with group-visibility meant to be enforced client-side
+/// (matching this provider's sibling filters like `streamMyPlaydates`).
+/// This provider previously returned every post unfiltered, so a parent
+/// saw every other group's posts too.
+final feedPostsProvider = StreamProvider<List<Post>>((ref) {
+  final profile = ref.watch(profileProvider).valueOrNull;
+  final myChildren = ref.watch(myChildrenProvider).valueOrNull ?? [];
+  final relevantGroups = profile?.isTeam ?? false
+      ? profile!.groupIds.toSet()
+      : myChildren.map((c) => c.groupId).whereType<String>().toSet();
+  return ref.watch(postsServiceProvider).streamFeed().map(
+        (posts) => posts.where((p) => p.groupId == null || relevantGroups.contains(p.groupId)).toList(),
+      );
+});
 
 final groupPostsProvider = StreamProvider.family<List<Post>, String>(
   (ref, groupId) => ref.watch(postsServiceProvider).streamGroupPosts(groupId),
@@ -121,3 +138,5 @@ final allFamiliesProvider = StreamProvider<Map<String, Family>>((ref) {
         (rows) => {for (final r in rows) r['id'] as String: Family.fromMap(r)},
       );
 });
+
+final marketplaceItemsProvider = StreamProvider<List<MarketplaceItem>>((ref) => ref.watch(marketplaceServiceProvider).streamItems());

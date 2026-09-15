@@ -55,6 +55,19 @@ class KitaService {
   /// these surface live in the team's Gruppe view.
   Future<void> updateChildTags(String childId, List<String> tags) => supa.from('children').update({'tags': tags}).eq('id', childId);
 
+  /// Parents update their own child's Bringzeit (drop-off time) — the
+  /// *_updated_at/_by stamp lets the team-facing Mitteilungen feed
+  /// synthesize a "changed" notice without a separate notifications table.
+  Future<void> updateBringTime(String childId, {required String bringTime, String? note, required String updatedByUid}) => supa
+      .from('children')
+      .update({
+        'bring_time': bringTime,
+        'bring_time_note': note,
+        'bring_time_updated_at': DateTime.now().toIso8601String(),
+        'bring_time_updated_by': updatedByUid,
+      })
+      .eq('id', childId);
+
   Stream<List<KitaEvent>> streamUpcomingEvents() {
     final today = DateTime.now();
     final todayStr = '${today.year.toString().padLeft(4, '0')}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';

@@ -23,6 +23,8 @@ import '../screens/profil/profil_screen.dart';
 import '../screens/shell/app_shell.dart';
 import '../screens/spielen/spielanfrage_neu_screen.dart';
 import '../screens/spielen/spielen_screen.dart';
+import '../screens/tauschboerse/tauschboerse_neu_screen.dart';
+import '../screens/tauschboerse/tauschboerse_screen.dart';
 import '../screens/team/team_screen.dart';
 import '../state/providers.dart';
 
@@ -80,6 +82,16 @@ final routerProvider = Provider<GoRouter>((ref) {
           preselectedChildId: state.uri.queryParameters['childId'],
           preselectedMyChildId: state.uri.queryParameters['myChildId'],
         ),
+      ),
+      GoRoute(
+        path: '/tauschboerse',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const TauschboerseScreen(),
+      ),
+      GoRoute(
+        path: '/tauschboerse-neu',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const TauschboerseNeuScreen(),
       ),
       GoRoute(
         path: '/krankmelden/:childId',

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../models/models.dart';
 import '../../state/providers.dart';
 import '../../theme/tokens.dart';
 import '../../utils/group_colors.dart';
@@ -18,6 +19,10 @@ class MitteilungenScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final posts = ref.watch(feedPostsProvider).valueOrNull ?? [];
     final playdates = ref.watch(myPlaydatesProvider).valueOrNull ?? [];
+    final profile = ref.watch(profileProvider).valueOrNull;
+    final isTeam = profile?.isTeam ?? false;
+    final myGroups = profile?.groupIds.toSet() ?? {};
+    final allChildren = isTeam ? ref.watch(allChildrenProvider).valueOrNull ?? <String, Child>{} : const <String, Child>{};
 
     final items = <_Item>[
       for (final p in posts)
@@ -38,6 +43,18 @@ class MitteilungenScreen extends ConsumerWidget {
           color: AppColors.info,
           onTap: pd.chatId != null ? () => context.push('/chats/${pd.chatId}') : null,
         ),
+      // Team-only: a live "Bringzeit geändert" notice, synthesized from the
+      // realtime children stream rather than a separate notifications row —
+      // same approach as the rest of this screen.
+      if (isTeam)
+        for (final c in allChildren.values.where((c) => c.bringTimeUpdatedAt != null && myGroups.contains(c.groupId)))
+          _Item(
+            time: c.bringTimeUpdatedAt!,
+            icon: Icons.access_time_rounded,
+            text: 'Bringzeit von ${c.name} geändert: ${c.bringTime}',
+            color: AppColors.warning,
+            onTap: c.groupId != null ? () => context.push('/gruppen/${c.groupId}') : null,
+          ),
     ]..sort((a, b) => b.time.compareTo(a.time));
 
     final now = DateTime.now();
