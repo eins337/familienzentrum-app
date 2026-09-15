@@ -49,14 +49,26 @@ class _NCardState extends State<NCard> {
         boxShadow: _shadow,
         border: Border.all(color: AppColors.cardBorder),
       ),
+      // IntrinsicHeight is required here: NCard is almost always placed
+      // directly inside a ListView/Column, which gives it an UNBOUNDED
+      // height constraint (each non-flexible child gets 0..infinity). A
+      // bare Row with CrossAxisAlignment.stretch cannot resolve "stretch to
+      // fill the row's height" against an infinite height and throws
+      // "BoxConstraints forces an infinite height" — which aborts the
+      // whole build, so every screen using this accent-rail (Gruppen list,
+      // pinned posts, the target-child picker in Spielanfrage, …) rendered
+      // blank/unresponsive. IntrinsicHeight measures the row's content
+      // first and hands stretch a finite height to work with.
       child: widget.borderColor == null
           ? widget.child
-          : Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Container(width: 4, margin: const EdgeInsets.only(right: 11), decoration: BoxDecoration(color: widget.borderColor, borderRadius: BorderRadius.circular(2))),
-                Expanded(child: widget.child),
-              ],
+          : IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(width: 4, margin: const EdgeInsets.only(right: 11), decoration: BoxDecoration(color: widget.borderColor, borderRadius: BorderRadius.circular(2))),
+                  Expanded(child: widget.child),
+                ],
+              ),
             ),
     );
 
