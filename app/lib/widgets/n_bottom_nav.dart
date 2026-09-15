@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import '../theme/tokens.dart';
+import 'kita_icons.dart';
 
 class NNavItem {
   const NNavItem(this.icon, this.label);
-  final IconData icon;
+  final KitaIcon icon;
   final String label;
 }
 
@@ -48,7 +49,7 @@ class NBottomNav extends StatelessWidget {
                             color: i == currentIndex ? AppColors.primarySoft : Colors.transparent,
                             borderRadius: BorderRadius.circular(AppRadius.pill),
                           ),
-                          child: Icon(items[i].icon, size: 19, color: i == currentIndex ? AppColors.primary : AppColors.mutedAlt),
+                          child: KitaIconWidget(items[i].icon, size: 19, color: i == currentIndex ? AppColors.primary : AppColors.mutedAlt),
                         ),
                         const SizedBox(height: 3),
                         Text(

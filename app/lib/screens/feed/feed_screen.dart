@@ -10,6 +10,7 @@ import '../../widgets/birthday_card.dart';
 import '../../widgets/event_card.dart';
 import '../../widgets/illustrations.dart';
 import '../../widgets/n_button.dart';
+import '../../widgets/kita_icons.dart';
 import '../../widgets/n_card.dart';
 import '../../widgets/n_header.dart';
 import '../../widgets/post_card.dart';
@@ -154,7 +155,7 @@ class _QuickActionsRow extends ConsumerWidget {
       children: [
         Expanded(
           child: _QuickAction(
-            icon: Icons.thermostat_rounded,
+            icon: KitaIcon.thermometer,
             label: 'Krankmelden',
             color: AppColors.error,
             softColor: AppColors.errorSoft,
@@ -164,7 +165,7 @@ class _QuickActionsRow extends ConsumerWidget {
         const SizedBox(width: 8),
         Expanded(
           child: _QuickAction(
-            icon: Icons.chat_bubble_outline_rounded,
+            icon: KitaIcon.megaphone,
             label: 'Erzieher schreiben',
             color: AppColors.primary,
             softColor: AppColors.primarySoft,
@@ -174,7 +175,7 @@ class _QuickActionsRow extends ConsumerWidget {
         const SizedBox(width: 8),
         Expanded(
           child: _QuickAction(
-            icon: Icons.groups_rounded,
+            icon: KitaIcon.playdate,
             label: 'Spielanfrage',
             color: AppColors.info,
             softColor: AppColors.infoSoft,
@@ -188,7 +189,7 @@ class _QuickActionsRow extends ConsumerWidget {
 
 class _QuickAction extends StatelessWidget {
   const _QuickAction({required this.icon, required this.label, required this.color, required this.softColor, required this.onTap});
-  final IconData icon;
+  final KitaIcon icon;
   final String label;
   final Color color;
   final Color softColor;
@@ -207,7 +208,7 @@ class _QuickAction extends StatelessWidget {
             height: 34,
             alignment: Alignment.center,
             decoration: BoxDecoration(color: softColor, borderRadius: BorderRadius.circular(AppRadius.iconBackplate)),
-            child: Icon(icon, size: 17, color: color),
+            child: KitaIconWidget(icon, size: 17, color: color),
           ),
           const SizedBox(height: 7),
           Text(label, textAlign: TextAlign.center, maxLines: 2, style: AppText.outfit(size: 11.5, weight: FontWeight.w600, color: AppColors.ink)),

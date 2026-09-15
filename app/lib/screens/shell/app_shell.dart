@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../state/providers.dart';
+import '../../widgets/kita_icons.dart';
 import '../../widgets/n_bottom_nav.dart';
 
 /// Bottom tab shell. Parents see Aktuelles/Gruppen/Chat/Spielen/Profil;
@@ -26,18 +27,18 @@ class AppShell extends ConsumerWidget {
 
     final items = isTeam
         ? const [
-            NNavItem(Icons.dynamic_feed_outlined, 'Aktuelles'),
-            NNavItem(Icons.groups_outlined, 'Gruppen'),
-            NNavItem(Icons.chat_bubble_outline_rounded, 'Chat'),
-            NNavItem(Icons.badge_outlined, 'Team'),
-            NNavItem(Icons.person_outline_rounded, 'Profil'),
+            NNavItem(KitaIcon.feed, 'Aktuelles'),
+            NNavItem(KitaIcon.gruppen, 'Gruppen'),
+            NNavItem(KitaIcon.chat, 'Chat'),
+            NNavItem(KitaIcon.team, 'Team'),
+            NNavItem(KitaIcon.profil, 'Profil'),
           ]
         : const [
-            NNavItem(Icons.dynamic_feed_outlined, 'Aktuelles'),
-            NNavItem(Icons.groups_outlined, 'Gruppen'),
-            NNavItem(Icons.chat_bubble_outline_rounded, 'Chat'),
-            NNavItem(Icons.add_circle_outline_rounded, 'Spielen'),
-            NNavItem(Icons.person_outline_rounded, 'Profil'),
+            NNavItem(KitaIcon.feed, 'Aktuelles'),
+            NNavItem(KitaIcon.gruppen, 'Gruppen'),
+            NNavItem(KitaIcon.chat, 'Chat'),
+            NNavItem(KitaIcon.spielen, 'Spielen'),
+            NNavItem(KitaIcon.profil, 'Profil'),
           ];
 
     final currentPos = visibleBranches.indexOf(navigationShell.currentIndex);
