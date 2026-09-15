@@ -1,55 +1,11 @@
 import 'package:flutter/material.dart';
 import '../theme/tokens.dart';
 
-// Flat-vector illustrations for the four spots named in the README: Login
-// header, Feed greeting, Krankmeldung success, confirmed Spielverabredung.
-// Built from simple shapes (no bitmaps), using the illustration palette
-// tokens. I can't render/preview Flutter UI in this environment, so please
-// eyeball these once the app runs and tell me what to adjust — proportions
-// especially are a best guess without a live view.
-
-/// Login header — sky gradient block with sun, clouds, grass and a
-/// stylized tree echoing the Ev. Familienzentrum Lank logo (a tree in a
-/// circle), standing in for the prototype's generic Kita-Haus scene.
-class LoginIllustration extends StatelessWidget {
-  const LoginIllustration({super.key, this.height = 186});
-  final double height;
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(26),
-      child: Container(
-        height: height,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFFDCE8FA), Color(0xFFEDF3FB)]),
-        ),
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Positioned(right: 22, top: 20, child: _Sun()),
-            Positioned(left: 26, top: 30, child: _Cloud(scale: 0.8)),
-            Positioned(left: 90, top: 16, child: _Cloud(scale: 0.55)),
-            Positioned(bottom: 0, left: 0, right: 0, child: _GrassBand()),
-            Align(alignment: Alignment.bottomCenter, child: _Tree(height: height * 0.72)),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Feed greeting card — a small floating tree motif, matching the login
-/// header's brand element at a smaller size.
-class FeedGreetingIllustration extends StatelessWidget {
-  const FeedGreetingIllustration({super.key, this.size = 74});
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    return _FloatingWrapper(child: _Tree(height: size));
-  }
-}
+// Flat-vector illustrations for the spots named in the README: Krankmeldung
+// success, confirmed Spielverabredung. Built from simple shapes (no
+// bitmaps), using the illustration palette tokens. The Login header and
+// Feed greeting now use the real brand mark (`AppLogo`) instead of the
+// placeholder tree motif that used to live here.
 
 /// Krankmeldung success — a sleeping child in bed.
 class SleepingChildIllustration extends StatelessWidget {
@@ -147,97 +103,3 @@ class PlaydateConfirmedIllustration extends StatelessWidget {
   }
 }
 
-// The README calls for a perpetual ±3px "floaty" drift on this
-// illustration, but an endlessly-repeating AnimationController driving a
-// Transform every frame is a known Flutter-web/CanvasKit trigger for a
-// MouseTracker assertion storm ("mouse_tracker.dart:199") whenever the
-// pointer sits near another hoverable widget on the same screen — it
-// broke the whole Feed page for a live tester. Not worth the risk for a
-// few pixels of drift, so this is a static wrapper instead.
-class _FloatingWrapper extends StatelessWidget {
-  const _FloatingWrapper({required this.child});
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) => child;
-}
-
-class _Sun extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(width: 34, height: 34, decoration: const BoxDecoration(color: AppColors.illuSonne, shape: BoxShape.circle));
-  }
-}
-
-class _Cloud extends StatelessWidget {
-  const _Cloud({this.scale = 1});
-  final double scale;
-
-  @override
-  Widget build(BuildContext context) {
-    return Transform.scale(
-      scale: scale,
-      child: SizedBox(
-        width: 60,
-        height: 26,
-        child: Stack(
-          children: [
-            Positioned(left: 0, top: 8, child: _puff(22)),
-            Positioned(left: 16, top: 0, child: _puff(28)),
-            Positioned(left: 36, top: 8, child: _puff(20)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _puff(double d) => Container(width: d, height: d, decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.85), shape: BoxShape.circle));
-}
-
-class _GrassBand extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 30,
-      child: Stack(
-        children: [
-          Positioned(bottom: 0, left: 0, right: 0, child: Container(height: 16, color: AppColors.illuGrasShade)),
-          Positioned(bottom: 6, left: 0, right: 0, child: Container(height: 14, color: AppColors.illuGras)),
-        ],
-      ),
-    );
-  }
-}
-
-/// The trunk + rounded canopy motif echoing the real Ev. Familienzentrum
-/// Lank logo (a tree inside a circle).
-class _Tree extends StatelessWidget {
-  const _Tree({required this.height});
-  final double height;
-
-  @override
-  Widget build(BuildContext context) {
-    final trunkW = height * 0.1;
-    return SizedBox(
-      height: height,
-      width: height * 0.82,
-      child: Stack(
-        alignment: Alignment.bottomCenter,
-        children: [
-          Positioned(
-            bottom: 0,
-            child: Container(width: trunkW, height: height * 0.42, decoration: BoxDecoration(color: AppColors.illuHolz, borderRadius: BorderRadius.circular(trunkW / 2))),
-          ),
-          Positioned(
-            bottom: height * 0.3,
-            child: Container(
-              width: height * 0.7,
-              height: height * 0.7,
-              decoration: BoxDecoration(color: AppColors.illuGras, shape: BoxShape.circle, border: Border.all(color: AppColors.illuGrasShade, width: 3)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}

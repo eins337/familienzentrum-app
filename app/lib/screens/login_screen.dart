@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../state/providers.dart';
 import '../theme/tokens.dart';
-import '../widgets/illustrations.dart';
+import '../widgets/app_logo.dart';
 import '../widgets/widgets.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -53,7 +53,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 28, 20, 32),
           children: [
-              const LoginIllustration(),
+              Center(
+                child: Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: const BoxDecoration(color: AppColors.soft, shape: BoxShape.circle),
+                  child: const AppLogo(size: 108),
+                ),
+              ),
               const SizedBox(height: 22),
               const Text(
                 'Willkommen im\nFamilienzentrum Lank',

@@ -6,9 +6,9 @@ import '../../state/providers.dart';
 import '../../theme/tokens.dart';
 import '../../utils/birthdays.dart';
 import '../../utils/group_colors.dart';
+import '../../widgets/app_logo.dart';
 import '../../widgets/birthday_card.dart';
 import '../../widgets/event_card.dart';
-import '../../widgets/illustrations.dart';
 import '../../widgets/n_button.dart';
 import '../../widgets/kita_icons.dart';
 import '../../widgets/n_card.dart';
@@ -122,7 +122,7 @@ class _GreetingCard extends StatelessWidget {
               ],
             ),
           ),
-          const FeedGreetingIllustration(),
+          const AppLogo(size: 56, showRing: false),
         ],
       ),
     );
