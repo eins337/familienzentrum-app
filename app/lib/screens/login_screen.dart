@@ -16,6 +16,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _emailCtrl = TextEditingController();
   final _codeCtrl = TextEditingController();
   bool _loading = false;
+  bool _codeVisible = false;
   String? _error;
 
   @override
@@ -67,9 +68,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 26),
-              NField(label: 'E-Mail', controller: _emailCtrl, hintText: 'sandra.weber@example.de', keyboardType: TextInputType.emailAddress),
+              NField(label: 'E-Mail', controller: _emailCtrl, hintText: 'name@familie.de', keyboardType: TextInputType.emailAddress),
               const SizedBox(height: 10),
-              NField(label: 'Zugangscode', controller: _codeCtrl, hintText: 'LANK-2026'),
+              NField(
+                label: 'Zugangscode',
+                controller: _codeCtrl,
+                hintText: 'LANK-2026',
+                obscureText: !_codeVisible,
+                suffixIcon: IconButton(
+                  icon: Icon(_codeVisible ? Icons.visibility_off_outlined : Icons.visibility_outlined, size: 19, color: AppColors.muted),
+                  onPressed: () => setState(() => _codeVisible = !_codeVisible),
+                ),
+              ),
               if (_error != null) ...[
                 const SizedBox(height: 10),
                 Text(_error!, style: const TextStyle(fontSize: 12.5, color: AppColors.error)),

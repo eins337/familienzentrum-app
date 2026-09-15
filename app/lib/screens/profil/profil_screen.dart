@@ -176,12 +176,24 @@ class _ProfilScreenState extends ConsumerState<ProfilScreen> {
                     _ToggleRow(
                       label: 'Fotofreigabe für Gruppen-Feed',
                       active: child.photoConsentGroup,
-                      onTap: () => ref.read(kitaServiceProvider).updateChildConsent(child.id, photoConsentGroup: !child.photoConsentGroup),
+                      onTap: () async {
+                        try {
+                          await ref.read(kitaServiceProvider).updateChildConsent(child.id, photoConsentGroup: !child.photoConsentGroup);
+                        } catch (e) {
+                          if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Fehler: $e')));
+                        }
+                      },
                     ),
                     _ToggleRow(
                       label: 'Fotos auf der Kita-Website',
                       active: child.photoConsentWebsite,
-                      onTap: () => ref.read(kitaServiceProvider).updateChildConsent(child.id, photoConsentWebsite: !child.photoConsentWebsite),
+                      onTap: () async {
+                        try {
+                          await ref.read(kitaServiceProvider).updateChildConsent(child.id, photoConsentWebsite: !child.photoConsentWebsite);
+                        } catch (e) {
+                          if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Fehler: $e')));
+                        }
+                      },
                     ),
                   ],
                 ),

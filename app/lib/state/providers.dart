@@ -44,10 +44,16 @@ final groupTeamProvider = FutureProvider.family<List<GroupTeamMember>, String>(
   (ref, groupId) => ref.watch(kitaServiceProvider).fetchGroupTeam(groupId),
 );
 
-final myChildrenProvider = FutureProvider<List<Child>>((ref) async {
+/// Derived from the live `allChildrenProvider` stream rather than a
+/// one-shot fetch — this used to be a `FutureProvider` that fetched once
+/// and never refreshed, so consent-toggle / "Wichtig für die Kita" edits
+/// in Profil appeared to silently do nothing: the write succeeded but the
+/// screen kept showing the pre-edit value until a full app restart.
+final myChildrenProvider = Provider<AsyncValue<List<Child>>>((ref) {
   final profile = ref.watch(profileProvider).valueOrNull;
-  if (profile?.familyId == null) return [];
-  return ref.watch(kitaServiceProvider).fetchChildrenForFamily(profile!.familyId!);
+  if (profile?.familyId == null) return const AsyncValue.data([]);
+  final familyId = profile!.familyId!;
+  return ref.watch(allChildrenProvider).whenData((all) => all.values.where((c) => c.familyId == familyId).toList());
 });
 
 /// Cheap id→displayName / id→profile lookup for the whole app (author

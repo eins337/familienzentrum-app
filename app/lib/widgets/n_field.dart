@@ -17,6 +17,7 @@ class NField extends StatelessWidget {
     this.readOnly = false,
     this.onTap,
     this.autofocus = false,
+    this.suffixIcon,
   });
 
   final String label;
@@ -30,6 +31,7 @@ class NField extends StatelessWidget {
   final bool readOnly;
   final VoidCallback? onTap;
   final bool autofocus;
+  final Widget? suffixIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +51,7 @@ class NField extends StatelessWidget {
           readOnly: readOnly,
           onTap: onTap,
           autofocus: autofocus,
+          suffixIcon: suffixIcon,
         ),
       ],
     );
@@ -70,6 +73,7 @@ class NInput extends StatelessWidget {
     this.onTap,
     this.autofocus = false,
     this.prefixIcon,
+    this.suffixIcon,
   });
 
   final TextEditingController? controller;
@@ -83,6 +87,7 @@ class NInput extends StatelessWidget {
   final VoidCallback? onTap;
   final bool autofocus;
   final Widget? prefixIcon;
+  final Widget? suffixIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -105,6 +110,7 @@ class NInput extends StatelessWidget {
         fillColor: AppColors.surfaceAlt,
         isDense: true,
         prefixIcon: prefixIcon,
+        suffixIcon: suffixIcon,
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.input),

@@ -14,11 +14,6 @@ class KitaService {
     return rows.map(GroupTeamMember.fromMap).toList();
   }
 
-  Future<List<Child>> fetchChildrenForFamily(String familyId) async {
-    final rows = await supa.from('children').select().eq('family_id', familyId);
-    return rows.map(Child.fromMap).toList();
-  }
-
   Stream<List<FamilyMember>> streamFamilyMembers() {
     return supa.from('family_members').stream(primaryKey: ['family_id', 'user_id']).map((rows) => rows.map(FamilyMember.fromMap).toList());
   }
