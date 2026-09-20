@@ -18,6 +18,7 @@ class Profile {
     this.staffTitle,
     this.disabled = false,
     this.pushToken,
+    this.avatarUrl,
     required this.createdAt,
     Map<String, dynamic>? notificationSettings,
     Map<String, dynamic>? privacySettings,
@@ -34,6 +35,7 @@ class Profile {
   final String? staffTitle;
   final bool disabled;
   final String? pushToken;
+  final String? avatarUrl;
   final DateTime createdAt;
   final Map<String, dynamic> notificationSettings;
   final Map<String, dynamic> privacySettings;
@@ -51,6 +53,7 @@ class Profile {
         staffTitle: m['staff_title'] as String?,
         disabled: m['disabled'] as bool? ?? false,
         pushToken: m['push_token'] as String?,
+        avatarUrl: m['avatar_url'] as String?,
         createdAt: DateTime.parse(m['created_at'] as String),
         notificationSettings: (m['notification_settings'] as Json?)?.cast<String, dynamic>(),
         privacySettings: (m['privacy_settings'] as Json?)?.cast<String, dynamic>(),
@@ -93,6 +96,10 @@ class Child {
     this.bringTimeNote,
     this.bringTimeUpdatedAt,
     this.bringTimeUpdatedBy,
+    this.pickupTime,
+    this.pickupTimeNote,
+    this.pickupTimeUpdatedAt,
+    this.pickupTimeUpdatedBy,
     required this.createdAt,
   });
 
@@ -114,6 +121,12 @@ class Child {
   final String? bringTimeNote;
   final DateTime? bringTimeUpdatedAt;
   final String? bringTimeUpdatedBy;
+
+  /// The time the family collects this child, mirroring bringTime.
+  final String? pickupTime;
+  final String? pickupTimeNote;
+  final DateTime? pickupTimeUpdatedAt;
+  final String? pickupTimeUpdatedBy;
   final DateTime createdAt;
 
   int get age {
@@ -152,6 +165,10 @@ class Child {
         bringTimeNote: m['bring_time_note'] as String?,
         bringTimeUpdatedAt: m['bring_time_updated_at'] != null ? DateTime.parse(m['bring_time_updated_at'] as String) : null,
         bringTimeUpdatedBy: m['bring_time_updated_by'] as String?,
+        pickupTime: m['pickup_time'] as String?,
+        pickupTimeNote: m['pickup_time_note'] as String?,
+        pickupTimeUpdatedAt: m['pickup_time_updated_at'] != null ? DateTime.parse(m['pickup_time_updated_at'] as String) : null,
+        pickupTimeUpdatedBy: m['pickup_time_updated_by'] as String?,
         createdAt: DateTime.parse(m['created_at'] as String),
       );
 }

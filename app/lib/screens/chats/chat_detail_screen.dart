@@ -77,7 +77,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                       _MessageBubble(
                         message: m,
                         mine: m.senderId == myId,
-                        senderName: (chat?.isGroup ?? false) && m.senderId != myId ? profiles[m.senderId]?.displayName : null,
+                        senderName: m.senderId != myId ? profiles[m.senderId]?.displayName : null,
                       ),
                     if (playdate != null && playdate.status == 'pending') ...[
                       const SizedBox(height: 8),

@@ -33,7 +33,10 @@ class MitteilungenScreen extends ConsumerWidget {
               ? 'Neuer Beitrag in Gruppe ${groupName(p.groupId)}: ${p.title ?? p.body}'
               : (p.title ?? p.body),
           color: AppColors.groupBlau,
-          onTap: p.groupId != null ? () => context.push('/gruppen/${p.groupId}') : null,
+          // Every post has an id, so route there regardless of groupId —
+          // kita-wide posts (no group) previously had onTap: null and just
+          // didn't react to a tap at all.
+          onTap: () => context.push('/post/${p.id}/kommentare'),
         ),
       for (final pd in playdates.where((p) => p.status != 'pending'))
         _Item(
@@ -52,6 +55,15 @@ class MitteilungenScreen extends ConsumerWidget {
             time: c.bringTimeUpdatedAt!,
             icon: Icons.access_time_rounded,
             text: 'Bringzeit von ${c.name} geändert: ${c.bringTime}',
+            color: AppColors.warning,
+            onTap: c.groupId != null ? () => context.push('/gruppen/${c.groupId}') : null,
+          ),
+      if (isTeam)
+        for (final c in allChildren.values.where((c) => c.pickupTimeUpdatedAt != null && myGroups.contains(c.groupId)))
+          _Item(
+            time: c.pickupTimeUpdatedAt!,
+            icon: Icons.access_time_rounded,
+            text: 'Abholzeit von ${c.name} geändert: ${c.pickupTime}',
             color: AppColors.warning,
             onTap: c.groupId != null ? () => context.push('/gruppen/${c.groupId}') : null,
           ),

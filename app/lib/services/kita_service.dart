@@ -68,6 +68,17 @@ class KitaService {
       })
       .eq('id', childId);
 
+  /// Mirrors updateBringTime for the pick-up time.
+  Future<void> updatePickupTime(String childId, {required String pickupTime, String? note, required String updatedByUid}) => supa
+      .from('children')
+      .update({
+        'pickup_time': pickupTime,
+        'pickup_time_note': note,
+        'pickup_time_updated_at': DateTime.now().toIso8601String(),
+        'pickup_time_updated_by': updatedByUid,
+      })
+      .eq('id', childId);
+
   Stream<List<KitaEvent>> streamUpcomingEvents() {
     final today = DateTime.now();
     final todayStr = '${today.year.toString().padLeft(4, '0')}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';

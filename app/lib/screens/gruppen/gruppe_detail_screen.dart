@@ -271,8 +271,14 @@ class _ChildRowState extends ConsumerState<_ChildRow> {
               children: [
                 Text(widget.child.name, style: const TextStyle(fontSize: 13, color: AppColors.ink)),
                 if (familyName != null) Text(familyName, style: const TextStyle(fontSize: 10.5, color: AppColors.muted)),
-                if (widget.isTeam && widget.child.bringTime != null && widget.child.bringTime!.isNotEmpty)
-                  Text('Bringzeit: ${widget.child.bringTime}', style: const TextStyle(fontSize: 10.5, color: AppColors.primaryInk)),
+                if (widget.isTeam && ((widget.child.bringTime?.isNotEmpty ?? false) || (widget.child.pickupTime?.isNotEmpty ?? false)))
+                  Text(
+                    [
+                      if (widget.child.bringTime?.isNotEmpty ?? false) 'Bringen: ${widget.child.bringTime}',
+                      if (widget.child.pickupTime?.isNotEmpty ?? false) 'Abholen: ${widget.child.pickupTime}',
+                    ].join(' · '),
+                    style: const TextStyle(fontSize: 10.5, color: AppColors.primaryInk),
+                  ),
               ],
             ),
           ),

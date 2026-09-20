@@ -115,7 +115,8 @@ class _ChatRow extends ConsumerWidget {
     } else {
       subtitle = null;
       final initials = title.trim().isEmpty ? '?' : title.trim().split(' ').map((p) => p[0]).take(2).join().toUpperCase();
-      avatar = NAvatar(initials: initials);
+      final otherId = chat.participantIds.firstWhere((id) => id != myId, orElse: () => chat.participantIds.firstOrNull ?? '');
+      avatar = NAvatar(initials: initials, imageUrl: profiles[otherId]?.avatarUrl);
     }
 
     return NCard(

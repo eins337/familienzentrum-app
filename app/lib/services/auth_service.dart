@@ -57,6 +57,8 @@ class AuthService {
   Future<void> updatePrivacySettings(String uid, Map<String, dynamic> settings) =>
       supa.from('profiles').update({'privacy_settings': settings}).eq('id', uid);
 
+  Future<void> updateAvatarUrl(String uid, String avatarUrl) => supa.from('profiles').update({'avatar_url': avatarUrl}).eq('id', uid);
+
   Future<Family?> fetchFamily(String familyId) async {
     final row = await supa.from('families').select().eq('id', familyId).maybeSingle();
     return row == null ? null : Family.fromMap(row);

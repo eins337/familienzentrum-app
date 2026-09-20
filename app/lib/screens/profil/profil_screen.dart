@@ -151,7 +151,7 @@ class _ProfilScreenState extends ConsumerState<ProfilScreen> {
                             padding: const EdgeInsets.only(top: 9),
                             child: Row(
                               children: [
-                                NAvatar(initials: _initials(profiles[m.userId]?.displayName ?? '?'), size: 28),
+                                NAvatar(initials: _initials(profiles[m.userId]?.displayName ?? '?'), imageUrl: profiles[m.userId]?.avatarUrl, size: 28),
                                 const SizedBox(width: 9),
                                 Text(profiles[m.userId]?.displayName ?? '…', style: const TextStyle(fontSize: 13, color: AppColors.ink)),
                                 const Spacer(),
@@ -205,24 +205,52 @@ class _ProfilScreenState extends ConsumerState<ProfilScreen> {
                   children: [
                     Row(
                       children: [
-                        const Expanded(child: _Kicker('Bringzeit')),
+                        const Expanded(child: _Kicker('Bring- & Abholzeit')),
                         InkWell(
                           onTap: () => _editBringzeit(context, ref, child),
                           child: const Text('Bearbeiten', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 12, color: AppColors.primary)),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 7),
-                    if (child.bringTime == null || child.bringTime!.isEmpty)
-                      const Text('Noch keine Bringzeit hinterlegt.', style: TextStyle(fontSize: 12.5, color: AppColors.muted))
-                    else ...[
-                      Text(child.bringTime!, style: AppText.outfit(size: 15, weight: FontWeight.w600, color: AppColors.ink)),
-                      if (child.bringTimeNote != null && child.bringTimeNote!.isNotEmpty) ...[
-                        const SizedBox(height: 2),
-                        Text(child.bringTimeNote!, style: const TextStyle(fontSize: 12, color: AppColors.muted)),
+                    const SizedBox(height: 9),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('BRINGEN', style: TextStyle(fontFamily: 'Outfit', fontSize: 9.5, letterSpacing: 1, color: AppColors.muted, fontWeight: FontWeight.w700)),
+                              const SizedBox(height: 2),
+                              if (child.bringTime == null || child.bringTime!.isEmpty)
+                                const Text('Nicht hinterlegt', style: TextStyle(fontSize: 12.5, color: AppColors.muted))
+                              else ...[
+                                Text(child.bringTime!, style: AppText.outfit(size: 15, weight: FontWeight.w600, color: AppColors.ink)),
+                                if (child.bringTimeNote != null && child.bringTimeNote!.isNotEmpty)
+                                  Text(child.bringTimeNote!, style: const TextStyle(fontSize: 11.5, color: AppColors.muted)),
+                              ],
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('ABHOLEN', style: TextStyle(fontFamily: 'Outfit', fontSize: 9.5, letterSpacing: 1, color: AppColors.muted, fontWeight: FontWeight.w700)),
+                              const SizedBox(height: 2),
+                              if (child.pickupTime == null || child.pickupTime!.isEmpty)
+                                const Text('Nicht hinterlegt', style: TextStyle(fontSize: 12.5, color: AppColors.muted))
+                              else ...[
+                                Text(child.pickupTime!, style: AppText.outfit(size: 15, weight: FontWeight.w600, color: AppColors.ink)),
+                                if (child.pickupTimeNote != null && child.pickupTimeNote!.isNotEmpty)
+                                  Text(child.pickupTimeNote!, style: const TextStyle(fontSize: 11.5, color: AppColors.muted)),
+                              ],
+                            ],
+                          ),
+                        ),
                       ],
-                    ],
-                    const SizedBox(height: 4),
+                    ),
+                    const SizedBox(height: 8),
                     const Text('Das Team der Gruppe wird über Änderungen informiert.', style: TextStyle(fontSize: 11, color: AppColors.muted)),
                   ],
                 ),
@@ -485,7 +513,7 @@ Future<void> _editBringzeit(BuildContext context, WidgetRef ref, Child child) as
     builder: (context) => _BringzeitSheet(child: child),
   );
   if (saved == true && context.mounted) {
-    showNToast(context, 'Bringzeit gespeichert — für das Team der Gruppe ${groupName(child.groupId)} sichtbar.');
+    showNToast(context, 'Bring- & Abholzeit gespeichert — für das Team der Gruppe ${groupName(child.groupId)} sichtbar.');
   }
 }
 
@@ -498,33 +526,49 @@ class _BringzeitSheet extends ConsumerStatefulWidget {
 }
 
 class _BringzeitSheetState extends ConsumerState<_BringzeitSheet> {
-  late final _timeCtrl = TextEditingController(text: widget.child.bringTime ?? '');
-  late final _noteCtrl = TextEditingController(text: widget.child.bringTimeNote ?? '');
+  late final _bringCtrl = TextEditingController(text: widget.child.bringTime ?? '');
+  late final _bringNoteCtrl = TextEditingController(text: widget.child.bringTimeNote ?? '');
+  late final _pickupCtrl = TextEditingController(text: widget.child.pickupTime ?? '');
+  late final _pickupNoteCtrl = TextEditingController(text: widget.child.pickupTimeNote ?? '');
   bool _saving = false;
 
   @override
   void dispose() {
-    _timeCtrl.dispose();
-    _noteCtrl.dispose();
+    _bringCtrl.dispose();
+    _bringNoteCtrl.dispose();
+    _pickupCtrl.dispose();
+    _pickupNoteCtrl.dispose();
     super.dispose();
   }
 
   Future<void> _save() async {
-    final time = _timeCtrl.text.trim();
-    if (time.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Bitte eine Bringzeit angeben.')));
+    final bring = _bringCtrl.text.trim();
+    final pickup = _pickupCtrl.text.trim();
+    if (bring.isEmpty && pickup.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Bitte mindestens eine Zeit angeben.')));
       return;
     }
     final myUid = ref.read(profileProvider).valueOrNull?.id;
     if (myUid == null) return;
     setState(() => _saving = true);
     try {
-      await ref.read(kitaServiceProvider).updateBringTime(
-            widget.child.id,
-            bringTime: time,
-            note: _noteCtrl.text.trim().isEmpty ? null : _noteCtrl.text.trim(),
-            updatedByUid: myUid,
-          );
+      final service = ref.read(kitaServiceProvider);
+      if (bring.isNotEmpty) {
+        await service.updateBringTime(
+          widget.child.id,
+          bringTime: bring,
+          note: _bringNoteCtrl.text.trim().isEmpty ? null : _bringNoteCtrl.text.trim(),
+          updatedByUid: myUid,
+        );
+      }
+      if (pickup.isNotEmpty) {
+        await service.updatePickupTime(
+          widget.child.id,
+          pickupTime: pickup,
+          note: _pickupNoteCtrl.text.trim().isEmpty ? null : _pickupNoteCtrl.text.trim(),
+          updatedByUid: myUid,
+        );
+      }
       if (mounted) Navigator.of(context).pop(true);
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Fehler: $e')));
@@ -543,13 +587,17 @@ class _BringzeitSheetState extends ConsumerState<_BringzeitSheet> {
         children: [
           Center(child: Container(width: 36, height: 4, decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(2)))),
           const SizedBox(height: 14),
-          Text('Bringzeit von ${widget.child.name.split(' ').first}', style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 17, color: AppColors.ink)),
+          Text('Bring- & Abholzeit von ${widget.child.name.split(' ').first}', style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 17, color: AppColors.ink)),
           const SizedBox(height: 4),
           const Text('Das Team der Gruppe wird über Änderungen informiert.', style: TextStyle(fontSize: 12.5, color: AppColors.muted)),
           const SizedBox(height: 14),
-          NField(label: 'Bringzeit', controller: _timeCtrl, hintText: 'z.B. 08:00'),
+          NField(label: 'Bringzeit', controller: _bringCtrl, hintText: 'z.B. 08:00'),
           const SizedBox(height: 10),
-          NField(label: 'Notiz (optional)', controller: _noteCtrl, hintText: 'z.B. montags 08:30'),
+          NField(label: 'Notiz zur Bringzeit (optional)', controller: _bringNoteCtrl, hintText: 'z.B. montags 08:30'),
+          const SizedBox(height: 14),
+          NField(label: 'Abholzeit', controller: _pickupCtrl, hintText: 'z.B. 15:00'),
+          const SizedBox(height: 10),
+          NField(label: 'Notiz zur Abholzeit (optional)', controller: _pickupNoteCtrl, hintText: 'z.B. freitags 13:00'),
           const SizedBox(height: 16),
           NButton(label: 'Speichern', variant: NButtonVariant.primary, block: true, loading: _saving, onPressed: _save),
         ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../models/models.dart';
 import '../../state/providers.dart';
 import '../../theme/tokens.dart';
@@ -87,7 +88,7 @@ class _SpielanfrageNeuScreenState extends ConsumerState<SpielanfrageNeuScreen> {
     try {
       final toUid = await ref.read(kitaServiceProvider).fetchPrimaryFamilyMemberUid(target.familyId);
       if (toUid == null) throw Exception('Für diese Familie ist noch kein Elternteil registriert.');
-      await ref.read(playdatesServiceProvider).createRequest(
+      final request = await ref.read(playdatesServiceProvider).createRequest(
             fromUid: profile!.id,
             fromFamilyId: profile.familyId!,
             fromChildId: myChildId,
@@ -97,7 +98,13 @@ class _SpielanfrageNeuScreenState extends ConsumerState<SpielanfrageNeuScreen> {
             proposedSlots: slots,
             message: _messageCtrl.text.trim(),
           );
-      if (mounted) Navigator.of(context).maybePop();
+      // Go straight to the chat instead of just popping back — otherwise the
+      // sender never sees the request actually land anywhere.
+      if (mounted && request.chatId != null) {
+        context.push('/chats/${request.chatId}');
+      } else if (mounted) {
+        Navigator.of(context).maybePop();
+      }
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Fehler: $e')));
     } finally {

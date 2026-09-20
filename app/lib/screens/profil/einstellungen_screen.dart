@@ -1,19 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import '../../services/supabase_service.dart';
 import '../../state/providers.dart';
 import '../../theme/tokens.dart';
+import '../../widgets/n_avatar.dart';
 import '../../widgets/n_button.dart';
 import '../../widgets/n_card.dart';
 import '../../widgets/n_field.dart';
 import '../../widgets/n_header.dart';
 import '../../widgets/n_tag.dart';
 
-class EinstellungenScreen extends ConsumerWidget {
+class EinstellungenScreen extends ConsumerStatefulWidget {
   const EinstellungenScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<EinstellungenScreen> createState() => _EinstellungenScreenState();
+}
+
+class _EinstellungenScreenState extends ConsumerState<EinstellungenScreen> {
+  bool _uploadingAvatar = false;
+
+  Future<void> _changeAvatar(String uid) async {
+    final picked = await ImagePicker().pickImage(source: ImageSource.gallery, maxWidth: 800, maxHeight: 800);
+    if (picked == null) return;
+    setState(() => _uploadingAvatar = true);
+    try {
+      final bytes = await picked.readAsBytes();
+      final path = '$uid/${DateTime.now().microsecondsSinceEpoch}_${picked.name}';
+      await supa.storage.from('avatars').uploadBinary(path, bytes);
+      // Bucket is private (RLS-gated to signed-in users), so a long-lived
+      // signed URL is used instead of getPublicUrl(), matching the same
+      // pattern already used for post photos and documents.
+      final signedUrl = await supa.storage.from('avatars').createSignedUrl(path, 60 * 60 * 24 * 365 * 5);
+      await ref.read(authServiceProvider).updateAvatarUrl(uid, signedUrl);
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Fehler: $e')));
+    } finally {
+      if (mounted) setState(() => _uploadingAvatar = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final profile = ref.watch(profileProvider).valueOrNull;
     final family = ref.watch(familyProvider).valueOrNull;
     if (profile == null) return const Scaffold(body: SizedBox());
@@ -23,11 +53,43 @@ class EinstellungenScreen extends ConsumerWidget {
       await ref.read(authServiceProvider).updateNotificationSettings(profile.id, next);
     }
 
+    final initials = profile.displayName.trim().isEmpty ? '?' : profile.displayName.trim().split(' ').map((p) => p[0]).take(2).join().toUpperCase();
+
     return Scaffold(
       appBar: NHeader(title: 'Einstellungen', subtitle: family?.name ?? profile.displayName, showBack: true),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 14, 16, 24),
         children: [
+          NCard(
+            child: Row(
+              children: [
+                Stack(
+                  alignment: Alignment.bottomRight,
+                  children: [
+                    NAvatar(initials: initials, imageUrl: profile.avatarUrl, size: 56),
+                    if (_uploadingAvatar)
+                      const Positioned.fill(child: Center(child: SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary)))),
+                  ],
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(profile.displayName, style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 15, color: AppColors.ink)),
+                      const SizedBox(height: 4),
+                      InkWell(
+                        onTap: _uploadingAvatar ? null : () => _changeAvatar(profile.id),
+                        child: const Text('Profilbild ändern', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 12, color: AppColors.primary)),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
           NCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

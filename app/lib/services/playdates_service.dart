@@ -49,9 +49,15 @@ class PlaydatesService {
     return PlaydateRequest.fromMap(row);
   }
 
+  /// The most recent playdate request tied to this chat. `findOrCreateDirectChat`
+  /// reuses the same chat across every request between the same two
+  /// families, so a chat can end up with more than one `playdate_requests`
+  /// row over time — `.maybeSingle()` on a plain `.eq('chat_id', ...)` threw
+  /// once that happened, silently hiding the inline Spielanfrage card for
+  /// that chat from then on.
   Future<PlaydateRequest?> fetchByChatId(String chatId) async {
-    final row = await supa.from('playdate_requests').select().eq('chat_id', chatId).maybeSingle();
-    return row == null ? null : PlaydateRequest.fromMap(row);
+    final rows = await supa.from('playdate_requests').select().eq('chat_id', chatId).order('created_at', ascending: false).limit(1);
+    return rows.isEmpty ? null : PlaydateRequest.fromMap(rows.first);
   }
 
   Future<void> confirmSlot(String requestId, int slotIndex) => supa
