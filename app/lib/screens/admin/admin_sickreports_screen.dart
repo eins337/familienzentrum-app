@@ -10,6 +10,7 @@ import '../../widgets/n_card.dart';
 import '../../widgets/n_header.dart';
 import '../../widgets/n_segmented.dart';
 import '../../widgets/n_tag.dart';
+import '../../widgets/n_toast.dart';
 
 class AdminSickReportsScreen extends ConsumerStatefulWidget {
   const AdminSickReportsScreen({super.key});
@@ -64,7 +65,7 @@ class _AdminSickReportsScreenState extends ConsumerState<AdminSickReportsScreen>
                             if (r.reason != null) Text(r.reason!, style: const TextStyle(fontSize: 12.5, color: AppColors.ink)),
                             if (!r.acknowledged) ...[
                               const SizedBox(height: 8),
-                              NButton(label: 'Als erledigt markieren', variant: NButtonVariant.secondary, small: true, onPressed: () => ref.read(kitaServiceProvider).acknowledgeSickReport(r.id)),
+                              NButton(label: 'Als erledigt markieren', variant: NButtonVariant.secondary, small: true, onPressed: () => runOrShowError(context, () => ref.read(kitaServiceProvider).acknowledgeSickReport(r.id))),
                             ],
                           ],
                         ),

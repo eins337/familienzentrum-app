@@ -7,6 +7,7 @@ import '../../utils/group_colors.dart';
 import '../../widgets/n_button.dart';
 import '../../widgets/n_card.dart';
 import '../../widgets/n_header.dart';
+import '../../widgets/n_toast.dart';
 
 class TeamScreen extends ConsumerWidget {
   const TeamScreen({super.key});
@@ -111,7 +112,7 @@ class TeamScreen extends ConsumerWidget {
                               label: 'Erledigt',
                               variant: NButtonVariant.secondary,
                               small: true,
-                              onPressed: () => ref.read(kitaServiceProvider).acknowledgeSickReport(r.id),
+                              onPressed: () => runOrShowError(context, () => ref.read(kitaServiceProvider).acknowledgeSickReport(r.id)),
                             ),
                           ],
                         ),

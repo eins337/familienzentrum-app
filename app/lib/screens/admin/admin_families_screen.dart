@@ -7,6 +7,7 @@ import '../../utils/group_colors.dart';
 import '../../widgets/n_button.dart';
 import '../../widgets/n_card.dart';
 import '../../widgets/n_header.dart';
+import '../../widgets/n_toast.dart';
 
 class AdminFamiliesScreen extends ConsumerStatefulWidget {
   const AdminFamiliesScreen({super.key});
@@ -194,7 +195,14 @@ class _FamilyTile extends ConsumerWidget {
                     ),
                     IconButton(
                       icon: const Icon(Icons.delete_outline_rounded, size: 16, color: AppColors.mutedAlt),
-                      onPressed: () => ref.read(adminServiceProvider).deleteChild(c.id),
+                      onPressed: () async {
+                        final confirmed = await confirmDestructive(
+                          context,
+                          title: 'Kind löschen?',
+                          message: '${c.name} wird dauerhaft aus der Kita-Verwaltung gelöscht.',
+                        );
+                        if (confirmed && context.mounted) await runOrShowError(context, () => ref.read(adminServiceProvider).deleteChild(c.id));
+                      },
                     ),
                   ],
                 ),

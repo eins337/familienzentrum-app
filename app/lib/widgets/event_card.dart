@@ -6,6 +6,7 @@ import '../theme/tokens.dart';
 import '../utils/time_format.dart';
 import 'n_button.dart';
 import 'n_card.dart';
+import 'n_toast.dart';
 
 /// The date-chip event row — "Nov 11 · Laternenfest · Zusagen".
 class EventCard extends ConsumerWidget {
@@ -50,7 +51,7 @@ class EventCard extends ConsumerWidget {
             label: rsvped ? 'Dabei ✓' : 'Zusagen',
             variant: rsvped ? NButtonVariant.success : NButtonVariant.primary,
             small: true,
-            onPressed: () => ref.read(kitaServiceProvider).toggleRsvp(event.id),
+            onPressed: () => runOrShowError(context, () => ref.read(kitaServiceProvider).toggleRsvp(event.id)),
           ),
         ],
       ),

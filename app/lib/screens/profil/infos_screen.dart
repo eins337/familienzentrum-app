@@ -9,6 +9,7 @@ import '../../widgets/n_button.dart';
 import '../../widgets/n_card.dart';
 import '../../widgets/n_header.dart';
 import '../../widgets/n_segmented.dart';
+import '../../widgets/n_toast.dart';
 
 class InfosScreen extends ConsumerStatefulWidget {
   const InfosScreen({super.key});
@@ -186,7 +187,7 @@ class _EventRow extends ConsumerWidget {
             label: rsvped ? 'Dabei ✓' : 'Zusagen',
             variant: rsvped ? NButtonVariant.success : NButtonVariant.primary,
             small: true,
-            onPressed: () => ref.read(kitaServiceProvider).toggleRsvp(event.id),
+            onPressed: () => runOrShowError(context, () => ref.read(kitaServiceProvider).toggleRsvp(event.id)),
           ),
         ],
       ),

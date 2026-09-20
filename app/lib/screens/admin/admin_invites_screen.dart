@@ -9,6 +9,7 @@ import '../../widgets/n_field.dart';
 import '../../widgets/n_header.dart';
 import '../../widgets/n_radio.dart';
 import '../../widgets/n_tag.dart';
+import '../../widgets/n_toast.dart';
 
 class AdminInvitesScreen extends ConsumerStatefulWidget {
   const AdminInvitesScreen({super.key});
@@ -200,7 +201,7 @@ class _AdminInvitesScreenState extends ConsumerState<AdminInvitesScreen> {
                             NTag(inv.redeemedAt != null ? 'eingelöst' : 'offen', variant: inv.redeemedAt != null ? NTagVariant.accent : NTagVariant.neutral),
                             IconButton(
                               icon: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.muted),
-                              onPressed: () => ref.read(adminServiceProvider).deleteInvite(inv.email),
+                              onPressed: () => runOrShowError(context, () => ref.read(adminServiceProvider).deleteInvite(inv.email)),
                             ),
                           ],
                         ),

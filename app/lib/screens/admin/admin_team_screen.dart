@@ -8,6 +8,7 @@ import '../../widgets/n_card.dart';
 import '../../widgets/n_header.dart';
 import '../../widgets/n_radio.dart';
 import '../../widgets/n_tag.dart';
+import '../../widgets/n_toast.dart';
 
 class AdminTeamScreen extends ConsumerWidget {
   const AdminTeamScreen({super.key});
@@ -133,12 +134,19 @@ class _UserRow extends ConsumerWidget {
           if (!isSelf) ...[
             IconButton(
               icon: Icon(user.disabled ? Icons.lock_open_rounded : Icons.lock_outline_rounded, size: 18, color: AppColors.muted),
-              onPressed: () => ref.read(adminServiceProvider).setUserAccountDisabled(user.id, !user.disabled),
+              onPressed: () => runOrShowError(context, () => ref.read(adminServiceProvider).setUserAccountDisabled(user.id, !user.disabled)),
             ),
             IconButton(icon: const Icon(Icons.edit_outlined, size: 18, color: AppColors.muted), onPressed: () => _edit(context, ref)),
             IconButton(
               icon: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.muted),
-              onPressed: () => ref.read(adminServiceProvider).deleteUserAccount(user.id),
+              onPressed: () async {
+                final confirmed = await confirmDestructive(
+                  context,
+                  title: 'Konto löschen?',
+                  message: 'Das Konto von ${user.displayName} wird dauerhaft gelöscht. Das kann nicht rückgängig gemacht werden.',
+                );
+                if (confirmed && context.mounted) await runOrShowError(context, () => ref.read(adminServiceProvider).deleteUserAccount(user.id));
+              },
             ),
           ] else
             IconButton(icon: const Icon(Icons.edit_outlined, size: 18, color: AppColors.muted), onPressed: () => _edit(context, ref)),

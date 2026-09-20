@@ -1,6 +1,38 @@
 import 'package:flutter/material.dart';
 import '../theme/tokens.dart';
 
+/// A confirmation dialog for destructive admin actions (delete family,
+/// delete account, …) — several of these called the delete method
+/// directly from the icon's onPressed with no confirmation at all.
+Future<bool> confirmDestructive(BuildContext context, {required String title, required String message, String confirmLabel = 'Löschen'}) async {
+  final result = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      backgroundColor: AppColors.surface,
+      title: Text(title, style: const TextStyle(color: AppColors.ink)),
+      content: Text(message, style: const TextStyle(color: AppColors.ink2)),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Abbrechen')),
+        TextButton(onPressed: () => Navigator.pop(context, true), child: Text(confirmLabel, style: const TextStyle(color: AppColors.error))),
+      ],
+    ),
+  );
+  return result ?? false;
+}
+
+/// Runs a quick one-shot mutation (like/RSVP/poll-vote toggles) and shows
+/// an error SnackBar if it fails — several of these buttons across the app
+/// were calling the service method directly with no error handling at
+/// all, so any failure (network blip, RLS denial) just looked like the
+/// button had no function.
+Future<void> runOrShowError(BuildContext context, Future<void> Function() action) async {
+  try {
+    await action();
+  } catch (e) {
+    if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Fehler: $e')));
+  }
+}
+
 /// v2 Toast — floating pill, `ink` background, white text, the README's
 /// `toastIn` motion (translateY 12px → 0, 220ms) and a 2800ms auto-dismiss.
 void showNToast(BuildContext context, String message) {

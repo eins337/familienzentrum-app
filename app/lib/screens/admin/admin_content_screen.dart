@@ -12,6 +12,7 @@ import '../../widgets/n_card.dart';
 import '../../widgets/n_field.dart';
 import '../../widgets/n_header.dart';
 import '../../widgets/n_segmented.dart';
+import '../../widgets/n_toast.dart';
 
 class AdminContentScreen extends ConsumerStatefulWidget {
   const AdminContentScreen({super.key});
@@ -148,7 +149,13 @@ class _EventRsvpCardState extends ConsumerState<_EventRsvpCard> {
                   ],
                 ),
               ),
-              IconButton(icon: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.muted), onPressed: () => ref.read(adminServiceProvider).deleteEvent(e.id)),
+              IconButton(
+                icon: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.muted),
+                onPressed: () async {
+                  final confirmed = await confirmDestructive(context, title: 'Termin löschen?', message: '"${e.title}" wird dauerhaft gelöscht.');
+                  if (confirmed && context.mounted) await runOrShowError(context, () => ref.read(adminServiceProvider).deleteEvent(e.id));
+                },
+              ),
             ],
           ),
           InkWell(
@@ -267,7 +274,13 @@ class _ClosuresTabState extends ConsumerState<_ClosuresTab> {
                         children: [
                           Expanded(child: Text(c.title, style: const TextStyle(fontSize: 13, color: AppColors.ink))),
                           Text('${formatDateShort(c.startDate)}–${formatDateShort(c.endDate)}', style: const TextStyle(fontSize: 11, color: AppColors.muted)),
-                          IconButton(icon: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.muted), onPressed: () => ref.read(adminServiceProvider).deleteClosure(c.id)),
+                          IconButton(
+                            icon: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.muted),
+                            onPressed: () async {
+                              final confirmed = await confirmDestructive(context, title: 'Schließzeit löschen?', message: '"${c.title}" wird dauerhaft gelöscht.');
+                              if (confirmed && context.mounted) await runOrShowError(context, () => ref.read(adminServiceProvider).deleteClosure(c.id));
+                            },
+                          ),
                         ],
                       ),
                     ),
@@ -357,7 +370,13 @@ class _DocumentsTabState extends ConsumerState<_DocumentsTab> {
                           const Icon(Icons.description_outlined, size: 16, color: AppColors.primary),
                           const SizedBox(width: 8),
                           Expanded(child: Text(d.title, style: const TextStyle(fontSize: 13, color: AppColors.ink))),
-                          IconButton(icon: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.muted), onPressed: () => ref.read(adminServiceProvider).deleteDocument(d.id)),
+                          IconButton(
+                            icon: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.muted),
+                            onPressed: () async {
+                              final confirmed = await confirmDestructive(context, title: 'Dokument löschen?', message: '"${d.title}" wird dauerhaft gelöscht.');
+                              if (confirmed && context.mounted) await runOrShowError(context, () => ref.read(adminServiceProvider).deleteDocument(d.id));
+                            },
+                          ),
                         ],
                       ),
                     ),

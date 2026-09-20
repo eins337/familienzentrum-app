@@ -11,6 +11,7 @@ import '../utils/time_format.dart';
 import 'n_avatar.dart';
 import 'n_card.dart';
 import 'n_tag.dart';
+import 'n_toast.dart';
 
 /// Renders one feed/group post — the exact visual treatment depends on
 /// `kind` and `pinned`, matching the different card styles in the design
@@ -202,7 +203,7 @@ class _PhotoCard extends ConsumerWidget {
                       icon: liked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
                       label: '${post.likes.length}',
                       color: liked ? AppColors.primary : AppColors.ink,
-                      onTap: () => ref.read(postsServiceProvider).toggleLike(post.id),
+                      onTap: () => runOrShowError(context, () => ref.read(postsServiceProvider).toggleLike(post.id)),
                     ),
                     _ActionBtn(
                       icon: Icons.mode_comment_outlined,
@@ -262,7 +263,7 @@ class _PollCardState extends ConsumerState<_PollCard> {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 6),
                 child: InkWell(
-                  onTap: voted ? null : () => ref.read(postsServiceProvider).votePoll(post.id, i),
+                  onTap: voted ? null : () => runOrShowError(context, () => ref.read(postsServiceProvider).votePoll(post.id, i)),
                   borderRadius: BorderRadius.circular(AppRadius.md),
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
