@@ -46,16 +46,18 @@ final groupTeamProvider = FutureProvider.family<List<GroupTeamMember>, String>(
   (ref, groupId) => ref.watch(kitaServiceProvider).fetchGroupTeam(groupId),
 );
 
-/// Derived from the live `allChildrenProvider` stream rather than a
-/// one-shot fetch — this used to be a `FutureProvider` that fetched once
-/// and never refreshed, so consent-toggle / "Wichtig für die Kita" edits
-/// in Profil appeared to silently do nothing: the write succeeded but the
-/// screen kept showing the pre-edit value until a full app restart.
-final myChildrenProvider = Provider<AsyncValue<List<Child>>>((ref) {
+/// A plain one-shot fetch (not derived from the `allChildrenProvider`
+/// realtime stream — that was tried and reverted: it made this provider,
+/// which nearly every screen depends on, hang forever if the realtime
+/// websocket didn't connect cleanly, breaking Profil and the Spielanfrage
+/// child pickers). Staleness after a consent/tags/Bringzeit edit is fixed
+/// by explicitly invalidating this provider at each call site instead —
+/// see profil_screen.dart.
+final myChildrenProvider = FutureProvider<List<Child>>((ref) async {
   final profile = ref.watch(profileProvider).valueOrNull;
-  if (profile?.familyId == null) return const AsyncValue.data([]);
-  final familyId = profile!.familyId!;
-  return ref.watch(allChildrenProvider).whenData((all) => all.values.where((c) => c.familyId == familyId).toList());
+  if (profile?.familyId == null) return [];
+  final rows = await supa.from('children').select().eq('family_id', profile!.familyId!);
+  return rows.map(Child.fromMap).toList();
 });
 
 /// Cheap id→displayName / id→profile lookup for the whole app (author

@@ -179,6 +179,7 @@ class _ProfilScreenState extends ConsumerState<ProfilScreen> {
                       onTap: () async {
                         try {
                           await ref.read(kitaServiceProvider).updateChildConsent(child.id, photoConsentGroup: !child.photoConsentGroup);
+                          ref.invalidate(myChildrenProvider);
                         } catch (e) {
                           if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Fehler: $e')));
                         }
@@ -190,6 +191,7 @@ class _ProfilScreenState extends ConsumerState<ProfilScreen> {
                       onTap: () async {
                         try {
                           await ref.read(kitaServiceProvider).updateChildConsent(child.id, photoConsentWebsite: !child.photoConsentWebsite);
+                          ref.invalidate(myChildrenProvider);
                         } catch (e) {
                           if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Fehler: $e')));
                         }
@@ -448,6 +450,7 @@ class _HinweiseSheetState extends ConsumerState<_HinweiseSheet> {
     setState(() => _saving = true);
     try {
       await ref.read(kitaServiceProvider).updateChildTags(widget.child.id, _tags);
+      ref.invalidate(myChildrenProvider);
       if (mounted) Navigator.of(context).pop(true);
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Fehler: $e')));
@@ -569,6 +572,7 @@ class _BringzeitSheetState extends ConsumerState<_BringzeitSheet> {
           updatedByUid: myUid,
         );
       }
+      ref.invalidate(myChildrenProvider);
       if (mounted) Navigator.of(context).pop(true);
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Fehler: $e')));
