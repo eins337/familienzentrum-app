@@ -1,0 +1,53 @@
+name: Deploy web to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      # SUPABASE_URL and SUPABASE_ANON_KEY are Supabase's publishable
+      # client config — meant to be public (equivalent to a website's own
+      # API base URL), protected by Row Level Security rather than secrecy.
+      # They end up in the compiled JS bundle either way, so they're
+      # written here directly rather than via a repo secret.
+      - name: Write .env
+        working-directory: app
+        run: |
+          echo "SUPABASE_URL=https://smcvfxmohlbdhoeljlyn.supabase.co" >> .env
+          echo "SUPABASE_ANON_KEY=sb_publishable_pi7QjgTR-WhhHv5VqNUsAw_0o9UmFva" >> .env
+
+      - name: Install dependencies
+        working-directory: app
+        run: flutter pub get
+
+      - name: Build web
+        working-directory: app
+        run: flutter build web --release --base-href /familienzentrum-app/
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: app/build/web
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
