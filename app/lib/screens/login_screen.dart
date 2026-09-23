@@ -79,7 +79,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               NField(
                 label: 'Zugangscode',
                 controller: _codeCtrl,
-                hintText: 'LANK-2026',
+                hintText: 'Zugangscode oder Passwort',
                 obscureText: !_codeVisible,
                 suffixIcon: IconButton(
                   icon: Icon(_codeVisible ? Icons.visibility_off_outlined : Icons.visibility_outlined, size: 19, color: AppColors.muted),
