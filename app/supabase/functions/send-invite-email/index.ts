@@ -1,9 +1,12 @@
 // Sends the invite email (with the access code) to a newly invited parent
 // or team member, right after an admin creates the invite. Uses Resend
-// (resend.com) — RESEND_API_KEY must be set as a Supabase Edge Function
-// secret (Project Settings -> Edge Functions -> Secrets, or
-// `supabase secrets set RESEND_API_KEY=...`). Admin-only, like the other
-// admin-* functions.
+// (resend.com) — the API key is read from Supabase Vault (`RESEND_API_KEY`,
+// stored via `select vault.create_secret(...)`) through the
+// `public.get_vault_secret` RPC (migration 0022), rather than a
+// Dashboard-configured Edge Function secret, so nothing extra needs
+// setting up per environment. That RPC's EXECUTE is revoked from
+// anon/authenticated and granted only to service_role — see the migration.
+// Admin-only, like the other admin-* functions.
 //
 // Deploy: supabase functions deploy send-invite-email
 
@@ -45,15 +48,16 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
   try {
-    await requireAdmin(req);
+    const admin = await requireAdmin(req);
     const { email, displayName, code } = await req.json();
     if (!email || !displayName || !code) {
       return json({ error: 'email, displayName und code sind erforderlich' }, 400);
     }
 
-    const resendKey = Deno.env.get('RESEND_API_KEY');
+    const { data: resendKey, error: secretErr } = await admin.rpc('get_vault_secret', { secret_name: 'RESEND_API_KEY' });
+    if (secretErr) return json({ error: `Secret konnte nicht gelesen werden: ${secretErr.message}` }, 500);
     if (!resendKey) {
-      return json({ error: 'E-Mail-Versand ist noch nicht eingerichtet (RESEND_API_KEY fehlt).' }, 500);
+      return json({ error: 'E-Mail-Versand ist noch nicht eingerichtet (RESEND_API_KEY fehlt im Vault).' }, 500);
     }
 
     const html = `
