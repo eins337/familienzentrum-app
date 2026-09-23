@@ -60,6 +60,10 @@ Deno.serve(async (req) => {
       is_admin: invite.is_admin ?? false,
       group_ids: invite.group_ids ?? [],
       staff_title: invite.staff_title,
+      // Forces the new account straight into the password-change screen
+      // (see force_password_change_screen.dart) so the invite code, used
+      // here as the initial password, gets replaced right away.
+      must_change_password: true,
     });
     if (profileErr) {
       // Roll back the just-created auth user so a failed redemption doesn't

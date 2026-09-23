@@ -174,8 +174,9 @@ class _GroupRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final team = ref.watch(groupTeamProvider(groupId)).valueOrNull ?? [];
-    final teamLabel = team.isEmpty ? '' : ' · ${team.map((t) => t.name).join(', ')}';
+    final allProfiles = ref.watch(allProfilesProvider).valueOrNull ?? {};
+    final team = allProfiles.values.where((p) => p.isTeam && p.groupIds.contains(groupId)).toList();
+    final teamLabel = team.isEmpty ? '' : ' · ${team.map((t) => t.displayName).join(', ')}';
     return NCard(
       onTap: onTap,
       borderColor: groupColor(groupId),

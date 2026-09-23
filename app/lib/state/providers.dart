@@ -42,10 +42,6 @@ final childrenInGroupProvider = FutureProvider.family<List<Child>, String>(
   (ref, groupId) => ref.watch(kitaServiceProvider).fetchChildrenInGroup(groupId),
 );
 
-final groupTeamProvider = FutureProvider.family<List<GroupTeamMember>, String>(
-  (ref, groupId) => ref.watch(kitaServiceProvider).fetchGroupTeam(groupId),
-);
-
 /// A plain one-shot fetch (not derived from the `allChildrenProvider`
 /// realtime stream — that was tried and reverted: it made this provider,
 /// which nearly every screen depends on, hang forever if the realtime

@@ -51,6 +51,11 @@ class AuthService {
     await supa.auth.updateUser(UserAttributes(password: newPassword));
   }
 
+  /// Clears the flag that forces a first-login password change — once this
+  /// runs, the invite code (used as the initial password) no longer works
+  /// for signing in, since `updatePassword` above already replaced it.
+  Future<void> clearMustChangePassword(String uid) => supa.from('profiles').update({'must_change_password': false}).eq('id', uid);
+
   Future<void> updateNotificationSettings(String uid, Map<String, dynamic> settings) =>
       supa.from('profiles').update({'notification_settings': settings}).eq('id', uid);
 

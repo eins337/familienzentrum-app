@@ -10,6 +10,7 @@ import '../../widgets/n_avatar.dart';
 import '../../widgets/n_button.dart';
 import '../../widgets/n_card.dart';
 import '../../widgets/n_header.dart';
+import '../../widgets/n_radio.dart';
 import '../../widgets/post_card.dart';
 import '../../widgets/wochenrueckblick_card.dart';
 import 'gruppe_gallery.dart';
@@ -24,6 +25,74 @@ Future<void> _openChannel(BuildContext context, WidgetRef ref, String groupId, S
   }
 }
 
+/// Admin-only editor: which Erzieher (team profiles) belong to this group,
+/// and which one of them is the Gruppenleitung.
+Future<void> _editGroupTeam(BuildContext context, WidgetRef ref, String groupId, List<Profile> currentTeam, Profile? currentLead) async {
+  final allProfiles = ref.read(allProfilesProvider).valueOrNull ?? {};
+  final allTeamProfiles = allProfiles.values.where((p) => p.isTeam).toList()..sort((a, b) => a.displayName.compareTo(b.displayName));
+  final memberIds = currentTeam.map((t) => t.id).toSet();
+  String? leadId = currentLead?.id;
+
+  await showDialog(
+    context: context,
+    builder: (context) => StatefulBuilder(
+      builder: (context, setState) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: const Text('Erzieher & Gruppenleitung', style: TextStyle(color: AppColors.ink)),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Erzieher in dieser Gruppe', style: TextStyle(fontSize: 12, color: AppColors.muted)),
+              const SizedBox(height: 6),
+              for (final p in allTeamProfiles)
+                CheckboxListTile(
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  activeColor: AppColors.primary,
+                  title: Text(p.displayName, style: const TextStyle(fontSize: 13.5, color: AppColors.ink)),
+                  value: memberIds.contains(p.id),
+                  onChanged: (sel) => setState(() {
+                    if (sel ?? false) {
+                      memberIds.add(p.id);
+                    } else {
+                      memberIds.remove(p.id);
+                      if (leadId == p.id) leadId = null;
+                    }
+                  }),
+                ),
+              const SizedBox(height: 10),
+              const Text('Gruppenleitung', style: TextStyle(fontSize: 12, color: AppColors.muted)),
+              const SizedBox(height: 6),
+              if (memberIds.isEmpty) const Text('Erst Erzieher zuordnen.', style: TextStyle(fontSize: 12.5, color: AppColors.muted)),
+              for (final p in allTeamProfiles.where((p) => memberIds.contains(p.id)))
+                NRadioRow(label: p.displayName, selected: leadId == p.id, onTap: () => setState(() => leadId = p.id)),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Abbrechen')),
+          TextButton(
+            onPressed: () async {
+              try {
+                await ref.read(adminServiceProvider).setGroupMembers(groupId, allTeamProfiles, memberIds);
+                await ref.read(adminServiceProvider).updateGroupLead(groupId, leadId);
+                ref.invalidate(groupsProvider);
+                if (context.mounted) Navigator.pop(context);
+              } catch (e) {
+                if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Fehler: $e')));
+              }
+            },
+            child: const Text('Speichern'),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
 class GruppeDetailScreen extends ConsumerWidget {
   const GruppeDetailScreen({super.key, required this.groupId});
   final String groupId;
@@ -32,7 +101,14 @@ class GruppeDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final groups = ref.watch(groupsProvider).valueOrNull ?? [];
     final group = groups.where((g) => g.id == groupId).firstOrNull;
-    final team = ref.watch(groupTeamProvider(groupId)).valueOrNull ?? [];
+    final allProfiles = ref.watch(allProfilesProvider).valueOrNull ?? {};
+    // Real Erzieher assignment lives on profiles.group_ids — the old
+    // `group_team_members` table (below via groupTeamProvider) was a
+    // display-only roster with no link to an actual login, so admins had
+    // no way to edit who it showed. This is the real, editable source.
+    final team = allProfiles.values.where((p) => p.isTeam && p.groupIds.contains(groupId)).toList()
+      ..sort((a, b) => a.displayName.compareTo(b.displayName));
+    final lead = group?.leadProfileId != null ? allProfiles[group!.leadProfileId] : null;
     final postsAsync = ref.watch(groupPostsProvider(groupId));
     final childrenAsync = ref.watch(childrenInGroupProvider(groupId));
     final profile = ref.watch(profileProvider).valueOrNull;
@@ -40,7 +116,7 @@ class GruppeDetailScreen extends ConsumerWidget {
     return Scaffold(
       appBar: NHeader(
         title: 'Gruppe ${groupName(groupId)}',
-        subtitle: group == null ? null : '${group.childCount} Kinder · ${team.map((t) => t.name).join(', ')}',
+        subtitle: group == null ? null : '${group.childCount} Kinder · ${team.map((t) => t.displayName).join(', ')}',
         showBack: true,
       ),
       body: ListView(
@@ -64,7 +140,7 @@ class GruppeDetailScreen extends ConsumerWidget {
                   children: [
                     Text('Gruppe ${groupName(groupId)}', style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 19, color: AppColors.ink)),
                     if (group != null)
-                      Text('${group.childCount} Kinder · ${team.map((t) => t.name).join(', ')}',
+                      Text('${group.childCount} Kinder · ${team.map((t) => t.displayName).join(', ')}',
                           style: const TextStyle(fontSize: 11.5, color: AppColors.muted)),
                   ],
                 ),
@@ -173,7 +249,7 @@ class GruppeDetailScreen extends ConsumerWidget {
                           padding: EdgeInsets.only(bottom: 6),
                           child: Text('Zum Spielen einladen oder eine Nachricht schreiben.', style: TextStyle(fontSize: 11, color: AppColors.muted)),
                         ),
-                      for (final c in visible) _ChildRow(child: c, isTeam: profile?.isTeam ?? false),
+                      for (final c in visible) _ChildRow(child: c, isTeam: profile?.isTeam ?? false, isAdmin: profile?.isAdmin ?? false),
                     ],
                   ),
                 ),
@@ -198,18 +274,33 @@ class GruppeDetailScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('TEAM DER GRUPPE', style: TextStyle(fontFamily: 'Outfit', fontSize: 10, letterSpacing: 1.3, color: AppColors.primary, fontWeight: FontWeight.w800)),
-                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    const Text('TEAM DER GRUPPE', style: TextStyle(fontFamily: 'Outfit', fontSize: 10, letterSpacing: 1.3, color: AppColors.primary, fontWeight: FontWeight.w800)),
+                    const Spacer(),
+                    if (profile?.isAdmin ?? false)
+                      IconButton(
+                        icon: const Icon(Icons.edit_outlined, size: 16, color: AppColors.mutedAlt),
+                        onPressed: () => _editGroupTeam(context, ref, groupId, team, lead),
+                        tooltip: 'Erzieher & Gruppenleitung bearbeiten',
+                      ),
+                  ],
+                ),
+                if (team.isEmpty) const Text('Noch kein Team zugeordnet.', style: TextStyle(fontSize: 12.5, color: AppColors.muted)),
                 for (final t in team)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 9),
                     child: Row(
                       children: [
-                        Container(width: 28, height: 28, decoration: const BoxDecoration(shape: BoxShape.circle, color: AppColors.soft)),
+                        NAvatar(initials: t.displayName.isEmpty ? '?' : t.displayName[0].toUpperCase(), size: 28),
                         const SizedBox(width: 9),
-                        Text(t.name, style: const TextStyle(fontSize: 13, color: AppColors.ink)),
-                        const Spacer(),
-                        Text(t.title, style: const TextStyle(fontSize: 11, color: AppColors.muted)),
+                        Expanded(child: Text(t.displayName, style: const TextStyle(fontSize: 13, color: AppColors.ink))),
+                        if (lead?.id == t.id) ...[
+                          const Icon(Icons.star_rounded, size: 15, color: AppColors.primary),
+                          const SizedBox(width: 4),
+                          const Text('Gruppenleitung', style: TextStyle(fontSize: 11, color: AppColors.primary, fontWeight: FontWeight.w600)),
+                        ] else
+                          Text(t.staffTitle ?? 'Fachkraft', style: const TextStyle(fontSize: 11, color: AppColors.muted)),
                       ],
                     ),
                   ),
@@ -223,9 +314,10 @@ class GruppeDetailScreen extends ConsumerWidget {
 }
 
 class _ChildRow extends ConsumerStatefulWidget {
-  const _ChildRow({required this.child, required this.isTeam});
+  const _ChildRow({required this.child, required this.isTeam, this.isAdmin = false});
   final Child child;
   final bool isTeam;
+  final bool isAdmin;
 
   @override
   ConsumerState<_ChildRow> createState() => _ChildRowState();
@@ -233,6 +325,28 @@ class _ChildRow extends ConsumerStatefulWidget {
 
 class _ChildRowState extends ConsumerState<_ChildRow> {
   bool _loading = false;
+
+  Future<void> _changeGroup() async {
+    final groups = await ref.read(groupsProvider.future);
+    if (!mounted) return;
+    final newGroupId = await showDialog<String>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        backgroundColor: AppColors.surface,
+        title: Text('${widget.child.name} — Gruppe wählen', style: const TextStyle(color: AppColors.ink)),
+        children: [
+          for (final g in groups)
+            SimpleDialogOption(onPressed: () => Navigator.pop(context, g.id), child: Text('Gruppe ${g.name}', style: const TextStyle(color: AppColors.ink))),
+        ],
+      ),
+    );
+    if (newGroupId == null || newGroupId == widget.child.groupId) return;
+    try {
+      await ref.read(adminServiceProvider).updateChildAdmin(widget.child.id, groupId: newGroupId);
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Fehler: $e')));
+    }
+  }
 
   Future<void> _startChat() async {
     final myId = ref.read(profileProvider).valueOrNull?.id;
@@ -295,6 +409,12 @@ class _ChildRowState extends ConsumerState<_ChildRow> {
                 icon: const Icon(Icons.add_circle_outline_rounded, size: 18, color: AppColors.primary),
                 tooltip: 'Spielanfrage',
                 onPressed: () => context.push('/spielanfrage-neu?childId=${widget.child.id}'),
+              ),
+            if (widget.isAdmin)
+              IconButton(
+                icon: const Icon(Icons.swap_horiz_rounded, size: 18, color: AppColors.mutedAlt),
+                tooltip: 'Gruppe wechseln',
+                onPressed: _changeGroup,
               ),
           ],
         ],

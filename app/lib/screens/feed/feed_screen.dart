@@ -77,7 +77,7 @@ class FeedScreen extends ConsumerWidget {
                 const SizedBox(height: 10),
               ],
               if (activeSickReport != null) ...[
-                _SickStatusCard(dateLabel: activeSickReport.dateLabel),
+                _SickStatusCard(dateLabel: activeSickReport.plainDateLabel),
                 const SizedBox(height: 10),
               ],
               for (final p in pinned) ...[PostCard(post: p), const SizedBox(height: 10)],

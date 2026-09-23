@@ -53,6 +53,18 @@ class AdminService {
 
   Future<void> deleteInvite(String email) => supa.from('invites').delete().eq('email', email);
 
+  /// Sends the invite email (with the access code) via the
+  /// `send-invite-email` Edge Function (Resend) — called right after
+  /// [createInvite] succeeds, not as part of it, so a delivery failure
+  /// never hides that the invite itself was created.
+  Future<void> sendInviteEmail({required String email, required String displayName, required String code}) async {
+    final result = await supa.functions.invoke('send-invite-email', body: {'email': email, 'displayName': displayName, 'code': code});
+    if (result.status != 200) {
+      final err = (result.data is Map) ? result.data['error'] as String? : null;
+      throw Exception(err ?? 'E-Mail-Versand fehlgeschlagen.');
+    }
+  }
+
   // ── Families ───────────────────────────────────────────────────────
   Future<Family> createFamily(String name) async {
     final row = await supa.from('families').insert({'name': name}).select().single();
@@ -105,15 +117,27 @@ class AdminService {
     return supa.from('profiles').stream(primaryKey: ['id']).order('display_name').map((rows) => rows.map(Profile.fromMap).toList());
   }
 
-  Future<void> updateUserAdmin(String uid, {String? role, bool? isAdmin, List<String>? groupIds, String? staffTitle}) => supa
+  Future<void> updateUserAdmin(String uid, {String? role, bool? isAdmin, List<String>? groupIds, String? staffTitle, bool? kitaLeitung}) => supa
       .from('profiles')
       .update({
         if (role != null) 'role': role,
         if (isAdmin != null) 'is_admin': isAdmin,
         if (groupIds != null) 'group_ids': groupIds,
         if (staffTitle != null) 'staff_title': staffTitle,
+        if (kitaLeitung != null) 'kita_leitung': kitaLeitung,
       })
       .eq('id', uid);
+
+  /// Changes a user's login email via the `admin-update-user-email` Edge
+  /// Function (needs the service role to touch `auth.users`), then mirrors
+  /// it onto the `profiles` row.
+  Future<void> updateUserEmail(String uid, String newEmail) async {
+    final result = await supa.functions.invoke('admin-update-user-email', body: {'targetUserId': uid, 'newEmail': newEmail.trim().toLowerCase()});
+    if (result.status != 200) {
+      final err = (result.data is Map) ? result.data['error'] as String? : null;
+      throw Exception(err ?? 'E-Mail-Änderung fehlgeschlagen.');
+    }
+  }
 
   /// Bans the Auth account (not just a client flag) via the
   /// `admin-set-user-disabled` Edge Function, which needs the service role.
@@ -134,17 +158,27 @@ class AdminService {
   }
 
   // ── Groups ─────────────────────────────────────────────────────────
-  Future<void> updateGroupTeam(String groupId, List<(String name, String title)> members) async {
-    await supa.from('group_team_members').delete().eq('group_id', groupId);
-    if (members.isEmpty) return;
-    await supa.from('group_team_members').insert([
-      for (var i = 0; i < members.length; i++)
-        {'group_id': groupId, 'name': members[i].$1, 'title': members[i].$2, 'sort_order': i},
-    ]);
-  }
-
   Future<void> updateGroupChildCount(String groupId, int count) =>
       supa.from('groups').update({'child_count': count}).eq('id', groupId);
+
+  /// Sets which Erzieher (team profiles) belong to [groupId], diffing
+  /// against their current `group_ids` and only touching the profiles that
+  /// actually gain or lose this group — a bulk edit from the group's own
+  /// point of view, complementing the per-user editor in Team & Rollen.
+  Future<void> setGroupMembers(String groupId, List<Profile> allTeamProfiles, Set<String> newMemberIds) async {
+    for (final p in allTeamProfiles) {
+      final hasIt = p.groupIds.contains(groupId);
+      final shouldHaveIt = newMemberIds.contains(p.id);
+      if (hasIt == shouldHaveIt) continue;
+      final newGroupIds = shouldHaveIt ? [...p.groupIds, groupId] : p.groupIds.where((g) => g != groupId).toList();
+      await supa.from('profiles').update({'group_ids': newGroupIds}).eq('id', p.id);
+    }
+  }
+
+  /// The Gruppenleitung (group lead) — must themselves be assigned to the
+  /// group, enforced client-side since RLS only checks row ownership.
+  Future<void> updateGroupLead(String groupId, String? leadProfileId) =>
+      supa.from('groups').update({'lead_profile_id': leadProfileId}).eq('id', groupId);
 
   // ── Content: events / closures / documents / speiseplan ───────────
   Stream<List<KitaEvent>> streamAllEvents() {

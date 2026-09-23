@@ -17,6 +17,8 @@ class Profile {
     this.groupIds = const [],
     this.staffTitle,
     this.disabled = false,
+    this.kitaLeitung = false,
+    this.mustChangePassword = false,
     this.pushToken,
     this.avatarUrl,
     required this.createdAt,
@@ -34,6 +36,8 @@ class Profile {
   final List<String> groupIds;
   final String? staffTitle;
   final bool disabled;
+  final bool kitaLeitung;
+  final bool mustChangePassword;
   final String? pushToken;
   final String? avatarUrl;
   final DateTime createdAt;
@@ -52,6 +56,8 @@ class Profile {
         groupIds: _strList(m['group_ids']),
         staffTitle: m['staff_title'] as String?,
         disabled: m['disabled'] as bool? ?? false,
+        kitaLeitung: m['kita_leitung'] as bool? ?? false,
+        mustChangePassword: m['must_change_password'] as bool? ?? false,
         pushToken: m['push_token'] as String?,
         avatarUrl: m['avatar_url'] as String?,
         createdAt: DateTime.parse(m['created_at'] as String),
@@ -174,32 +180,19 @@ class Child {
 }
 
 class Group {
-  Group({required this.id, required this.name, required this.color, this.childCount = 0});
+  Group({required this.id, required this.name, required this.color, this.childCount = 0, this.leadProfileId});
   final String id;
   final String name;
   final String color;
   final int childCount;
+  final String? leadProfileId;
 
   factory Group.fromMap(Json m) => Group(
         id: m['id'] as String,
         name: m['name'] as String,
         color: m['color'] as String,
         childCount: m['child_count'] as int? ?? 0,
-      );
-}
-
-class GroupTeamMember {
-  GroupTeamMember({required this.id, required this.groupId, required this.name, required this.title});
-  final String id;
-  final String groupId;
-  final String name;
-  final String title;
-
-  factory GroupTeamMember.fromMap(Json m) => GroupTeamMember(
-        id: m['id'] as String,
-        groupId: m['group_id'] as String,
-        name: m['name'] as String,
-        title: m['title'] as String,
+        leadProfileId: m['lead_profile_id'] as String?,
       );
 }
 
@@ -459,6 +452,17 @@ class SickReport {
   final String? childName;
 
   int get days => endDate.difference(startDate).inDays + 1;
+
+  /// The date range to display, computed from `startDate`/`endDate` rather
+  /// than trusting the stored `dateLabel` text — older reports had that
+  /// column populated by a since-removed "Heute, DD.MM." format, which then
+  /// stayed frozen in the row forever and confusingly kept saying "Heute"
+  /// long after the day had passed.
+  String get plainDateLabel {
+    String fmt(DateTime d) => '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.';
+    if (startDate.isAtSameMomentAs(endDate)) return fmt(startDate);
+    return '${fmt(startDate)} – ${fmt(endDate)} · $days Tage';
+  }
 
   /// Today falls within the reported range and it hasn't been withdrawn.
   bool get isActive {

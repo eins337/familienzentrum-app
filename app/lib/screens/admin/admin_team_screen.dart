@@ -5,6 +5,7 @@ import '../../state/providers.dart';
 import '../../theme/tokens.dart';
 import '../../widgets/n_avatar.dart';
 import '../../widgets/n_card.dart';
+import '../../widgets/n_field.dart';
 import '../../widgets/n_header.dart';
 import '../../widgets/n_radio.dart';
 import '../../widgets/n_tag.dart';
@@ -49,8 +50,10 @@ class _UserRow extends ConsumerWidget {
     if (!context.mounted) return;
     String role = user.role;
     bool isAdmin = user.isAdmin;
+    bool kitaLeitung = user.kitaLeitung;
     final groupIds = user.groupIds.toSet();
     final staffTitleCtrl = TextEditingController(text: user.staffTitle);
+    final emailCtrl = TextEditingController(text: user.email);
 
     await showDialog(
       context: context,
@@ -63,11 +66,15 @@ class _UserRow extends ConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                NField(label: 'E-Mail', controller: emailCtrl, keyboardType: TextInputType.emailAddress),
+                const SizedBox(height: 10),
                 NRadioRow(label: 'Familie (Eltern)', selected: role == 'parent', onTap: () => setState(() => role = 'parent')),
                 NRadioRow(label: 'Kita-Team', selected: role == 'team', onTap: () => setState(() => role = 'team')),
                 const SizedBox(height: 8),
                 NRadioRow(label: 'Admin-Rechte', selected: isAdmin, onTap: () => setState(() => isAdmin = !isAdmin)),
                 if (role == 'team') ...[
+                  const SizedBox(height: 8),
+                  NRadioRow(label: 'Kita-Leitung', selected: kitaLeitung, onTap: () => setState(() => kitaLeitung = !kitaLeitung)),
                   const SizedBox(height: 8),
                   TextField(controller: staffTitleCtrl, style: const TextStyle(color: AppColors.ink), decoration: const InputDecoration(hintText: 'Titel, z.B. Gruppenleitung')),
                   const SizedBox(height: 8),
@@ -90,14 +97,23 @@ class _UserRow extends ConsumerWidget {
             TextButton(onPressed: () => Navigator.pop(context), child: const Text('Abbrechen')),
             TextButton(
               onPressed: () async {
-                await ref.read(adminServiceProvider).updateUserAdmin(
-                      user.id,
-                      role: role,
-                      isAdmin: isAdmin,
-                      groupIds: role == 'team' ? groupIds.toList() : [],
-                      staffTitle: staffTitleCtrl.text.trim(),
-                    );
-                if (context.mounted) Navigator.pop(context);
+                try {
+                  final newEmail = emailCtrl.text.trim();
+                  if (newEmail.isNotEmpty && newEmail.toLowerCase() != user.email.toLowerCase()) {
+                    await ref.read(adminServiceProvider).updateUserEmail(user.id, newEmail);
+                  }
+                  await ref.read(adminServiceProvider).updateUserAdmin(
+                        user.id,
+                        role: role,
+                        isAdmin: isAdmin,
+                        groupIds: role == 'team' ? groupIds.toList() : [],
+                        staffTitle: staffTitleCtrl.text.trim(),
+                        kitaLeitung: role == 'team' ? kitaLeitung : false,
+                      );
+                  if (context.mounted) Navigator.pop(context);
+                } catch (e) {
+                  if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Fehler: $e')));
+                }
               },
               child: const Text('Speichern'),
             ),
@@ -123,6 +139,7 @@ class _UserRow extends ConsumerWidget {
                   children: [
                     Flexible(child: Text(user.displayName, style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 13.5, color: AppColors.ink), overflow: TextOverflow.ellipsis)),
                     if (user.isAdmin) ...[const SizedBox(width: 6), const NTag('Admin', variant: NTagVariant.accent)],
+                    if (user.kitaLeitung) ...[const SizedBox(width: 6), const NTag('Kita-Leitung', variant: NTagVariant.accent)],
                     if (user.disabled) ...[const SizedBox(width: 6), const NTag('Gesperrt', variant: NTagVariant.outline)],
                   ],
                 ),

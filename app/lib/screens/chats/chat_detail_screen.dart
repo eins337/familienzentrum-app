@@ -79,7 +79,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                         mine: m.senderId == myId,
                         senderName: m.senderId != myId ? profiles[m.senderId]?.displayName : null,
                       ),
-                    if (playdate != null && playdate.status == 'pending') ...[
+                    if (playdate != null) ...[
                       const SizedBox(height: 8),
                       Align(alignment: Alignment.centerLeft, child: _PlaydateInlineCard(playdate: playdate, chatId: widget.chatId)),
                     ],
@@ -220,54 +220,82 @@ class _PlaydateInlineCardState extends ConsumerState<_PlaydateInlineCard> {
     final fromChild = children[p.fromChildId]?.name ?? '…';
     final toChild = children[p.toChildId]?.name ?? '…';
 
+    final statusLabel = switch (p.status) {
+      'confirmed' => 'TERMIN BESTÄTIGT',
+      'declined' => 'SPIELANFRAGE ABGESAGT',
+      _ => 'SPIELANFRAGE',
+    };
+    final statusColor = switch (p.status) {
+      'confirmed' => AppColors.success,
+      'declined' => AppColors.muted,
+      _ => AppColors.primary,
+    };
+
     return NCard(
-      borderColor: AppColors.primary,
+      borderColor: statusColor,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('SPIELANFRAGE', style: TextStyle(fontFamily: 'Outfit', fontSize: 10, letterSpacing: 1.3, color: AppColors.primary, fontWeight: FontWeight.w800)),
+          Text(statusLabel, style: TextStyle(fontFamily: 'Outfit', fontSize: 10, letterSpacing: 1.3, color: statusColor, fontWeight: FontWeight.w800)),
           const SizedBox(height: 4),
           Text('$fromChild & $toChild', style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 14.5, color: AppColors.ink)),
           const SizedBox(height: 8),
-          for (var i = 0; i < p.proposedSlots.length; i++)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: InkWell(
-                onTap: () => setState(() => _selected = i),
-                borderRadius: BorderRadius.circular(AppRadius.md),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: _selected == i ? AppColors.primary : AppColors.divider),
-                    borderRadius: BorderRadius.circular(AppRadius.md),
-                  ),
-                  child: Row(
-                    children: [
-                      Text('${p.proposedSlots[i].date} · ${p.proposedSlots[i].timeRange}',
-                          style: TextStyle(fontSize: 12.5, color: _selected == i ? AppColors.primary : AppColors.ink)),
-                      const Spacer(),
-                      if (p.proposedSlots[i].location != null)
-                        Text(p.proposedSlots[i].location!, style: const TextStyle(fontSize: 11, color: AppColors.muted)),
-                    ],
-                  ),
+          if (p.status == 'confirmed' && p.confirmedSlotIndex != null && p.confirmedSlotIndex! < p.proposedSlots.length) ...[
+            _SlotRow(slot: p.proposedSlots[p.confirmedSlotIndex!], highlighted: true),
+            const SizedBox(height: 8),
+            NButton(label: 'Termin absagen', variant: NButtonVariant.secondary, small: true, loading: _busy, onPressed: _busy ? null : _decline),
+          ] else if (p.status == 'declined') ...[
+            const Text('Diese Spielanfrage wurde abgesagt.', style: TextStyle(fontSize: 12.5, color: AppColors.muted)),
+          ] else ...[
+            for (var i = 0; i < p.proposedSlots.length; i++)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: InkWell(
+                  onTap: () => setState(() => _selected = i),
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  child: _SlotRow(slot: p.proposedSlots[i], highlighted: _selected == i),
                 ),
               ),
+            Row(
+              children: [
+                Expanded(
+                  child: NButton(
+                    label: 'Termin bestätigen',
+                    variant: NButtonVariant.primary,
+                    small: true,
+                    loading: _busy,
+                    onPressed: (_selected == null || _busy) ? null : _confirm,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                NButton(label: 'Absagen', variant: NButtonVariant.secondary, small: true, onPressed: _busy ? null : _decline),
+              ],
             ),
-          Row(
-            children: [
-              Expanded(
-                child: NButton(
-                  label: 'Termin bestätigen',
-                  variant: NButtonVariant.primary,
-                  small: true,
-                  loading: _busy,
-                  onPressed: (_selected == null || _busy) ? null : _confirm,
-                ),
-              ),
-              const SizedBox(width: 6),
-              NButton(label: 'Absagen', variant: NButtonVariant.secondary, small: true, onPressed: _busy ? null : _decline),
-            ],
-          ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _SlotRow extends StatelessWidget {
+  const _SlotRow({required this.slot, required this.highlighted});
+  final PlaydateSlot slot;
+  final bool highlighted;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        border: Border.all(color: highlighted ? AppColors.primary : AppColors.divider),
+        borderRadius: BorderRadius.circular(AppRadius.md),
+      ),
+      child: Row(
+        children: [
+          Text('${slot.date} · ${slot.timeRange}', style: TextStyle(fontSize: 12.5, color: highlighted ? AppColors.primary : AppColors.ink)),
+          const Spacer(),
+          if (slot.location != null) Text(slot.location!, style: const TextStyle(fontSize: 11, color: AppColors.muted)),
         ],
       ),
     );

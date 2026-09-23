@@ -12,6 +12,7 @@ import '../screens/chats/chats_screen.dart';
 import '../screens/feed/feed_screen.dart';
 import '../screens/feed/post_comments_screen.dart';
 import '../screens/feed/post_create_screen.dart';
+import '../screens/force_password_change_screen.dart';
 import '../screens/gruppen/gruppe_detail_screen.dart';
 import '../screens/gruppen/gruppen_screen.dart';
 import '../screens/login_screen.dart';
@@ -43,10 +44,22 @@ final routerProvider = Provider<GoRouter>((ref) {
       final loggingIn = state.matchedLocation == '/login';
       if (!signedIn) return loggingIn ? null : '/login';
       if (loggingIn) return '/feed';
+
+      // Force a first-login password change (see force_password_change_screen.dart)
+      // before letting the invite-code-as-password account go anywhere else.
+      final mustChangePassword = ref.read(profileProvider).valueOrNull?.mustChangePassword ?? false;
+      final onPasswordChangeScreen = state.matchedLocation == '/passwort-aendern';
+      if (mustChangePassword && !onPasswordChangeScreen) return '/passwort-aendern';
+      if (!mustChangePassword && onPasswordChangeScreen) return '/feed';
       return null;
     },
     routes: [
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+      GoRoute(
+        path: '/passwort-aendern',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const ForcePasswordChangeScreen(),
+      ),
       GoRoute(
         path: '/post-erstellen',
         parentNavigatorKey: _rootNavigatorKey,
@@ -145,14 +158,20 @@ final routerProvider = Provider<GoRouter>((ref) {
 
 class _AuthRefreshNotifier extends ChangeNotifier {
   _AuthRefreshNotifier(this._ref) {
-    _sub = _ref.listen(authStateProvider, (_, __) => notifyListeners());
+    _authSub = _ref.listen(authStateProvider, (_, __) => notifyListeners());
+    // Also re-run the redirect once the profile loads or its
+    // must_change_password flag changes — authStateProvider alone doesn't
+    // fire again for that.
+    _profileSub = _ref.listen(profileProvider, (_, __) => notifyListeners());
   }
   final Ref _ref;
-  late final ProviderSubscription _sub;
+  late final ProviderSubscription _authSub;
+  late final ProviderSubscription _profileSub;
 
   @override
   void dispose() {
-    _sub.close();
+    _authSub.close();
+    _profileSub.close();
     super.dispose();
   }
 }

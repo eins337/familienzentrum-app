@@ -370,7 +370,7 @@ class _SickActiveCard extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 4),
-          Text(report.dateLabel, style: AppText.nunito(size: 12.5, weight: FontWeight.w600, color: AppColors.successInk2)),
+          Text(report.plainDateLabel, style: AppText.nunito(size: 12.5, weight: FontWeight.w600, color: AppColors.successInk2)),
           if (report.reason != null) ...[
             const SizedBox(height: 2),
             Text(report.reason!, style: AppText.nunito(size: 12, color: AppColors.successInk2)),

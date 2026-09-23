@@ -27,6 +27,7 @@ class _AdminInvitesScreenState extends ConsumerState<AdminInvitesScreen> {
   final Set<String> _groupIds = {};
   bool _creating = false;
   Invite? _justCreated;
+  String? _emailWarning;
 
   @override
   void dispose() {
@@ -56,8 +57,15 @@ class _AdminInvitesScreenState extends ConsumerState<AdminInvitesScreen> {
             staffTitle: _role == 'team' ? _staffTitleCtrl.text.trim() : null,
             createdBy: profile.id,
           );
+      String? emailWarning;
+      try {
+        await ref.read(adminServiceProvider).sendInviteEmail(email: invite.email, displayName: invite.displayName, code: invite.code);
+      } catch (e) {
+        emailWarning = 'Einladung wurde erstellt, die E-Mail konnte aber nicht gesendet werden: $e';
+      }
       setState(() {
         _justCreated = invite;
+        _emailWarning = emailWarning;
         _emailCtrl.clear();
         _nameCtrl.clear();
         _staffTitleCtrl.clear();
@@ -98,6 +106,11 @@ class _AdminInvitesScreenState extends ConsumerState<AdminInvitesScreen> {
                     decoration: BoxDecoration(color: AppColors.soft, borderRadius: BorderRadius.circular(AppRadius.md)),
                     child: Text(_justCreated!.code, style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 22, letterSpacing: 3, color: AppColors.primary)),
                   ),
+                  const SizedBox(height: 8),
+                  if (_emailWarning != null)
+                    Text(_emailWarning!, style: const TextStyle(fontSize: 12, color: AppColors.error))
+                  else
+                    const Text('Einladungscode wurde per E-Mail verschickt.', style: TextStyle(fontSize: 12, color: AppColors.success)),
                 ],
               ),
             ),

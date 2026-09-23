@@ -61,7 +61,7 @@ class _AdminSickReportsScreenState extends ConsumerState<AdminSickReportsScreen>
                             ),
                             const SizedBox(height: 4),
                             Text(children[r.childId]?.name ?? r.childName ?? '…', style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 15, color: AppColors.ink)),
-                            Text(r.dateLabel, style: const TextStyle(fontSize: 12, color: AppColors.muted)),
+                            Text(r.plainDateLabel, style: const TextStyle(fontSize: 12, color: AppColors.muted)),
                             if (r.reason != null) Text(r.reason!, style: const TextStyle(fontSize: 12.5, color: AppColors.ink)),
                             if (!r.acknowledged) ...[
                               const SizedBox(height: 8),

@@ -102,7 +102,7 @@ class TeamScreen extends ConsumerWidget {
                                   Text(children[r.childId]?.name ?? r.childName ?? '…',
                                       style: const TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, fontSize: 14, color: AppColors.ink)),
                                   Text(
-                                    [r.dateLabel, r.reason].whereType<String>().join(' · '),
+                                    [r.plainDateLabel, r.reason].whereType<String>().join(' · '),
                                     style: const TextStyle(fontSize: 11.5, color: AppColors.muted),
                                   ),
                                 ],
