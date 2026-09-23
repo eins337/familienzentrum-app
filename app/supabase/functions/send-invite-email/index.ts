@@ -83,6 +83,14 @@ Deno.serve(async (req) => {
 
     if (!res.ok) {
       const body = await res.text();
+      // Resend's shared test domain (onboarding@resend.dev) only delivers
+      // to the account owner's own address until a real domain is
+      // verified — surface that as an expected status, not a scary error,
+      // since the invite itself still succeeded and the code is shown in
+      // the admin UI either way.
+      if (res.status === 403 && body.includes('testing emails')) {
+        return json({ error: 'Testmodus: Ohne eigene verifizierte Absender-Domain bei Resend kann die App nur an die eigene Resend-Kontoadresse senden. Bitte den Code oben manuell weitergeben, bis eine Domain verifiziert ist.' }, 422);
+      }
       return json({ error: `Resend-Fehler (${res.status}): ${body}` }, 500);
     }
 

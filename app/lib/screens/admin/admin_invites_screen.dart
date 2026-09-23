@@ -108,7 +108,7 @@ class _AdminInvitesScreenState extends ConsumerState<AdminInvitesScreen> {
                   ),
                   const SizedBox(height: 8),
                   if (_emailWarning != null)
-                    Text(_emailWarning!, style: const TextStyle(fontSize: 12, color: AppColors.error))
+                    Text(_emailWarning!, style: TextStyle(fontSize: 12, color: _emailWarning!.startsWith('Testmodus') ? AppColors.warningInk : AppColors.error))
                   else
                     const Text('Einladungscode wurde per E-Mail verschickt.', style: TextStyle(fontSize: 12, color: AppColors.success)),
                 ],
